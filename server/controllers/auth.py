@@ -25,7 +25,9 @@ oauth.register(
 
 @auth.route("/login")
 def login():
-    return oauth.auth0.authorize_redirect(redirect_uri=FRONTEND_URL + "/api/auth/callback")
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=FRONTEND_URL + "/api/auth/callback"
+    )
 
 
 @auth.route("/callback", methods=["GET", "POST"])
@@ -35,7 +37,10 @@ def callback():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
     if not user:
-        u = User(name=session["user"]["userinfo"]["name"], email=session["user"]["userinfo"]["email"])
+        u = User(
+            name=session["user"]["userinfo"]["name"],
+            email=session["user"]["userinfo"]["email"],
+        )
         db.session.add(u)
         db.session.commit()
 
@@ -58,14 +63,16 @@ def logout():
         )
     )
 
+
 @auth.route("/whoami")
 def whoami():
     if "user" in session:
         email = session["user"]["userinfo"]["email"]
         user = User.query.filter_by(email=email).first()
-        if(user):
+        if user:
             return user.map()
     return {}
+
 
 @auth.route("/update", methods=["POST"])
 def update():
@@ -79,13 +86,13 @@ def update():
             return abort(403, "Missing password!")
         elif data["password"] != MENTOR_PASS:
             return abort(403, "Incorrect password!")
-        
+
         user.role = "mentor"
 
     if data["role"] == "hacker":
         user.role = "hacker"
     if "name" in data:
         user.name = data["name"]
-    
+
     db.session.commit()
     return {"message": "Your information has been updated!"}

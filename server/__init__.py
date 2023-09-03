@@ -27,10 +27,13 @@ db = SQLAlchemy(app)
 
 with app.app_context():
     from server.controllers import api
+
     app.register_blueprint(api)
 
     from server import models
+
     db.create_all()
+
 
 @app.route("/")
 def index():
