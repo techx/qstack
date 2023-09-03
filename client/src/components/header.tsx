@@ -27,7 +27,7 @@ const useStyles = createStyles((theme) => ({
 
 export default function HeaderNav() {
   const { classes, cx } = useStyles();
-  const [active, setActive] = useState('Create');
+  const [active, setActive] = useState('Profile');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -59,9 +59,9 @@ export default function HeaderNav() {
     <AppShell
       header={
         location.pathname == '/' ? undefined : (
-          <Header height={50} px={'15%'}>
+          <Header height={50} px={'md'}>
             <Group position="apart" py={7}>
-              <Text size="xl">qstack</Text>
+              {navLink({ link: '/home', label: 'qstack' })}
               <Group spacing={5}>
                 {navLink({ link: '/create', label: 'Create' })}
                 {navLink({ link: '/tickets', label: 'Tickets' })}

@@ -3,15 +3,20 @@ export async function whoami() {
   return JSON.parse(await res.text());
 }
 
-export async function mpass(password: string) {
-  const res = await fetch(`/api/auth/mpass`, {
+export interface UserInfo {
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+}
+
+export async function updateUser(user: UserInfo) {
+  const res = await fetch(`/api/auth/update`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      password: password,
-    }),
+    body: JSON.stringify(user),
   });
   return { status: res.ok, ...JSON.parse(await res.text()) };
 }
