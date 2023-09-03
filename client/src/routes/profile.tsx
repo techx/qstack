@@ -14,7 +14,6 @@ import {
 import { notifications } from '@mantine/notifications';
 import * as auth from '../api/auth';
 
-
 export default function profilePage() {
   const [name, email, role, getUser] = useUserStore((store) => [
     store.name,
@@ -38,19 +37,19 @@ export default function profilePage() {
     const res = await auth.updateUser(user);
     if (res.status) {
       notifications.show({
-        title: "Success!",
+        title: 'Success!',
         color: 'green',
         message: res.message,
       });
     } else {
       notifications.show({
-        title: "Error",
+        title: 'Error',
         color: 'red',
         message: res.message,
       });
     }
     getUser();
-  }
+  };
   return (
     <Container size="sm" py="lg">
       <Paper
@@ -96,7 +95,9 @@ export default function profilePage() {
           />
         )}
 
-        <Button onClick={handleUserUpdate} mt="lg">Update</Button>
+        <Button onClick={handleUserUpdate} mt="lg">
+          Update
+        </Button>
       </Paper>
     </Container>
   );
