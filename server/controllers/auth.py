@@ -33,7 +33,6 @@ def callback():
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
     email = session["user"]["userinfo"]["email"]
-
     user = User.query.filter_by(email=email).first()
     if not user:
         u = User(name=session["user"]["userinfo"]["name"], email=session["user"]["userinfo"]["email"])
@@ -68,10 +67,25 @@ def whoami():
             return user.map()
     return {}
 
-@auth.route("/mpass", methods=["POST"])
-def mpass():
+@auth.route("/update", methods=["POST"])
+def update():
+    email = session["user"]["userinfo"]["email"]
+    user = User.query.filter_by(email=email).first()
+
     data = request.get_json()
-    password = data['password']
-    if password != MENTOR_PASS:
-        return abort(403, "Incorrect password!")
-    return {"message": "Correct password!"}
+
+    if data["role"] == "mentor" and user.role == "hacker":
+        if "password" not in data:
+            return abort(403, "Missing password!")
+        elif data["password"] != MENTOR_PASS:
+            return abort(403, "Incorrect password!")
+        
+        user.role = "mentor"
+
+    if data["role"] == "hacker":
+        user.role = "hacker"
+    if "name" in data:
+        user.name = data["name"]
+    
+    db.session.commit()
+    return {"message": "Your information has been updated!"}
