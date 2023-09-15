@@ -12,9 +12,9 @@ export interface UserInfo {
 
 export async function updateUser(user: UserInfo) {
   const res = await fetch(`/api/auth/update`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(user),
   });

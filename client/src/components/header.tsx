@@ -1,33 +1,8 @@
-import { Outlet } from 'react-router-dom';
-import { createStyles, AppShell, Header, Group, Text, rem } from '@mantine/core';
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-
-const useStyles = createStyles((theme) => ({
-  link: {
-    display: 'block',
-    lineHeight: 1,
-    padding: `${rem(8)} ${rem(12)}`,
-    borderRadius: theme.radius.sm,
-    fontSize: theme.fontSizes.xl,
-    textDecoration: 'none',
-    color: theme.colors.dark[0],
-
-    '&:hover': {
-      backgroundColor: theme.colors.dark[6],
-    },
-  },
-  linkActive: {
-    '&, &:hover': {
-      backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
-      color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
-    },
-  },
-}));
+import { Outlet } from "react-router-dom";
+import { AppShell, Group } from "@mantine/core";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function HeaderNav() {
-  const { classes, cx } = useStyles();
-  const [active, setActive] = useState('Profile');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,10 +14,14 @@ export default function HeaderNav() {
   const navLink = (props: navLinkProps, logout: boolean = false) => {
     return (
       <a
-        className={cx(classes.link, { [classes.linkActive]: active === props.label })}
+        className={
+          "text-white py-1 px-3 my-2 text-md rounded-md transition-colors" +
+          (props.link == location.pathname
+            ? " bg-[color:var(--mantine-color-blue-filled)] hover:bg-[color:var(--mantine-color-blue-filled-hover)]"
+            : " hover:bg-neutral-800")
+        }
         onClick={(e) => {
           e.preventDefault;
-          setActive(props.label);
           if (logout) {
             window.location.href = props.link;
           } else {
@@ -56,23 +35,23 @@ export default function HeaderNav() {
   };
 
   return (
-    <AppShell
-      header={
-        location.pathname == '/' ? undefined : (
-          <Header height={50} px={'md'}>
-            <Group position="apart" py={7}>
-              {navLink({ link: '/home', label: 'qstack' })}
-              <Group spacing={5}>
-                {navLink({ link: '/create', label: 'Create' })}
-                {navLink({ link: '/tickets', label: 'Tickets' })}
-                {navLink({ link: '/profile', label: 'Profile' })}
-                {navLink({ link: '/api/auth/logout', label: 'Logout' }, true)}
-              </Group>
+    <AppShell header={{ height: 50 }}>
+      {location.pathname == "/" ? (
+        <></>
+      ) : (
+        <AppShell.Header className="">
+          <Group px={10} justify="space-between" className="">
+            {navLink({ link: "/home", label: "qstack" })}
+            <Group gap={10}>
+              {navLink({ link: "/ticket", label: "Ticket" })}
+              {navLink({ link: "/queue", label: "Queue" })}
+              {navLink({ link: "/profile", label: "Profile" })}
+              {navLink({ link: "/api/auth/logout", label: "Logout" }, true)}
             </Group>
-          </Header>
-        )
-      }
-    >
+          </Group>
+        </AppShell.Header>
+      )}
+
       <Outlet />
     </AppShell>
   );

@@ -92,6 +92,8 @@ def update():
     if data["role"] == "hacker":
         user.role = "hacker"
     if "name" in data:
+        if len(data["name"]) == 0:
+            return abort(400, "Missing name!")
         user.name = data["name"]
 
     db.session.commit()

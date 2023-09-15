@@ -1,0 +1,7 @@
+@tailwind components;
+@tailwind utilities;
+
+
+.mantine-Input-input {
+    background-color: var(--mantine-color-black-3) !important;
+}

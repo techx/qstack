@@ -1,18 +1,18 @@
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, '..', '');
+  const env = loadEnv(mode, "..", "");
 
   return {
     plugins: [react()],
-    envDir: '..',
-    envPrefix: 'qstack',
+    envDir: "..",
+    envPrefix: "qstack",
     server: {
       port: 5173,
       proxy: {
-        '/api': {
+        "/api": {
           target: env.BACKEND_URL,
           changeOrigin: true,
         },
