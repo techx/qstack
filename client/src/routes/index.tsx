@@ -15,7 +15,7 @@ export default function IndexPage() {
 
   return (
     <Container size="xs" className="h-full">
-      <Title className="text-center pt-[30%]" size={"150"}>
+      <Title className="text-center pt-[40%]" size={"100"}>
         qstack
       </Title>
       <Title className="italic text-center text-lg">
