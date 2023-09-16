@@ -14,27 +14,31 @@ import { notifications } from "@mantine/notifications";
 import * as auth from "../api/auth";
 
 export default function profilePage() {
-  const [name, email, role, getUser] = useUserStore((store) => [
+  const [name, email, role, location, zoomlink, getUser] = useUserStore((store) => [
     store.name,
     store.email,
     store.role,
+    store.location,
+    store.zoomlink,
     store.getUser,
   ]);
   const [user, updateUser] = useState<auth.UserInfo>({
     name: name,
     email: email,
     role: role,
+    location: location,
+    zoomlink: zoomlink,
     password: "",
+
   });
 
   useEffect(() => {
-    getUser();
-    updateUser({ name: name, email: email, role: role, password: "" });
+    updateUser({ name: name, email: email, role: role, location: location, zoomlink: zoomlink, password: "" });
   }, [name]);
 
   const handleUserUpdate = async () => {
     const res = await auth.updateUser(user);
-    if (res.status) {
+    if (res.ok) {
       notifications.show({
         title: "Success!",
         color: "green",
@@ -52,7 +56,7 @@ export default function profilePage() {
   return (
     <Container size="sm" py="6rem">
       <Paper p="xl" shadow="xs" className="bg-neutral-800">
-        <Title className="align-center">Profile</Title>
+        <Title className="text-center">Profile</Title>
         <Group mt="lg" grow>
           <TextInput
             label="Name"
@@ -95,7 +99,36 @@ export default function profilePage() {
           />
         )}
 
-        <Button onClick={handleUserUpdate} mt="lg">
+        {user.role == "mentor" && role == "mentor" && (<>
+          <Text className="text-weight-500" mt="lg">
+          Location
+        </Text>
+        <Group>
+          
+          <Checkbox
+            size="md"
+            checked={user.location == "in person"}
+            onChange={() => updateUser({ ...user, location: "in person" })}
+            label={"In Person"}
+          />
+          <Checkbox
+            size="md"
+            checked={user.location == "virtual"}
+            onChange={() => updateUser({ ...user, location: "virtual" })}
+            label={"Virtual"}
+          />
+        </Group></>)}
+
+        {user.location == "virtual" && user.role == "mentor" && role == "mentor" && (
+          <TextInput
+          value={user.zoomlink}
+          onChange={(e) => updateUser({ ...user, zoomlink: e.target.value })}
+          label="Enter a zoom or a video call link for hackers to join!"
+          mt="md"
+        />
+        )}
+
+        <Button onClick={handleUserUpdate} className="mt-5">
           Update
         </Button>
       </Paper>

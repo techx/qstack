@@ -70,8 +70,8 @@ def whoami():
         email = session["user"]["userinfo"]["email"]
         user = User.query.filter_by(email=email).first()
         if user:
-            return user.map()
-    return {}
+            return dict(user.map(), loggedIn=True)
+    return {'loggedIn': False}
 
 
 @auth.route("/update", methods=["POST"])
@@ -91,10 +91,15 @@ def update():
 
     if data["role"] == "hacker":
         user.role = "hacker"
-    if "name" in data:
-        if len(data["name"]) == 0:
-            return abort(400, "Missing name!")
-        user.name = data["name"]
+    
+    if len(data["name"]) == 0:
+        return abort(400, "Missing name!")
+    user.name = data["name"]
 
+    if data["location"] == "virtual" and len(data["zoomlink"]) == 0:
+        return abort(400, "Missing video call link!")
+    
+    user.location = data["location"]
+    user.zoomlink = data["zoomlink"]
     db.session.commit()
     return {"message": "Your information has been updated!"}

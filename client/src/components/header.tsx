@@ -1,10 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { AppShell, Group } from "@mantine/core";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useUserStore } from "../hooks/useUserStore";
 
 export default function HeaderNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const role = useUserStore((store) => store.role);
 
   interface navLinkProps {
     link: string;
@@ -35,6 +37,7 @@ export default function HeaderNav() {
   };
 
   return (
+    
     <AppShell header={{ height: 50 }}>
       {location.pathname == "/" ? (
         <></>
@@ -44,7 +47,7 @@ export default function HeaderNav() {
             {navLink({ link: "/home", label: "qstack" })}
             <Group gap={10}>
               {navLink({ link: "/ticket", label: "Ticket" })}
-              {navLink({ link: "/queue", label: "Queue" })}
+              {role == "mentor" && navLink({ link: "/queue", label: "Queue" })}
               {navLink({ link: "/profile", label: "Profile" })}
               {navLink({ link: "/api/auth/logout", label: "Logout" }, true)}
             </Group>

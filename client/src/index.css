@@ -3,5 +3,17 @@
 
 
 .mantine-Input-input {
-    background-color: var(--mantine-color-black-3) !important;
+  background-color: var(--mantine-color-dark-7) !important;
+}
+
+.mantine-Checkbox-input {
+    background-color: var(--mantine-color-dark-7) !important;
+  }
+
+.mantine-TagsInput-pill {
+  background-color: var(--mantine-color-dark-5) !important;
+}
+
+.mantine-Card-root {
+  background-color: var(--mantine-color-dark-7);
 }

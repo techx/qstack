@@ -8,6 +8,8 @@ export interface UserInfo {
   email: string;
   role: string;
   password: string;
+  location: string;
+  zoomlink: string;
 }
 
 export async function updateUser(user: UserInfo) {
@@ -18,5 +20,5 @@ export async function updateUser(user: UserInfo) {
     },
     body: JSON.stringify(user),
   });
-  return { status: res.ok, ...JSON.parse(await res.text()) };
+  return { ok: res.ok, ...JSON.parse(await res.text()) };
 }
