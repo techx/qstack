@@ -125,9 +125,9 @@ def unclaim():
 
     ticket = Ticket.query.get(user.ticket_id)
 
+    ticket.active = False
     ticket.claimant = None
     ticket.claimant_id = None
-    ticket.active = True
     db.session.commit()
 
     return {"message": "Ticket unclaimed!"}

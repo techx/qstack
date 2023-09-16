@@ -18,7 +18,9 @@ export default function IndexPage() {
       <Title className="text-center pt-[30%]" size={"150"}>
         qstack
       </Title>
-      <Title className="italic text-center text-lg">HackMIT's help queue platform!</Title>
+      <Title className="italic text-center text-lg">
+        HackMIT's help queue platform!
+      </Title>
       <Center>
         <Button
           onClick={() => window.location.replace(`/api/auth/login`)}

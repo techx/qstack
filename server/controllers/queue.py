@@ -17,7 +17,7 @@ def get():
         return abort(403, "Method not allowed!")
 
     tickets = []
-    for ticket in Ticket.query.filter_by(active=True).all():
+    for ticket in Ticket.query.all():
         creator = User.query.get(ticket.creator_id)
         tickets.append(dict(ticket.map(), creator=creator.name))
     return tickets
@@ -57,10 +57,10 @@ def unclaim():
     if ticket.claimant_id is None:
         return abort(400, "Ticket is not claimed")
     
+    ticket.active = True
     ticket.claimant = None
     ticket.claimant_id = None
     user.claimed = None
-    ticket.active = True
 
     db.session.commit()
     return {"message": "Ticket unclaimed!"}
@@ -74,7 +74,7 @@ def claimed():
         return abort(403, "Method not allowed!")
 
     tickets = []
-    for ticket in Ticket.query.filter_by(active=True).all():
+    for ticket in Ticket.query.filter(Ticket.claimant_id != None).all():
         if ticket.claimant_id == user.id:
             return {"claimed": ticket.id}
         

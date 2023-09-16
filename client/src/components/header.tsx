@@ -37,7 +37,6 @@ export default function HeaderNav() {
   };
 
   return (
-    
     <AppShell header={{ height: 45 }}>
       {location.pathname == "/" ? (
         <></>

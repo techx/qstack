@@ -16,6 +16,7 @@ class Ticket(db.Model):
     content = Column(Text, nullable=False)
     location = Column(Text, nullable=False)
     tags = Column(ARRAY(Text), nullable=False)
+    
     active = Column(Boolean, nullable=False, default=True)
 
 
@@ -34,4 +35,4 @@ class Ticket(db.Model):
         self.tags = data["tags"]
 
     def map(self):
-        return {"id": self.id, "question": self.question, "content": self.content, "tags": self.tags, "location": self.location, "creator": self.creator_id}
+        return {"id": self.id, "question": self.question, "active": self.active, "content": self.content, "tags": self.tags, "location": self.location, "creator": self.creator_id}

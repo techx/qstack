@@ -25,9 +25,9 @@ import * as ticket from "../api/ticket";
 import { notifications } from "@mantine/notifications";
 
 interface mentor {
-  name: string,
-  location: string,
-  zoomlink: string,
+  name: string;
+  location: string;
+  zoomlink: string;
 }
 
 export default function TicketPage() {
@@ -70,14 +70,14 @@ export default function TicketPage() {
 
   const getStatus = async () => {
     const res = await ticket.getStatus();
-    if(res.ok && res.status == "claimed"){
+    if (res.ok && res.status == "claimed") {
       setClaimed(true);
       setMentorData(res.mentorData);
-    } else if(res.ok && res.status == "unclaimed"){
+    } else if (res.ok && res.status == "unclaimed") {
       setClaimed(false);
       setMentorData(undefined);
     }
-  }
+  };
 
   useEffect(() => {
     ticket.getTags().then((res) => setTagsList(res.tags));
@@ -88,7 +88,7 @@ export default function TicketPage() {
     getStatus();
     const interval = setInterval(getStatus, 5000);
     return () => clearInterval(interval);
-  }, [])
+  }, []);
 
   const getTicket = () => {
     ticket.getTicket().then((res) => {
@@ -138,10 +138,10 @@ export default function TicketPage() {
   const handleUnclaim = async () => {
     const res = await ticket.unclaim();
     showNotif(res);
-    if(res.ok){
+    if (res.ok) {
       setClaimed(false);
     }
-  }
+  };
   const handleSubmit = async () => {
     const res = await ticket.submit({
       question: question,
@@ -163,143 +163,147 @@ export default function TicketPage() {
     <Container size="sm" py="6rem" pb="10rem">
       <LoadingOverlay visible={active == undefined} />
 
-    {!claimed && (
-      <Paper p="xl" shadow="xs" className="bg-neutral-800">
-        <Title className="text-center">
-          How can we help you?{" "}
-          <HoverCard width={280} shadow="md" withArrow>
-            <HoverCard.Target>
-              <Badge
-                variant="light"
-                color={active ? "green" : "blue"}
-                size="xl"
-              >
-                {active ? "Ticket Active" : "Edit Mode"}
-              </Badge>
-            </HoverCard.Target>
-            <HoverCard.Dropdown>
-              <Text size="sm">
-                {active
-                  ? "Your ticket is currently in queue. A mentor will be with you shortly!"
-                  : "Your ticket is currently in edit mode. To submit to queue, click on the submit button!"}
-              </Text>
-            </HoverCard.Dropdown>
-          </HoverCard>
-        </Title>
-      
-        <TextInput
-          disabled={active}
-          value={question}
-          onChange={(e) => setQuestion(e.currentTarget.value)}
-          size="md"
-          mt="lg"
-          label="Describe your problem in one sentence"
-          placeholder="What is python?"
-        />
-        <Text className="cursor-default select-none" size="md" mt="lg">
-          Include any additional details or code snippets
-        </Text>
-        <RichTextEditor editor={editor}>
-          <RichTextEditor.Toolbar>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.CodeBlock />
-            </RichTextEditor.ControlsGroup>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.Bold />
-              <RichTextEditor.Italic />
-              <RichTextEditor.Underline />
-              <RichTextEditor.Strikethrough />
-              <RichTextEditor.ClearFormatting />
-            </RichTextEditor.ControlsGroup>
+      {!claimed && (
+        <Paper p="xl" shadow="xs" className="bg-neutral-800">
+          <Title className="text-center">
+            How can we help you?{" "}
+            <HoverCard width={280} shadow="md" withArrow>
+              <HoverCard.Target>
+                <Badge
+                  variant="light"
+                  color={active ? "green" : "blue"}
+                  size="xl"
+                >
+                  {active ? "Ticket Active" : "Edit Mode"}
+                </Badge>
+              </HoverCard.Target>
+              <HoverCard.Dropdown>
+                <Text size="sm">
+                  {active
+                    ? "Your ticket is currently in queue. A mentor will be with you shortly!"
+                    : "Your ticket is currently in edit mode. To submit to queue, click on the submit button!"}
+                </Text>
+              </HoverCard.Dropdown>
+            </HoverCard>
+          </Title>
 
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.Hr />
-              <RichTextEditor.BulletList />
-              <RichTextEditor.OrderedList />
-            </RichTextEditor.ControlsGroup>
-
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.Link />
-              <RichTextEditor.Unlink />
-            </RichTextEditor.ControlsGroup>
-          </RichTextEditor.Toolbar>
-
-          <RichTextEditor.Content
-            className={active ? "hover:cursor-not-allowed" : ""}
-            style={{
-              minHeight: "10rem",
-              backgroundColor: "var(--mantine-color-dark-7)",
-            }}
+          <TextInput
+            disabled={active}
+            value={question}
+            onChange={(e) => setQuestion(e.currentTarget.value)}
+            size="md"
+            mt="lg"
+            label="Describe your problem in one sentence"
+            placeholder="What is python?"
           />
-        </RichTextEditor>
+          <Text className="cursor-default select-none" size="md" mt="lg">
+            Include any additional details or code snippets
+          </Text>
+          <RichTextEditor editor={editor}>
+            <RichTextEditor.Toolbar>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.CodeBlock />
+              </RichTextEditor.ControlsGroup>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Bold />
+                <RichTextEditor.Italic />
+                <RichTextEditor.Underline />
+                <RichTextEditor.Strikethrough />
+                <RichTextEditor.ClearFormatting />
+              </RichTextEditor.ControlsGroup>
 
-        <TagsInput
-          disabled={active}
-          mt="md"
-          label="Enter any tags"
-          data={tagsList}
-          limit={5}
-          value={tags}
-          onChange={setTags}
-        />
-        <TextInput
-          disabled={active}
-          onChange={(e) => setLocation(e.currentTarget.value)}
-          value={location}
-          size="md"
-          mt="lg"
-          label="How can we find you?"
-          placeholder="red shirt guy at table 3"
-        />
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Hr />
+                <RichTextEditor.BulletList />
+                <RichTextEditor.OrderedList />
+              </RichTextEditor.ControlsGroup>
 
-        {!active && (
-          <Group grow>
-            <Button onClick={() => handleSave()} className="mt-5">
-              Save
-            </Button>
-            <Button onClick={() => handleSubmit()} className="mt-5">
-              Submit
-            </Button>
-          </Group>
-        )}
-        {active && (
-          <Group grow>
-            <Button onClick={() => handleEdit()} className="mt-5">
-              Edit
-            </Button>
-            <Button
-              color="red"
-              onClick={() => handleEdit(true)}
-              className="mt-5"
-            >
-              Delete
-            </Button>
-          </Group>
-        )}
-      </Paper>)}
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </RichTextEditor.ControlsGroup>
+            </RichTextEditor.Toolbar>
+
+            <RichTextEditor.Content
+              className={active ? "hover:cursor-not-allowed" : ""}
+              style={{
+                minHeight: "10rem",
+                backgroundColor: "var(--mantine-color-dark-7)",
+              }}
+            />
+          </RichTextEditor>
+
+          <TagsInput
+            disabled={active}
+            mt="md"
+            label="Enter any tags"
+            data={tagsList}
+            limit={5}
+            value={tags}
+            onChange={setTags}
+          />
+          <TextInput
+            disabled={active}
+            onChange={(e) => setLocation(e.currentTarget.value)}
+            value={location}
+            size="md"
+            mt="lg"
+            label="How can we find you?"
+            placeholder="red shirt guy at table 3"
+          />
+
+          {!active && (
+            <Group grow>
+              <Button onClick={() => handleSave()} className="mt-5">
+                Save
+              </Button>
+              <Button onClick={() => handleSubmit()} className="mt-5">
+                Submit
+              </Button>
+            </Group>
+          )}
+          {active && (
+            <Group grow>
+              <Button onClick={() => handleEdit()} className="mt-5">
+                Edit
+              </Button>
+              <Button
+                color="red"
+                onClick={() => handleEdit(true)}
+                className="mt-5"
+              >
+                Delete
+              </Button>
+            </Group>
+          )}
+        </Paper>
+      )}
 
       {claimed && mentorData && (
         <Paper p="xl" shadow="xs" className="bg-neutral-800">
-        <Title className="text-center">
-          Your ticket has been claimed!
-          </Title>
+          <Title className="text-center">Your ticket has been claimed!</Title>
 
-            <Text className="mt-10 text-lg">Mentor Name: <Badge size="lg">{mentorData.name}</Badge></Text>
-            {mentorData.location == "in person" && (<Text className="mt-5 text-lg">Your mentor should be with you shortly!</Text>)}
-            {mentorData.location == "virtual" && (<Text className="mt-5 text-lg">Your mentor is virtual! <br/> Please join their video call link: <a href={mentorData.zoomlink}>{mentorData.zoomlink}</a></Text>)}
-
+          <Text className="mt-10 text-lg">
+            Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
+          </Text>
+          {mentorData.location == "in person" && (
+            <Text className="mt-5 text-lg">
+              Your mentor should be with you shortly!
+            </Text>
+          )}
+          {mentorData.location == "virtual" && (
+            <Text className="mt-5 text-lg">
+              Your mentor is virtual! <br /> Please join their video call link:{" "}
+              <a href={mentorData.zoomlink}>{mentorData.zoomlink}</a>
+            </Text>
+          )}
 
           <Group grow>
-            <Button
-              onClick={() => handleUnclaim()}
-              className="mt-5"
-            >
+            <Button onClick={() => handleUnclaim()} className="mt-5">
               Unclaim
             </Button>
           </Group>
-       
         </Paper>
-
       )}
     </Container>
   );

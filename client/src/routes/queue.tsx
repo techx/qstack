@@ -8,7 +8,7 @@ import {
   Badge,
   Text,
   Button,
-  LoadingOverlay
+  LoadingOverlay,
 } from "@mantine/core";
 import * as queue from "../api/queue";
 import { RichTextEditor } from "@mantine/tiptap";
@@ -25,6 +25,7 @@ interface ticket {
   tags: Array<string>;
   location: string;
   creator: string;
+  active: boolean;
 }
 
 interface displayContentProps {
@@ -32,16 +33,18 @@ interface displayContentProps {
 }
 
 function DisplayContent(props: displayContentProps) {
-    const lowlight = createLowlight(all);
+  const lowlight = createLowlight(all);
 
   const editor = useEditor({
     content: props.content,
     editable: false,
-    extensions: [StarterKit, CodeBlockLowlight.configure({
+    extensions: [
+      StarterKit,
+      CodeBlockLowlight.configure({
         lowlight,
-      })],
+      }),
+    ],
   });
-
 
   return (
     <RichTextEditor className="border-none" editor={editor}>
@@ -51,9 +54,9 @@ function DisplayContent(props: displayContentProps) {
 }
 
 export default function queuePage() {
-    const [tickets, setTickets] = useState<Array<ticket>>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [claimed, setClaimed] = useState<number | undefined>(undefined);
+  const [tickets, setTickets] = useState<Array<ticket>>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [claimed, setClaimed] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     getTickets();
@@ -69,23 +72,18 @@ export default function queuePage() {
 
   const checkClaimed = () => {
     queue.checkClaimed().then((res) => {
-        if(res.ok && res.claimed){
-            setClaimed(parseInt(res.claimed));
-            console.log(parseInt(res.claimed));
-
-        } else if(res.ok){
-            setClaimed(undefined);
-        }
+      if (res.ok && res.claimed) {
+        setClaimed(parseInt(res.claimed));
+        console.log(parseInt(res.claimed));
+      } else if (res.ok) {
+        setClaimed(undefined);
+      }
     });
-  }
-
-  useEffect(() => {
-    console.log("asdf", claimed);
-  }, [claimed])
+  };
 
   const getTickets = () => {
     queue.getTickets().then((res) => {
-      if (res.ok){
+      if (res.ok) {
         setTickets(res.tickets);
         setLoading(false);
       }
@@ -108,50 +106,108 @@ export default function queuePage() {
     }
   };
 
-  const handleClaim = async (id : number) => {
+  const handleClaim = async (id: number) => {
     const res = await queue.claimTicket(id);
     showNotif(res);
     checkClaimed();
-  }
+    getTickets();
+  };
 
-  const handleUnclaim = async (id : number) => {
+  const handleUnclaim = async (id: number) => {
     const res = await queue.unclaimTicket(id);
     showNotif(res);
     checkClaimed();
-  }
+    getTickets();
+  };
 
   return (
     <Container size="md" py="6rem">
-    <LoadingOverlay visible={loading} />
+      <LoadingOverlay visible={loading} />
 
       <Paper p="xl" shadow="xs" className="bg-neutral-800">
-        {!claimed && (<Title className="text-center">Mentor Queue <Badge color="red" variant="light" size="xl">Tickets: {tickets.length}</Badge></Title>)}
+        {!claimed && (
+          <Title className="text-center">
+            Mentor Queue{" "}
+            <Badge color="red" variant="light" size="xl">
+              Tickets: {tickets.filter((ticket) => ticket.active).length}
+            </Badge>
+          </Title>
+        )}
 
-        {claimed && (<Title className="text-center">You have claimed a ticket!</Title>)}
+        {claimed && (
+          <Title className="text-center">You have claimed a ticket!</Title>
+        )}
 
+        {claimed == undefined && (
+          <Container className="mt-5" size="sm">
+            {tickets.map(
+              (ticket) =>
+                ticket.active && (
+                  <div key={ticket.id}>
+                    <Card className="my-3">
+                      <Group>
+                        <Title order={2}>{ticket.question}</Title>
+                      </Group>
 
-        
-        <Container className="mt-5" size="sm">
-          {tickets.map((ticket) => (claimed == undefined || (ticket.id == claimed)) && (
+                      <DisplayContent content={ticket.content} />
+                      <Group>
+                        {ticket.tags.map((tag) => (
+                          <Badge key={tag} color="green">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </Group>
+                      <Text className="mt-5">
+                        Location: <Badge>{ticket.location}</Badge>
+                      </Text>
+                      <Button
+                        onClick={() => handleClaim(ticket.id)}
+                        className="mt-5"
+                      >
+                        Claim
+                      </Button>
+                    </Card>
+                  </div>
+                ),
+            )}
+          </Container>
+        )}
 
-            
-            <div key={ticket.id}>
-              <Card className="my-3">
-                <Group>
-                  <Title order={2}>{ticket.question}</Title>
-                </Group>
+        {claimed != undefined && (
+          <Container className="mt-5" size="sm">
+            {tickets.map(
+              (ticket) =>
+                ticket.id == claimed && (
+                  <div key={ticket.id}>
+                    <Card className="my-3">
+                      <Group>
+                        <Title order={2}>{ticket.question}</Title>
+                      </Group>
 
-                <DisplayContent content={ticket.content} />
-                <Group>{ticket.tags.map((tag) => (<Badge key={tag} color="green">{tag}</Badge>))}</Group>
-                <Text className="mt-5">Location: <Badge  >{ticket.location}</Badge></Text>
-                {(claimed == undefined) && <Button onClick={() => handleClaim(ticket.id)} className="mt-5">Claim</Button>}
-                {(claimed != undefined) && <Button color="red" onClick={() => handleUnclaim(ticket.id)} className="mt-5">Unclaim</Button>}
-              </Card>
-            </div>) 
-          
-          
-          )}
-        </Container>
+                      <DisplayContent content={ticket.content} />
+                      <Group>
+                        {ticket.tags.map((tag) => (
+                          <Badge key={tag} color="green">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </Group>
+                      <Text className="mt-5">
+                        Location: <Badge>{ticket.location}</Badge>
+                      </Text>
+                      <Button
+                        color="red"
+                        onClick={() => handleUnclaim(ticket.id)}
+                        className="mt-5"
+                      >
+                        Unclaim
+                      </Button>
+                    </Card>
+                  </div>
+                ),
+            )}
+          </Container>
+        )}
       </Paper>
     </Container>
   );
