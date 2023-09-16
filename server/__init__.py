@@ -34,9 +34,8 @@ with app.app_context():
 
     db.create_all()
 
-
-@app.route("/")
-def index():
-    return render_template("index.html"), 200
+    @app.errorhandler(404)
+    def _default(_error):
+        return render_template("index.html"), 200
 
 
