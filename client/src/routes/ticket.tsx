@@ -193,7 +193,7 @@ export default function TicketPage() {
           onChange={(e) => setQuestion(e.currentTarget.value)}
           size="md"
           mt="lg"
-          label="Describe your problem in once sentence"
+          label="Describe your problem in one sentence"
           placeholder="What is python?"
         />
         <Text className="cursor-default select-none" size="md" mt="lg">
