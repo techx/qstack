@@ -105,7 +105,7 @@ def remove():
 
     ticket.active = False
     db.session.commit()
-    return {"message": "Ticket removed from queue!"}
+    return {"message": "Ticket has been removed!"}
 
 @ticket.route("/status")
 def status():

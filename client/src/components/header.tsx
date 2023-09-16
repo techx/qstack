@@ -48,7 +48,7 @@ export default function HeaderNav() {
             : "hover:bg-neutral-800"
         }
       >
-        <a className="text-4xl"
+        <a className="text-2xl"
           onClick={(e) => {
             e.preventDefault;
             toggle();
