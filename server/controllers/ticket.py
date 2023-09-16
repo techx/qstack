@@ -26,7 +26,9 @@ def save():
     user = User.query.filter_by(email=email).first()
 
     data = request.get_json()
-
+    if len(data["question"]) == 0 or len(data["content"]) == 0 or len(data["location"]) == 0:
+        return abort(404, "Make sure to fill every field!")
+    
     if not user.ticket_id:
         ticket = Ticket(user, data, False)
         db.session.add(ticket)
@@ -36,6 +38,8 @@ def save():
         ticket = Ticket.query.get(user.ticket_id)
         ticket.update(data)
 
+    
+    
     db.session.commit()
 
     return {"message": "Ticket has been updated."}
@@ -54,6 +58,9 @@ def submit():
             return abort(404, "User already has an active ticket!")
 
     data = request.get_json()
+
+    if len(data["question"]) == 0 or len(data["content"]) == 0 or len(data["location"]) == 0:
+        return abort(404, "Make sure to fill every field!")
 
     ticket = Ticket(user, data, True)
     db.session.add(ticket)

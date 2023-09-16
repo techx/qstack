@@ -149,7 +149,7 @@ export default function TicketPage() {
       location: location,
       tags: tags,
     });
-    getTicket();
+    if(res.ok) getTicket();
     showNotif(res);
   };
 
