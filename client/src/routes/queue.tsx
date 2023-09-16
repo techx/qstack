@@ -125,7 +125,7 @@ export default function queuePage() {
     <LoadingOverlay visible={loading} />
 
       <Paper p="xl" shadow="xs" className="bg-neutral-800">
-        {!claimed && (<Title className="text-center">Mentor Queue</Title>)}
+        {!claimed && (<Title className="text-center">Mentor Queue <Badge color="red" variant="light" size="xl">Tickets: {tickets.length}</Badge></Title>)}
 
         {claimed && (<Title className="text-center">You have claimed a ticket!</Title>)}
 

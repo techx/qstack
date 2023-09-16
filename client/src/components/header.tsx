@@ -17,7 +17,7 @@ export default function HeaderNav() {
     return (
       <a
         className={
-          "text-white py-1 px-3 my-2 text-md rounded-md transition-colors" +
+          "text-white py-1 px-3 my-2 text-sm rounded-md transition-colors" +
           (props.link == location.pathname
             ? " bg-[color:var(--mantine-color-blue-filled)] hover:bg-[color:var(--mantine-color-blue-filled-hover)]"
             : " hover:bg-neutral-800")
@@ -38,7 +38,7 @@ export default function HeaderNav() {
 
   return (
     
-    <AppShell header={{ height: 50 }}>
+    <AppShell header={{ height: 45 }}>
       {location.pathname == "/" ? (
         <></>
       ) : (
