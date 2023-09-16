@@ -37,6 +37,7 @@ def claim():
         return abort(400, "Ticket already claimed")
     
     ticket.claimant = user
+    ticket.active = False
     user.claimed = ticket
 
     db.session.commit()
@@ -59,6 +60,7 @@ def unclaim():
     ticket.claimant = None
     ticket.claimant_id = None
     user.claimed = None
+    ticket.active = True
 
     db.session.commit()
     return {"message": "Ticket unclaimed!"}
