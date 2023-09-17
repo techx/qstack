@@ -20,7 +20,7 @@ export default function HeaderNav() {
     return (
       <a
         className={
-          "text-white py-1 px-3 my-2 text-lg rounded-md transition-colors" +
+          "text-white py-1 px-3 my-2 text-lg rounded-md transition-colors cursor-pointer" +
           (props.link == location.pathname
             ? " sm:bg-[color:var(--mantine-color-blue-filled)] sm:hover:bg-[color:var(--mantine-color-blue-filled-hover)]"
             : " sm:hover:bg-neutral-800")
@@ -48,7 +48,8 @@ export default function HeaderNav() {
             : "hover:bg-neutral-800"
         }
       >
-        <a className="text-2xl"
+        <a
+          className="text-2xl cursor-pointer"
           onClick={(e) => {
             e.preventDefault;
             toggle();
@@ -81,7 +82,7 @@ export default function HeaderNav() {
               />
             </Menu.Target>
             <Menu.Dropdown className="sm:hidden">
-            <BurgerNavLink link="/home" label="Home" />
+              <BurgerNavLink link="/home" label="Home" />
 
               <BurgerNavLink link="/ticket" label="Ticket" />
 

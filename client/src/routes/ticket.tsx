@@ -299,10 +299,8 @@ export default function TicketPage() {
           )}
 
           <Group grow className="mt-5">
-            <Button onClick={() => handleEdit(true)} >
-              Mark as Resolved
-            </Button>
-            <Button color="red" onClick={() => handleUnclaim()} >
+            <Button onClick={() => handleEdit(true)}>Mark as Resolved</Button>
+            <Button color="red" onClick={() => handleUnclaim()}>
               Return to Queue
             </Button>
           </Group>

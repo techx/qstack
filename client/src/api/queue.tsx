@@ -25,6 +25,17 @@ export async function unclaimTicket(id: number) {
   return { ok: res.ok, ...JSON.parse(await res.text()) };
 }
 
+export async function resolveTicket(id: number) {
+  const res = await fetch("/api/queue/resolve", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id: id }),
+  });
+  return { ok: res.ok, ...JSON.parse(await res.text()) };
+}
+
 export async function checkClaimed() {
   const res = await fetch("/api/queue/claimed");
   return { ok: res.ok, ...JSON.parse(await res.text()) };

@@ -74,7 +74,6 @@ export default function queuePage() {
     queue.checkClaimed().then((res) => {
       if (res.ok && res.claimed) {
         setClaimed(parseInt(res.claimed));
-        console.log(parseInt(res.claimed));
       } else if (res.ok) {
         setClaimed(undefined);
       }
@@ -115,6 +114,13 @@ export default function queuePage() {
 
   const handleUnclaim = async (id: number) => {
     const res = await queue.unclaimTicket(id);
+    showNotif(res);
+    checkClaimed();
+    getTickets();
+  };
+
+  const handleResolve = async (id: number) => {
+    const res = await queue.resolveTicket(id);
     showNotif(res);
     checkClaimed();
     getTickets();
@@ -195,13 +201,17 @@ export default function queuePage() {
                       <Text className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
                       </Text>
-                      <Button
-                        color="red"
-                        onClick={() => handleUnclaim(ticket.id)}
-                        className="mt-5"
-                      >
-                        Unclaim
-                      </Button>
+                      <Group className="mt-5" grow>
+                        <Button onClick={() => handleResolve(ticket.id)}>
+                          Mark as Resolved
+                        </Button>
+                        <Button
+                          color="red"
+                          onClick={() => handleUnclaim(ticket.id)}
+                        >
+                          Unclaim
+                        </Button>
+                      </Group>
                     </Card>
                   </div>
                 ),

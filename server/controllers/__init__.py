@@ -10,4 +10,3 @@ api = Blueprint("api", __name__, url_prefix="/api")
 api.register_blueprint(auth)
 api.register_blueprint(ticket)
 api.register_blueprint(queue)
-

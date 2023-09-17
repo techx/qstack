@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 
-
 class User(db.Model):
     __tablename__ = "users"
 
@@ -14,9 +13,8 @@ class User(db.Model):
     location = Column(Text, nullable=False)
     zoomlink = Column(Text, nullable=False)
 
-    ticket_id = Column(Integer, ForeignKey('tickets.id', ondelete="SET NULL"))
+    ticket_id = Column(Integer, ForeignKey("tickets.id", ondelete="SET NULL"))
     ticket = relationship("Ticket", foreign_keys=[ticket_id])
-
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -27,4 +25,10 @@ class User(db.Model):
         self.zoomlink = ""
 
     def map(self):
-        return {"name": self.name, "email": self.email, "role": self.role, "location": self.location, "zoomlink": self.zoomlink}
+        return {
+            "name": self.name,
+            "email": self.email,
+            "role": self.role,
+            "location": self.location,
+            "zoomlink": self.zoomlink,
+        }

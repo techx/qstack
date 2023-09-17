@@ -9,6 +9,7 @@ from server.models import User, Ticket
 
 ticket = APIBlueprint("ticket", __name__, url_prefix="/ticket")
 
+
 @ticket.route("/tagslist")
 def tagslist():
     tags = []
@@ -20,15 +21,20 @@ def tagslist():
 
     return tags
 
+
 @ticket.route("/save", methods=["POST"])
 def save():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
 
     data = request.get_json()
-    if len(data["question"]) == 0 or len(data["content"]) == 0 or len(data["location"]) == 0:
+    if (
+        len(data["question"]) == 0
+        or len(data["content"]) == 0
+        or len(data["location"]) == 0
+    ):
         return abort(404, "Make sure to fill every field!")
-    
+
     if not user.ticket_id:
         ticket = Ticket(user, data, False)
         db.session.add(ticket)
@@ -38,11 +44,10 @@ def save():
         ticket = Ticket.query.get(user.ticket_id)
         ticket.update(data)
 
-    
-    
     db.session.commit()
 
     return {"message": "Ticket has been updated."}
+
 
 @ticket.route("/submit", methods=["POST"])
 def submit():
@@ -59,7 +64,11 @@ def submit():
 
     data = request.get_json()
 
-    if len(data["question"]) == 0 or len(data["content"]) == 0 or len(data["location"]) == 0:
+    if (
+        len(data["question"]) == 0
+        or len(data["content"]) == 0
+        or len(data["location"]) == 0
+    ):
         return abort(404, "Make sure to fill every field!")
 
     ticket = Ticket(user, data, True)
@@ -77,16 +86,16 @@ def get():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
 
-
     if not user.ticket_id:
         return {"active": False}
-    
+
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.active:
         return {"active": False, "ticket": ticket.map()}
 
     ticket = Ticket.query.get(user.ticket_id)
     return {"active": True, "ticket": ticket.map()}
+
 
 @ticket.route("/remove", methods=["POST"])
 def remove():
@@ -98,7 +107,6 @@ def remove():
 
     ticket = Ticket.query.get(user.ticket_id)
 
-
     delete = bool(request.get_json()["del"])
     if delete:
         db.session.delete(ticket)
@@ -107,6 +115,7 @@ def remove():
     db.session.commit()
     return {"message": "Ticket has been removed!"}
 
+
 @ticket.route("/status")
 def status():
     email = session["user"]["userinfo"]["email"]
@@ -114,13 +123,14 @@ def status():
 
     if not user.ticket_id:
         return {"status": "unclaimed", "message": "No ticket!"}
-    
+
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.claimant_id:
         return {"status": "unclaimed", "message": "Ticket not claimed!"}
 
     mentor = User.query.get(ticket.claimant_id)
     return {"status": "claimed", "mentorData": mentor.map()}
+
 
 @ticket.route("/unclaim")
 def unclaim():
