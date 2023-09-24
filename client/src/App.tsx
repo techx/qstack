@@ -18,11 +18,14 @@ import ProfilePage from "./routes/profile";
 import TicketPage from "./routes/ticket";
 import QueuePage from "./routes/queue";
 import HomePage from "./routes/home";
-
 import HeaderNav from "./components/header";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<HeaderNav />} errorElement={<NotFoundPage />}>
+    <Route
+      element={window.location.pathname != "/" && <HeaderNav />}
+      errorElement={<NotFoundPage />}
+    >
       <Route index path="/" element={<IndexPage />} />
       <Route index path="/home" element={<HomePage />} />
       <Route index path="/profile" element={<ProfilePage />} />

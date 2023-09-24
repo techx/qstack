@@ -1,17 +1,18 @@
 import { Title, Container, Button, Center } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 import { useUserStore } from "../hooks/useUserStore";
 
 export default function IndexPage() {
-  const navigate = useNavigate();
-  const [name, getUser] = useUserStore((store) => [store.name, store.getUser]);
+  const [loggedIn, getUser] = useUserStore((store) => [
+    store.loggedIn,
+    store.getUser,
+  ]);
 
   useEffect(() => {
     getUser();
-    if (name) navigate("/home");
-  }, [name]);
+    if (loggedIn) window.location.replace("/home");
+  }, [loggedIn]);
 
   return (
     <Container size="xs" className="h-full">

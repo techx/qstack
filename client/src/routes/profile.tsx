@@ -13,16 +13,18 @@ import { notifications } from "@mantine/notifications";
 import * as auth from "../api/auth";
 
 export default function profilePage() {
-  const [name, email, role, location, zoomlink, getUser] = useUserStore(
-    (store) => [
+  const [name, email, role, location, zoomlink, loggedIn, getUser] =
+    useUserStore((store) => [
       store.name,
       store.email,
       store.role,
       store.location,
       store.zoomlink,
+      store.loggedIn,
       store.getUser,
-    ],
-  );
+    ]);
+  if (loggedIn == false) window.location.replace("/");
+
   const [user, updateUser] = useState<auth.UserInfo>({
     name: name,
     email: email,
@@ -60,6 +62,7 @@ export default function profilePage() {
     }
     getUser();
   };
+
   return (
     <Container size="sm" py="6rem">
       <Paper p="xl" shadow="xs" className="bg-neutral-800">

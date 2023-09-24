@@ -41,12 +41,9 @@ export default function TicketPage() {
   const [active, setActive] = useState<boolean | undefined>(undefined);
   const [claimed, setClaimed] = useState<boolean>(false);
   const [mentorData, setMentorData] = useState<mentor>();
-
   const lowlight = createLowlight(all);
 
-  if (loggedIn == false) {
-    window.location.href = "/";
-  }
+  if (loggedIn == false) window.location.href = "/";
 
   const editor = useEditor(
     {

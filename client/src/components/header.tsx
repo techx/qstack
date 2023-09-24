@@ -88,6 +88,7 @@ export default function HeaderNav() {
           logout={true}
         />
       </AppShell.Navbar>
+
       <AppShell.Main>
         <Outlet />
       </AppShell.Main>

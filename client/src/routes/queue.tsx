@@ -10,6 +10,7 @@ import {
   Button,
   LoadingOverlay,
 } from "@mantine/core";
+import { useUserStore } from "../hooks/useUserStore";
 import * as queue from "../api/queue";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
@@ -55,10 +56,12 @@ function DisplayContent(props: displayContentProps) {
 }
 
 export default function queuePage() {
+  const [loggedIn, role] = useUserStore((user) => [user.loggedIn, user.role]);
   const [tickets, setTickets] = useState<Array<ticket>>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
 
+  if (loggedIn == false || role != "mentor") window.location.replace("/");
   useEffect(() => {
     getTickets();
     const interval = setInterval(getTickets, 5000);
