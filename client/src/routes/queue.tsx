@@ -26,6 +26,7 @@ interface ticket {
   location: string;
   creator: string;
   active: boolean;
+  name: string;
 }
 
 interface displayContentProps {

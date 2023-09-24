@@ -5,7 +5,6 @@ import {
   Paper,
   TextInput,
   Group,
-  Title,
   Button,
   Text,
   Checkbox,
@@ -64,8 +63,7 @@ export default function profilePage() {
   return (
     <Container size="sm" py="6rem">
       <Paper p="xl" shadow="xs" className="bg-neutral-800">
-        <Title className="text-center">Profile</Title>
-        <Group mt="lg" grow>
+        <Group grow>
           <TextInput
             label="Name"
             size="md"

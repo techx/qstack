@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mantine/core": "7.0.0-beta.2",
-    "@mantine/hooks": "7.0.0-beta.2",
-    "@mantine/notifications": "7.0.0-beta.2",
-    "@mantine/tiptap": "7.0.0-beta.2",
+    "@mantine/core": "^7.0.0",
+    "@mantine/hooks": "^7.0.0",
+    "@mantine/notifications": "^7.0.0",
+    "@mantine/tiptap": "^7.0.0",
     "@tabler/icons-react": "^2.34.0",
     "@tiptap/extension-code-block-lowlight": "^2.1.8",
     "@tiptap/extension-link": "^2.1.8",
@@ -30,6 +30,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.15.0",
+    "vite-plugin-svgr": "^4.0.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

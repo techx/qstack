@@ -1,118 +1,96 @@
 import { Outlet } from "react-router-dom";
-import { AppShell, Group, Burger, Menu } from "@mantine/core";
-import { useNavigate, useLocation } from "react-router-dom";
+import { AppShell, Burger, Group, NavLink, Text } from "@mantine/core";
+import { useLocation } from "react-router-dom";
 import { useUserStore } from "../hooks/useUserStore";
 import { useDisclosure } from "@mantine/hooks";
+import {
+  IconHome,
+  IconDeviceDesktopQuestion,
+  IconListCheck,
+  IconUser,
+  IconLogout,
+} from "@tabler/icons-react";
 
 export default function HeaderNav() {
-  const navigate = useNavigate();
   const location = useLocation();
   const role = useUserStore((store) => store.role);
   const [opened, { toggle }] = useDisclosure(false);
 
-  interface navLinkProps {
+  interface QNavLinkProps {
     link: string;
     label: string;
     logout?: boolean;
+    icon: JSX.Element;
   }
 
-  function NavLink(props: navLinkProps) {
+  const QNavLink = (props: QNavLinkProps) => {
     return (
-      <a
+      <NavLink
         className={
-          "text-white py-1 px-3 my-2 text-lg rounded-md transition-colors cursor-pointer" +
+          "text-center rounded-full m-1 " +
           (props.link == location.pathname
-            ? " sm:bg-[color:var(--mantine-color-blue-filled)] sm:hover:bg-[color:var(--mantine-color-blue-filled-hover)]"
-            : " sm:hover:bg-neutral-800")
+            ? "bg-[color:var(--mantine-color-blue-filled)] hover:bg-[color:var(--mantine-color-blue-filled)]"
+            : "")
         }
-        onClick={(e) => {
-          e.preventDefault;
-          if (props.logout) {
-            window.location.href = props.link;
-          } else {
-            navigate(props.link);
-          }
-        }}
-      >
-        {props.label}
-      </a>
-    );
-  }
-
-  function BurgerNavLink(props: navLinkProps) {
-    return (
-      <Menu.Item
-        className={
-          props.link == location.pathname
-            ? "bg-[color:var(--mantine-color-blue-filled)] hover:bg-[color:var(--mantine-color-blue-filled-hover)]"
-            : "hover:bg-neutral-800"
+        label={
+          <Group className="justify-center gap-2">
+            {props.icon} <span className="mt-1">{props.label}</span>
+          </Group>
         }
-      >
-        <a
-          className="text-2xl cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault;
-            toggle();
-            if (props.logout) {
-              window.location.href = props.link;
-            } else {
-              navigate(props.link);
-            }
-          }}
-        >
-          {props.label}
-        </a>
-      </Menu.Item>
+        href={props.link}
+      />
     );
-  }
+  };
 
   return (
-    <AppShell header={{ height: 50 }}>
-      {location.pathname == "/" ? (
-        <></>
-      ) : (
-        <AppShell.Header className="">
-          <Menu opened={opened}>
-            <Menu.Target>
-              <Burger
-                size="lg"
-                opened={opened}
-                onClick={toggle}
-                className="block sm:hidden mt-1 ml-1"
-              />
-            </Menu.Target>
-            <Menu.Dropdown className="sm:hidden">
-              <BurgerNavLink link="/home" label="Home" />
+    <AppShell
+      navbar={{ width: 250, breakpoint: "sm", collapsed: { mobile: !opened } }}
+    >
+      <AppShell.Header>
+        <Burger
+          size="lg"
+          opened={opened}
+          onClick={toggle}
+          className="block sm:hidden mt-1 ml-1"
+        />
+      </AppShell.Header>
 
-              <BurgerNavLink link="/ticket" label="Ticket" />
+      <AppShell.Navbar withBorder className="pr-3 pl-2">
+        <div>
+          <Burger
+            size="lg"
+            opened={opened}
+            onClick={toggle}
+            className="block sm:hidden mt-1 ml-1 "
+          />
+        </div>
+        <a href="/home" className="mx-auto mt-10">
+          <img className="w-20" src="/q.svg"></img>
+        </a>
+        <Text className="mb-5 text-center text-xl cursor-default  ">
+          qstack
+        </Text>
 
-              {role == "mentor" && (
-                <BurgerNavLink link="/queue" label="Queue" />
-              )}
-
-              <BurgerNavLink link="/profile" label="Profile" />
-
-              <BurgerNavLink
-                link="/api/auth/logout"
-                label="Logout"
-                logout={true}
-              />
-            </Menu.Dropdown>
-          </Menu>
-
-          <Group px={10} justify="space-between" className="hidden sm:flex">
-            <NavLink link="/home" label="qstack" />
-            <Group gap={10}>
-              <NavLink link="/ticket" label="Ticket" />
-              {role == "mentor" && <NavLink link="/queue" label="Queue" />}
-              <NavLink link="/profile" label="Profile" />
-              <NavLink link="/api/auth/logout" label="Logout" logout={true} />
-            </Group>
-          </Group>
-        </AppShell.Header>
-      )}
-
-      <Outlet />
+        <QNavLink icon={<IconHome />} link="/home" label="Home" />
+        <QNavLink
+          icon={<IconDeviceDesktopQuestion />}
+          link="/ticket"
+          label="Ticket"
+        />
+        {role == "mentor" && (
+          <QNavLink icon={<IconListCheck />} link="/queue" label="Queue" />
+        )}
+        <QNavLink icon={<IconUser />} link="/profile" label="Profile" />
+        <QNavLink
+          icon={<IconLogout />}
+          link="/api/auth/logout"
+          label="Logout"
+          logout={true}
+        />
+      </AppShell.Navbar>
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
     </AppShell>
   );
 }

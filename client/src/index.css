@@ -1,18 +1,49 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Mabry";
+  src: url("/MabryPro-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  font-family: "Mabry";
+}
+
+.mantine-Title-root {
+  font-family: "Mabry";
+}
+
+.mantine-AppShell-navbar {
+  background-color: var(--mantine-color-gray-9);
+}
+
+.mantine-Paper-root {
+  background-color: var(--mantine-color-gray-9);
+}
+
+.mantine-NavLink-root:hover {
+  background-color: var(--mantine-color-gray-8);
+}
+
 .mantine-Input-input {
-  background-color: var(--mantine-color-dark-7) !important;
+  background-color: var(--mantine-color-dark-7);
 }
 
 .mantine-Checkbox-input {
-  background-color: var(--mantine-color-dark-7) !important;
+  background-color: var(--mantine-color-dark-7);
 }
 
 .mantine-TagsInput-pill {
-  background-color: var(--mantine-color-dark-5) !important;
+  background-color: var(--mantine-color-dark-5);
 }
 
 .mantine-Card-root {
   background-color: var(--mantine-color-dark-7);
+}
+
+.mantine-NavLink-label {
+  font-size: 1.3rem;
 }
