@@ -3,5 +3,5 @@ ssh -i ~/.ssh/techx-general.pem ubuntu@3.92.255.125 << EOF # replace ~/.ssh/tech
     git pull;
     cd client;
     yarn build;
-    sudo systemctl restart ballot-v2;
+    sudo systemctl restart qstack;
 EOF
