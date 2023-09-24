@@ -27,7 +27,7 @@ export default function HeaderNav() {
     return (
       <NavLink
         className={
-          "text-center rounded-full m-1 " +
+          "text-center rounded-full m-1 transition-colors " +
           (props.link == location.pathname
             ? "bg-[color:var(--mantine-color-blue-filled)] hover:bg-[color:var(--mantine-color-blue-filled)]"
             : "")
