@@ -56,12 +56,12 @@ function DisplayContent(props: displayContentProps) {
 }
 
 export default function queuePage() {
-  const [loggedIn, role] = useUserStore((user) => [user.loggedIn, user.role]);
+  const [loggedIn] = useUserStore((user) => [user.loggedIn]);
   const [tickets, setTickets] = useState<Array<ticket>>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
+  if(loggedIn == false) window.location.replace("/");
 
-  if (loggedIn == false || role != "mentor") window.location.replace("/");
   useEffect(() => {
     getTickets();
     const interval = setInterval(getTickets, 5000);
