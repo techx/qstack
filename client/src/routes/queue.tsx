@@ -10,7 +10,6 @@ import {
   Button,
   LoadingOverlay,
 } from "@mantine/core";
-import { useUserStore } from "../hooks/useUserStore";
 import * as queue from "../api/queue";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
