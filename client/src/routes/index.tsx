@@ -4,16 +4,11 @@ import { useEffect } from "react";
 import { useUserStore } from "../hooks/useUserStore";
 
 export default function IndexPage() {
-  const [loggedIn, getUser] = useUserStore((store) => [
-    store.loggedIn,
-    store.getUser,
-  ]);
-
+  const loggedIn = useUserStore((store) => store.loggedIn);
   useEffect(() => {
-    getUser();
     if (loggedIn) window.location.replace("/home");
   }, [loggedIn]);
-
+  
   return (
     <Container size="xs" className="h-full">
       <Title className="text-center pt-[40%]" size={"100"}>

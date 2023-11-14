@@ -35,10 +35,14 @@ const router = createBrowserRouter(
   ),
 );
 
-export default function App() {
-  const getUser = useUserStore((store) => store.getUser);
+export default function App() {  
+  const [getUser, loggedIn] = useUserStore((store) => [store.getUser, store.loggedIn]);
+  if(loggedIn == false && window.location.pathname != "/") window.location.replace("/");
   useEffect(() => {
     getUser();
   }, []);
-  return <RouterProvider router={router} />;
+  return (
+      <RouterProvider router={router} />
+  )
+  
 }

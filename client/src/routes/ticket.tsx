@@ -1,4 +1,3 @@
-import { useUserStore } from "../hooks/useUserStore";
 import { useEffect, useState } from "react";
 import {
   Container,
@@ -31,7 +30,6 @@ interface mentor {
 }
 
 export default function TicketPage() {
-  const loggedIn = useUserStore((store) => store.loggedIn);
   const [question, setQuestion] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [location, setLocation] = useState<string>("");
@@ -42,8 +40,6 @@ export default function TicketPage() {
   const [claimed, setClaimed] = useState<boolean>(false);
   const [mentorData, setMentorData] = useState<mentor>();
   const lowlight = createLowlight(all);
-
-  if (loggedIn == false) window.location.href = "/";
 
   const editor = useEditor(
     {

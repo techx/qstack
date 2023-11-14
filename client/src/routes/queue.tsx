@@ -56,11 +56,9 @@ function DisplayContent(props: displayContentProps) {
 }
 
 export default function queuePage() {
-  const [loggedIn] = useUserStore((user) => [user.loggedIn]);
   const [tickets, setTickets] = useState<Array<ticket>>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
-  if(loggedIn == false) window.location.replace("/");
 
   useEffect(() => {
     getTickets();
