@@ -2,24 +2,27 @@ from flask import current_app as app, url_for, redirect, session, request
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
-from os import environ as env
 from urllib.parse import quote_plus, urlencode
 from server.models import User
-
-FRONTEND_URL = env.get("FRONTEND_URL")
-MENTOR_PASS = env.get("MENTOR_PASS")
+from server.config import (
+    FRONTEND_URL,
+    MENTOR_PASS,
+    AUTH0_CLIENT_ID,
+    AUTH0_CLIENT_SECRET,
+    AUTH0_DOMAIN,
+)
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
 oauth = OAuth(app)
 
 oauth.register(
     "auth0",
-    client_id=env.get("AUTH0_CLIENT_ID"),
-    client_secret=env.get("AUTH0_CLIENT_SECRET"),
+    client_id=AUTH0_CLIENT_ID,
+    client_secret=AUTH0_CLIENT_SECRET,
     client_kwargs={
         "scope": "openid profile email",
     },
-    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration',
+    server_metadata_url=f"https://{AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
 
@@ -52,12 +55,12 @@ def logout():
     session.clear()
     return redirect(
         "https://"
-        + env.get("AUTH0_DOMAIN")
+        + AUTH0_DOMAIN
         + "/v2/logout?"
         + urlencode(
             {
                 "returnTo": FRONTEND_URL,
-                "client_id": env.get("AUTH0_CLIENT_ID"),
+                "client_id": AUTH0_CLIENT_ID,
             },
             quote_via=quote_plus,
         )

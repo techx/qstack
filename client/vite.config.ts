@@ -10,10 +10,11 @@ export default defineConfig(({ command, mode }) => {
     envDir: "..",
     envPrefix: "qstack",
     server: {
-      port: 5173,
+      port: 6001,
+      host: true,
       proxy: {
         "/api": {
-          target: env.BACKEND_URL,
+          target: "http://backend:3001",
           changeOrigin: true,
         },
       },
