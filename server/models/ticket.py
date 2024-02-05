@@ -1,5 +1,5 @@
 from server import db
-from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY
+from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
 from sqlalchemy.orm import relationship
 
 
@@ -19,6 +19,9 @@ class Ticket(db.Model):
     tags = Column(ARRAY(Text), nullable=False)
 
     active = Column(Boolean, nullable=False, default=True)
+    status = Column(String)
+
+    createdAt = Column(DateTime, nullable=False)
 
     def __init__(self, user, data, active):
         self.creator = user
@@ -27,12 +30,15 @@ class Ticket(db.Model):
         self.location = data["location"]
         self.tags = data["tags"]
         self.active = active
+        self.createdAt = db.func.now()
+        self.status = "N/A"
 
     def update(self, data):
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]
         self.tags = data["tags"]
+        
 
     def map(self):
         return {
@@ -43,4 +49,9 @@ class Ticket(db.Model):
             "tags": self.tags,
             "location": self.location,
             "creator": self.creator_id,
+            "discord": self.creator.discord,
+            "createdAt": self.createdAt,
+            "status": self.status,
+            "mentor_name": self.claimant.name if self.claimant else None,
+            "mentor_id": self.claimant_id if self.claimant_id else None
         }

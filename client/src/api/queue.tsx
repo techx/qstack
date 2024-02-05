@@ -25,13 +25,13 @@ export async function unclaimTicket(id: number) {
   return { ok: res.ok, ...JSON.parse(await res.text()) };
 }
 
-export async function resolveTicket(id: number) {
+export async function resolveTicket(id: number, creator: string) {
   const res = await fetch("/api/queue/resolve", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ id: id }),
+    body: JSON.stringify({ id: id, creator: creator }),
   });
   return { ok: res.ok, ...JSON.parse(await res.text()) };
 }
@@ -39,4 +39,9 @@ export async function resolveTicket(id: number) {
 export async function checkClaimed() {
   const res = await fetch("/api/queue/claimed");
   return { ok: res.ok, ...JSON.parse(await res.text()) };
+}
+
+export async function getMentorRankings () {
+  const res = await fetch("/api/queue/ranking");
+  return { ok: res.ok, rankings: JSON.parse(await res.text()) };
 }

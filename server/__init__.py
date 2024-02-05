@@ -35,3 +35,4 @@ with app.app_context():
     @app.errorhandler(404)
     def _default(_error):
         return render_template("index.html"), 200
+    

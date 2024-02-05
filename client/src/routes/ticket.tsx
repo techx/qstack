@@ -11,6 +11,7 @@ import {
   Group,
   Badge,
   HoverCard,
+  Rating
 } from "@mantine/core";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
@@ -21,12 +22,24 @@ import Placeholder from "@tiptap/extension-placeholder";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { all, createLowlight } from "lowlight";
 import * as ticket from "../api/ticket";
+import * as queue from "../api/queue";
 import { notifications } from "@mantine/notifications";
 
 interface mentor {
   name: string;
   location: string;
   zoomlink: string;
+  discord: string;
+  id: number;
+}
+
+interface ticket {
+  id: number;
+  creator: string;
+  mentor_id: number;
+  mentor_name: string;
+  rating: number;
+  question: string;
 }
 
 export default function TicketPage() {
@@ -40,6 +53,8 @@ export default function TicketPage() {
   const [claimed, setClaimed] = useState<boolean>(false);
   const [mentorData, setMentorData] = useState<mentor>();
   const lowlight = createLowlight(all);
+
+  const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]); 
 
   const editor = useEditor(
     {
@@ -82,6 +97,41 @@ export default function TicketPage() {
     const interval = setInterval(getStatus, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    checkForResolvedTickets();
+    const intervalId = setInterval(checkForResolvedTickets, 5000); // Check every 5 seconds
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const checkForResolvedTickets = async () => {
+    const res = await ticket.getFeedback();
+    if (res.ok && res.tickets.length > 0) {
+      setResolvedTickets(res.tickets);
+      console.log(res.tickets)
+    } else {
+      setResolvedTickets([]);
+    }
+  };
+
+  const submitRating = async (ratedTicket: ticket, rating: number) => {
+    const res = await ticket.rate(ratedTicket.id, ratedTicket.mentor_id, rating);
+    if (res.ok) {
+      notifications.show({
+        title: "Rating Submitted",
+        message: "Thank you for your feedback!",
+        color: "green",
+      });
+      checkForResolvedTickets();
+      getTicket();
+    } else {
+      notifications.show({
+        title: "Error",
+        message: "Failed to submit rating. Please try again.",
+        color: "red",
+      });
+    }
+  };
 
   const getTicket = () => {
     ticket.getTicket().then((res) => {
@@ -151,6 +201,13 @@ export default function TicketPage() {
     showNotif(res);
     getTicket();
   };
+
+  const handleResolve = async (mentor_id: number) => {
+    const res = await ticket.resolve(mentor_id);
+    showNotif(res);
+    getTicket();
+  };
+
 
   return (
     <Container size="sm" py="6rem" pb="10rem">
@@ -272,12 +329,15 @@ export default function TicketPage() {
         </Paper>
       )}
 
-      {claimed && mentorData && (
+      {claimed && mentorData && !resolvedTickets &&(
         <Paper p="xl" shadow="xs" className="bg-neutral-800">
           <Title className="text-center">Your ticket has been claimed!</Title>
 
           <Text className="mt-10 text-lg">
             Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
+          </Text>
+          <Text className="mt-5 text-md">
+            Mentor Discord Contact: <Badge size="lg" color="green" variant="light">{mentorData.discord}</Badge>
           </Text>
           {mentorData.location == "in person" && (
             <Text className="mt-5 text-lg">
@@ -292,13 +352,31 @@ export default function TicketPage() {
           )}
 
           <Group grow className="mt-5">
-            <Button onClick={() => handleEdit(true)}>Mark as Resolved</Button>
+            <Button onClick={() => handleResolve(mentorData.id)}>Mark as Resolved</Button>
             <Button color="red" onClick={() => handleUnclaim()}>
               Return to Queue
             </Button>
           </Group>
         </Paper>
       )}
+
+      {resolvedTickets.map(ticket => (
+        <Paper key={ticket.id} p="xl" shadow="xs" className="bg-neutral-800" radius="md" withBorder>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            <Title className="text-center" style={{ color: '#FFF' }}>Rate Your Mentor: {ticket.mentor_name}</Title>
+            <Text style={{ color: '#DDD', textAlign: 'center', maxWidth: '80%' }}>
+              Please rate the support provided by your mentor for the ticket: "{ticket.question}"
+            </Text>
+            <Rating
+              onChange={(rating) => submitRating(ticket, rating)}
+              value={0}
+              fractions={2}
+              size="lg"
+              color="yellow" // Customize as needed
+            />
+          </div>
+        </Paper>
+      ))}
     </Container>
   );
 }
