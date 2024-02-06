@@ -1,8 +1,16 @@
 from server import db
-from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY
+from sqlalchemy import (
+    Column,
+    Integer,
+    Boolean,
+    Text,
+    String,
+    ForeignKey,
+    ARRAY,
+    Numeric,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableList
-
 
 
 class User(db.Model):
@@ -16,7 +24,7 @@ class User(db.Model):
     zoomlink = Column(Text, nullable=False)
     discord = Column(Text, nullable=False)
     resolved_tickets = Column(Integer)
-    ratings = Column(MutableList.as_mutable(ARRAY(Integer)))
+    ratings = Column(MutableList.as_mutable(ARRAY(Numeric(2, 1))))
 
     ticket_id = Column(Integer, ForeignKey("tickets.id", ondelete="SET NULL"))
     ticket = relationship("Ticket", foreign_keys=[ticket_id])
@@ -40,6 +48,12 @@ class User(db.Model):
             "location": self.location,
             "zoomlink": self.zoomlink,
             "discord": self.discord,
-            "resolved_tickets": self.resolved_tickets if self.role == "mentor" else "Not Applicable",
-            "ratings": sum(self.ratings)/len(self.ratings) if self.role == "mentor" and len(self.ratings) != 0 else None
+            "resolved_tickets": (
+                self.resolved_tickets if self.role == "mentor" else "Not Applicable"
+            ),
+            "ratings": (
+                sum(self.ratings) / len(self.ratings)
+                if self.role == "mentor" and len(self.ratings) != 0
+                else None
+            ),
         }
