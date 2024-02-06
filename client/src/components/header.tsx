@@ -9,6 +9,7 @@ import {
   IconListCheck,
   IconUser,
   IconLogout,
+  IconTrophy
 } from "@tabler/icons-react";
 
 export default function HeaderNav() {
@@ -79,6 +80,9 @@ export default function HeaderNav() {
         />
         {role == "mentor" && (
           <QNavLink icon={<IconListCheck />} link="/queue" label="Queue" />
+        )}
+        {role == "mentor" && (
+          <QNavLink icon={<IconTrophy />} link="/leaderboard" label="Leaderboard" />
         )}
         <QNavLink icon={<IconUser />} link="/profile" label="Profile" />
         <QNavLink

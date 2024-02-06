@@ -18,6 +18,7 @@ import ProfilePage from "./routes/profile";
 import TicketPage from "./routes/ticket";
 import QueuePage from "./routes/queue";
 import HomePage from "./routes/home";
+import Leaderboard from "./routes/leaderboard";
 import HeaderNav from "./components/header";
 
 const router = createBrowserRouter(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
       <Route index path="/profile" element={<ProfilePage />} />
       <Route index path="/ticket" element={<TicketPage />} />
       <Route index path="/queue" element={<QueuePage />} />
+      <Route index path="/leaderboard" element={<Leaderboard />} />
     </Route>,
   ),
 );

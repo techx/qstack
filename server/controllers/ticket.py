@@ -148,3 +148,54 @@ def unclaim():
     db.session.commit()
 
     return {"message": "Ticket unclaimed!"}
+
+
+@ticket.route("/awaiting_feedback", methods=["GET"])
+def awaiting_feedback():
+    email = session["user"]["userinfo"]["email"]
+    user = User.query.filter_by(email=email).first()
+
+    tickets = Ticket.query.filter_by(
+        creator_id=user.id, status="awaiting_feedback"
+    ).all()
+
+    tickets_data = [ticket.map() for ticket in tickets]
+
+    return tickets_data
+
+
+@ticket.route("/rate", methods=["POST"])
+def rate():
+    data = request.get_json()
+    mentor = User.query.get(int(data["mentor_id"]))
+    mentor.ratings.append(data["rating"])
+    db.session.commit()
+
+    ticket = Ticket.query.get(int(data["id"]))
+    ticket.status = "completed"
+    db.session.delete(ticket)
+    ticket.active = False
+
+    db.session.commit()
+
+    return mentor.ratings
+
+
+@ticket.route("/resolve", methods=["POST"])
+def resolve():
+    email = session["user"]["userinfo"]["email"]
+    user = User.query.filter_by(email=email).first()
+
+    if not user.ticket_id:
+        return abort(404, "No active ticket!")
+
+    ticket = Ticket.query.get(user.ticket_id)
+    ticket.status = "awaiting_feedback"
+
+    data = request.get_json()
+    mentor = User.query.get(int(data["mentor_id"]))
+    mentor.resolved_tickets = user.resolved_tickets + 1
+    mentor.claimed = None
+    db.session.commit()
+
+    return {"message": "Ticket resolved! Please rate your mentor."}
