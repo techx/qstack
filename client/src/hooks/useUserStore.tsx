@@ -8,6 +8,7 @@ interface userState {
   loggedIn: boolean | undefined;
   location: string;
   zoomlink: string;
+  discord: string;
   getUser: () => Promise<any>;
 }
 
@@ -17,6 +18,7 @@ export const useUserStore = create<userState>((set) => ({
   role: "",
   location: "",
   zoomlink: "",
+  discord: "",
   loggedIn: undefined,
   getUser: async () => set(await auth.whoami()),
 }));

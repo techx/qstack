@@ -27,6 +27,8 @@ interface ticket {
   creator: string;
   active: boolean;
   name: string;
+  discord: string;
+  createdAt: Date;
 }
 
 interface displayContentProps {
@@ -84,7 +86,10 @@ export default function queuePage() {
   const getTickets = () => {
     queue.getTickets().then((res) => {
       if (res.ok) {
-        setTickets(res.tickets);
+        const sortedTickets = res.tickets.sort((a, b) => {
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        });
+        setTickets(sortedTickets);
         setLoading(false);
       }
     });
@@ -120,8 +125,8 @@ export default function queuePage() {
     getTickets();
   };
 
-  const handleResolve = async (id: number) => {
-    const res = await queue.resolveTicket(id);
+  const handleResolve = async (id: number, creator: string) => {
+    const res = await queue.resolveTicket(id, creator);
     showNotif(res);
     checkClaimed();
     getTickets();
@@ -147,7 +152,8 @@ export default function queuePage() {
 
         {claimed == undefined && (
           <Container className="mt-5" size="sm">
-            {tickets.map(
+            {tickets
+            .map(
               (ticket) =>
                 ticket.active && (
                   <div key={ticket.id}>
@@ -166,6 +172,18 @@ export default function queuePage() {
                       </Group>
                       <Text className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
+                      </Text>
+                      <Text className="mt-5">
+                        Discord: <Badge>{ticket.discord}</Badge>
+                      </Text>
+                      <Text className="mt-5 text-md">
+                        Ticket Created At: <Badge size="lg">{
+                        (() => {
+                          const date = new Date(ticket.createdAt);
+                          date.setSeconds(0, 0);
+                          return date.toLocaleString();
+                        })()
+                      }</Badge>
                       </Text>
                       <Button
                         onClick={() => handleClaim(ticket.id)}
@@ -202,8 +220,11 @@ export default function queuePage() {
                       <Text className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
                       </Text>
+                      <Text className="mt-5">
+                        Discord: <Badge>{ticket.discord}</Badge>
+                      </Text>
                       <Group className="mt-5" grow>
-                        <Button onClick={() => handleResolve(ticket.id)}>
+                        <Button onClick={() => handleResolve(ticket.id, ticket.creator)}>
                           Mark as Resolved
                         </Button>
                         <Button

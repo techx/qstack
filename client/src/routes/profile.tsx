@@ -13,7 +13,7 @@ import { notifications } from "@mantine/notifications";
 import * as auth from "../api/auth";
 
 export default function profilePage() {
-  const [name, email, role, location, zoomlink, getUser] =
+  const [name, email, role, location, zoomlink, getUser, discord] =
     useUserStore((store) => [
       store.name,
       store.email,
@@ -21,6 +21,7 @@ export default function profilePage() {
       store.location,
       store.zoomlink,
       store.getUser,
+      store.discord,
     ]);
 
   const [user, updateUser] = useState<auth.UserInfo>({
@@ -30,6 +31,7 @@ export default function profilePage() {
     location: location,
     zoomlink: zoomlink,
     password: "",
+    discord: discord,
   });
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function profilePage() {
       location: location,
       zoomlink: zoomlink,
       password: "",
+      discord: discord,
     });
   }, [name]);
 
@@ -77,6 +80,12 @@ export default function profilePage() {
             size="md"
             width={300}
             value={user.email}
+          />
+          <TextInput
+            label="Discord"
+            size="md"
+            value={user.discord}
+            onChange={(e) => updateUser({ ...user, discord: e.target.value })}
           />
         </Group>
         <Text className="text-weight-500" mt="lg">

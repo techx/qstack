@@ -25,6 +25,28 @@ oauth.register(
     server_metadata_url=f"https://{AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
+def auth_required_decorator(roles):
+    """
+    middleware for protected routes
+    """
+
+    def auth_required(func):
+        def wrapper(*args, **kwargs):
+            email = session["user"]["userinfo"]["email"]
+            user = User.query.filter_by(email=email).first()
+            if not user or not user.role:
+                return abort(401)
+            elif user.role not in roles:
+                return abort(401)
+            return func(*args, **kwargs)
+
+        wrapper.__name__ = (
+            func.__name__
+        )  # avoid overwriting wrapper. something about scoping issues
+        return wrapper
+
+    return auth_required
+
 
 @auth.route("/login")
 def login():
@@ -101,8 +123,12 @@ def update():
 
     if data["location"] == "virtual" and len(data["zoomlink"]) == 0:
         return abort(400, "Missing video call link!")
+    
+    if len(data["discord"]) == 0:
+        return abort(400, "Missing discord!")
 
     user.location = data["location"]
     user.zoomlink = data["zoomlink"]
+    user.discord = data["discord"]
     db.session.commit()
     return {"message": "Your information has been updated!"}
