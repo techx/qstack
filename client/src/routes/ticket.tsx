@@ -138,10 +138,6 @@ export default function TicketPage() {
         message: "Thank you for your feedback!",
         color: "green",
       });
-      setContent(""); 
-      if (editor) {
-        editor.commands.setContent("");
-      }
       getTicket();
       getStatus();
       checkForResolvedTickets();
@@ -167,6 +163,9 @@ export default function TicketPage() {
       if (!res.ticket) {
         setQuestion("");
         setContent("");
+        if (editor) {
+          editor.commands.setContent("");
+        }
         setLocation("");
         setTags([]);
       }

@@ -19,6 +19,7 @@ import TicketPage from "./routes/ticket";
 import QueuePage from "./routes/queue";
 import HomePage from "./routes/home";
 import Leaderboard from "./routes/leaderboard";
+import AdminPanel from "./routes/admin";
 import HeaderNav from "./components/header";
 
 const router = createBrowserRouter(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
       <Route index path="/ticket" element={<TicketPage />} />
       <Route index path="/queue" element={<QueuePage />} />
       <Route index path="/leaderboard" element={<Leaderboard />} />
+      <Route index path="/stats" element={<AdminPanel />} />
     </Route>,
   ),
 );
