@@ -74,7 +74,7 @@ export default function HeaderNav() {
         </Text>
 
         <QNavLink icon={<IconHome />} link="/home" label="Home" />
-        { role !== "mentor" && (
+        {role !== "mentor" && (
           <QNavLink
             icon={<IconDeviceDesktopQuestion />}
             link="/ticket"

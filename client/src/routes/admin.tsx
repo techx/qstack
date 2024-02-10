@@ -25,26 +25,27 @@ interface user {
 }
 
 export default function AdminPanel() {
-    const [loading, setLoading] = useState<boolean>(true);
-    const [ticketStats, setTicketStats] = useState<ticket>();
-    const [users, setUsers] = useState<Array<user>>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [ticketStats, setTicketStats] = useState<ticket>();
+  const [users, setUsers] = useState<Array<user>>([]);
 
-    useEffect(() => {
-      fetchStats();
-    }, []);
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   const fetchStats = async () => {
     const ticketRes = await admin.getTicketStats();
     const userRes = await admin.getUserStats();
 
     if (ticketRes.ok) {
       setTicketStats(ticketRes.tags); 
+      setLoading(false);
     } 
 
     if (userRes.ok) {
-        setUsers(userRes.tags); 
-    }
-
+      setUsers(userRes.tags); 
       setLoading(false);
+    }
   };
 
 
@@ -56,7 +57,7 @@ export default function AdminPanel() {
     <Paper style={{ padding: '2rem', backgroundColor: '#20232a', color: 'white' }} shadow="xs">
         {ticketStats?.total && (
           <Group style={{ justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', padding: '1rem 0' }}>
-            <Paper padding="md" shadow="xs">
+            <Paper style={{padding: "md"}} shadow="xs">
               <Title order={2} style={{ marginBottom: '0.5rem' }}>Ticket Stats</Title>
               <Text>Total Resolved Tickets: {ticketStats.total}</Text>
               <Text>Average Mentor Rating: {ticketStats.averageRating.toFixed(2)}/5</Text>
