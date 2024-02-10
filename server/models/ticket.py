@@ -31,7 +31,7 @@ class Ticket(db.Model):
         self.tags = data["tags"]
         self.active = active
         self.createdAt = db.func.now()
-        self.status = "N/A"
+        self.status = "unclaimed"
 
     def update(self, data):
         self.question = data["question"]

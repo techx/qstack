@@ -115,7 +115,7 @@ export default function profilePage() {
           />
         )}
 
-        {user.role == "mentor" && role == "mentor" && (
+        {user.role === "mentor" && role === "mentor" && (
           <>
             <Text className="text-weight-500" mt="lg">
               Location
@@ -137,9 +137,9 @@ export default function profilePage() {
           </>
         )}
 
-        {user.location == "virtual" &&
-          user.role == "mentor" &&
-          role == "mentor" && (
+        {user.location === "virtual" &&
+          user.role === "mentor" &&
+          role === "mentor" && (
             <TextInput
               value={user.zoomlink}
               onChange={(e) =>

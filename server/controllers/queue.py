@@ -35,7 +35,8 @@ def claim():
     ticket = Ticket.query.get(ticket_id)
     if ticket.claimant_id is not None:
         return abort(400, "Ticket already claimed")
-
+    
+    ticket.status = "claimed"
     ticket.claimant = user
     ticket.active = False
     user.claimed = ticket
@@ -60,6 +61,7 @@ def unclaim():
     ticket.active = True
     ticket.claimant = None
     ticket.claimant_id = None
+    ticket.status = None
     user.claimed = None
 
     db.session.commit()
@@ -91,9 +93,8 @@ def claimed():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
 
-    tickets = []
     for ticket in Ticket.query.filter(Ticket.claimant_id != None).all():
-        if ticket.claimant_id == user.id and ticket.status != "awaiting_feedback":
+        if ticket.claimant_id == user.id and ticket.status == "claimed":
             return {"claimed": ticket.id}
 
     return {"claimed": None}

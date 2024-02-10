@@ -22,7 +22,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { all, createLowlight } from "lowlight";
 import * as ticket from "../api/ticket";
-import * as queue from "../api/queue";
 import { notifications } from "@mantine/notifications";
 
 interface mentor {
@@ -53,6 +52,7 @@ export default function TicketPage() {
   const [claimed, setClaimed] = useState<boolean>(false);
   const [mentorData, setMentorData] = useState<mentor>();
   const lowlight = createLowlight(all);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
 
@@ -84,6 +84,9 @@ export default function TicketPage() {
     } else if (res.ok && res.status == "unclaimed") {
       setClaimed(false);
       setMentorData(undefined);
+    } else if (res.ok && res.status == "awaiting_feedback") {
+      setClaimed(false);
+      setMentorData(res.mentorData);
     }
   };
 
@@ -104,6 +107,12 @@ export default function TicketPage() {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    if (editor && content) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
+
   const checkForResolvedTickets = async () => {
     const res = await ticket.getFeedback();
     if (res.ok && res.tickets.length > 0) {
@@ -114,6 +123,9 @@ export default function TicketPage() {
   };
 
   const submitRating = async (ratedTicket: ticket, rating: number) => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     const res = await ticket.rate(
       ratedTicket.id,
       ratedTicket.mentor_id,
@@ -125,8 +137,9 @@ export default function TicketPage() {
         message: "Thank you for your feedback!",
         color: "green",
       });
-      checkForResolvedTickets();
       getTicket();
+      getStatus();
+      checkForResolvedTickets();
     } else {
       notifications.show({
         title: "Error",
@@ -134,6 +147,7 @@ export default function TicketPage() {
         color: "red",
       });
     }
+    setIsSubmitting(false);
   };
 
   const getTicket = () => {
@@ -148,6 +162,9 @@ export default function TicketPage() {
       if (!res.ticket) {
         setQuestion("");
         setContent("");
+        if (editor) {
+          editor.commands.setContent("");
+        }
         setLocation("");
         setTags([]);
       }
@@ -162,6 +179,7 @@ export default function TicketPage() {
         color: "green",
         message: res.message,
       });
+      getTicket();
     } else {
       notifications.show({
         title: "Error",
@@ -208,6 +226,8 @@ export default function TicketPage() {
   const handleResolve = async (mentor_id: number) => {
     const res = await ticket.resolve(mentor_id);
     showNotif(res);
+    checkForResolvedTickets();
+    getStatus();
     getTicket();
   };
 
@@ -215,7 +235,7 @@ export default function TicketPage() {
     <Container size="sm" py="6rem" pb="10rem">
       <LoadingOverlay visible={active == undefined} />
 
-      {!claimed && (
+      {!claimed && resolvedTickets.length === 0 && (
         <Paper p="xl" shadow="xs" className="bg-neutral-800">
           <Title className="text-center">
             How can we help you?{" "}
@@ -331,7 +351,7 @@ export default function TicketPage() {
         </Paper>
       )}
 
-      {claimed && mentorData && !resolvedTickets && (
+      {claimed && mentorData && (
         <Paper p="xl" shadow="xs" className="bg-neutral-800">
           <Title className="text-center">Your ticket has been claimed!</Title>
 
@@ -398,7 +418,7 @@ export default function TicketPage() {
               value={0}
               fractions={2}
               size="lg"
-              color="yellow" // Customize as needed
+              color="yellow"
             />
           </div>
         </Paper>

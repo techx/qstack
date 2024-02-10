@@ -41,7 +41,7 @@ export async function checkClaimed() {
   return { ok: res.ok, ...JSON.parse(await res.text()) };
 }
 
-export async function getMentorRankings () {
+export async function getMentorRankings() {
   const res = await fetch("/api/queue/ranking");
   return { ok: res.ok, rankings: JSON.parse(await res.text()) };
 }

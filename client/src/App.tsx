@@ -19,6 +19,7 @@ import TicketPage from "./routes/ticket";
 import QueuePage from "./routes/queue";
 import HomePage from "./routes/home";
 import Leaderboard from "./routes/leaderboard";
+import AdminPanel from "./routes/admin";
 import HeaderNav from "./components/header";
 
 const router = createBrowserRouter(
@@ -33,18 +34,20 @@ const router = createBrowserRouter(
       <Route index path="/ticket" element={<TicketPage />} />
       <Route index path="/queue" element={<QueuePage />} />
       <Route index path="/leaderboard" element={<Leaderboard />} />
-    </Route>,
-  ),
+      <Route index path="/stats" element={<AdminPanel />} />
+    </Route>
+  )
 );
 
-export default function App() {  
-  const [getUser, loggedIn] = useUserStore((store) => [store.getUser, store.loggedIn]);
-  if(loggedIn == false && window.location.pathname != "/") window.location.replace("/");
+export default function App() {
+  const [getUser, loggedIn] = useUserStore((store) => [
+    store.getUser,
+    store.loggedIn,
+  ]);
+  if (loggedIn == false && window.location.pathname != "/")
+    window.location.replace("/");
   useEffect(() => {
     getUser();
   }, []);
-  return (
-      <RouterProvider router={router} />
-  )
-  
+  return <RouterProvider router={router} />;
 }
