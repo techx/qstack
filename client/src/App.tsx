@@ -35,18 +35,19 @@ const router = createBrowserRouter(
       <Route index path="/queue" element={<QueuePage />} />
       <Route index path="/leaderboard" element={<Leaderboard />} />
       <Route index path="/stats" element={<AdminPanel />} />
-    </Route>,
-  ),
+    </Route>
+  )
 );
 
-export default function App() {  
-  const [getUser, loggedIn] = useUserStore((store) => [store.getUser, store.loggedIn]);
-  if(loggedIn == false && window.location.pathname != "/") window.location.replace("/");
+export default function App() {
+  const [getUser, loggedIn] = useUserStore((store) => [
+    store.getUser,
+    store.loggedIn,
+  ]);
+  if (loggedIn == false && window.location.pathname != "/")
+    window.location.replace("/");
   useEffect(() => {
     getUser();
   }, []);
-  return (
-      <RouterProvider router={router} />
-  )
-  
+  return <RouterProvider router={router} />;
 }

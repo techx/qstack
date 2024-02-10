@@ -17,6 +17,7 @@ import { all, createLowlight } from "lowlight";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import StarterKit from "@tiptap/starter-kit";
 import { notifications } from "@mantine/notifications";
+import { useNavigate } from "react-router-dom";
 
 interface ticket {
   id: number;
@@ -57,6 +58,7 @@ function DisplayContent(props: displayContentProps) {
 }
 
 export default function queuePage() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState<Array<ticket>>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
@@ -91,7 +93,12 @@ export default function queuePage() {
         });
         setTickets(sortedTickets);
         setLoading(false);
+      } else {
+        throw new Error('Tickets fetch failed');
       }
+    }).catch((error) => {
+      console.error(error); 
+      navigate('/error');
     });
   };
 
@@ -150,10 +157,9 @@ export default function queuePage() {
           <Title className="text-center">You have claimed a ticket!</Title>
         )}
 
-        {claimed == undefined && (
+        {claimed === undefined && (
           <Container className="mt-5" size="sm">
-            {tickets
-            .map(
+            {tickets.map(
               (ticket) =>
                 ticket.active && (
                   <div key={ticket.id}>
@@ -177,13 +183,14 @@ export default function queuePage() {
                         Discord: <Badge>{ticket.discord}</Badge>
                       </Text>
                       <Text className="mt-5 text-md">
-                        Ticket Created At: <Badge size="lg">{
-                        (() => {
-                          const date = new Date(ticket.createdAt);
-                          date.setSeconds(0, 0);
-                          return date.toLocaleString();
-                        })()
-                      }</Badge>
+                        Ticket Created At:{" "}
+                        <Badge size="lg">
+                          {(() => {
+                            const date = new Date(ticket.createdAt);
+                            date.setSeconds(0, 0);
+                            return date.toLocaleString();
+                          })()}
+                        </Badge>
                       </Text>
                       <Button
                         onClick={() => handleClaim(ticket.id)}
@@ -193,12 +200,12 @@ export default function queuePage() {
                       </Button>
                     </Card>
                   </div>
-                ),
+                )
             )}
           </Container>
         )}
 
-        {claimed != undefined && (
+        {claimed !== undefined && (
           <Container className="mt-5" size="sm">
             {tickets.map(
               (ticket) =>
@@ -224,7 +231,11 @@ export default function queuePage() {
                         Discord: <Badge>{ticket.discord}</Badge>
                       </Text>
                       <Group className="mt-5" grow>
-                        <Button onClick={() => handleResolve(ticket.id, ticket.creator)}>
+                        <Button
+                          onClick={() =>
+                            handleResolve(ticket.id, ticket.creator)
+                          }
+                        >
                           Mark as Resolved
                         </Button>
                         <Button
@@ -236,7 +247,7 @@ export default function queuePage() {
                       </Group>
                     </Card>
                   </div>
-                ),
+                )
             )}
           </Container>
         )}

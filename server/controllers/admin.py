@@ -24,7 +24,10 @@ def getTicketData():
             totalRatings += sum(mentor.ratings) / len(mentor.ratings)
             totalMentors += 1
 
-    averageRating = totalRatings/totalMentors
+    if totalMentors != 0:
+        averageRating = totalRatings/totalMentors
+    else:
+        averageRating = 0
 
     return {"total": totalTickets, "averageRating": averageRating  }
 

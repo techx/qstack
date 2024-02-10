@@ -112,7 +112,7 @@ export default function TicketPage() {
     if (editor && content) {
       editor.commands.setContent(content);
     }
-  }, [content, editor]);  
+  }, [content, editor]);
 
   const checkForResolvedTickets = async () => {
     const res = await ticket.getFeedback();
@@ -419,7 +419,7 @@ export default function TicketPage() {
               value={0}
               fractions={2}
               size="lg"
-              color="yellow" 
+              color="yellow"
             />
           </div>
         </Paper>

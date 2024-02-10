@@ -10,7 +10,7 @@ import {
   IconUser,
   IconLogout,
   IconTrophy,
-  IconClipboardData
+  IconClipboardData,
 } from "@tabler/icons-react";
 
 export default function HeaderNav() {
@@ -81,14 +81,22 @@ export default function HeaderNav() {
             label="Ticket"
           />
         )}
-        {role == "mentor" && (
+        {role === "mentor" && (
           <QNavLink icon={<IconListCheck />} link="/queue" label="Queue" />
         )}
-        {role == "mentor" && (
-          <QNavLink icon={<IconTrophy />} link="/leaderboard" label="Leaderboard" />
+        {role === "mentor" && (
+          <QNavLink
+            icon={<IconTrophy />}
+            link="/leaderboard"
+            label="Leaderboard"
+          />
         )}
-        {role == "mentor" && (
-          <QNavLink icon={<IconClipboardData />} link="/stats" label="Admin Stats" />
+        {role === "mentor" && (
+          <QNavLink
+            icon={<IconClipboardData />}
+            link="/stats"
+            label="Admin Stats"
+          />
         )}
         <QNavLink icon={<IconUser />} link="/profile" label="Profile" />
         <QNavLink

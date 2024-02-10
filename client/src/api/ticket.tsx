@@ -75,7 +75,7 @@ export async function rate(id: number, mentor_id: number, rating: number) {
 }
 
 export async function resolve(mentor_id: number) {
-  const res = await fetch("/api/ticket/resolve",{
+  const res = await fetch("/api/ticket/resolve", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
