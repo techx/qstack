@@ -10,6 +10,7 @@ import {
   Rating,
 } from "@mantine/core";
 import { IconMedal, IconTrophy } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 import * as queue from "../api/queue";
 
 interface mentor {
@@ -20,6 +21,7 @@ interface mentor {
 }
 
 export default function Leaderboard() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [rankings, setRankings] = useState<Array<mentor>>([]);
 
@@ -34,6 +36,8 @@ export default function Leaderboard() {
     if (res.ok) {
       setRankings(res.rankings);
       setLoading(false);
+    } else {
+      navigate("/error");
     }
   };
 
