@@ -127,8 +127,12 @@ def status():
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.claimant_id:
         return {"status": "unclaimed", "message": "Ticket not claimed!"}
+    
 
     mentor = User.query.get(ticket.claimant_id)
+    if ticket.status == "awaiting_feedback":
+        return {"status": "awaiting_feedback", "mentorData": mentor.map()}
+    
     return {"status": "claimed", "mentorData": mentor.map()}
 
 
@@ -155,13 +159,19 @@ def awaiting_feedback():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
 
-    tickets = Ticket.query.filter_by(
+    resolved_tickets = Ticket.query.filter_by(
         creator_id=user.id, status="awaiting_feedback"
     ).all()
 
-    tickets_data = [ticket.map() for ticket in tickets]
+    resolved_tickets_data = [ticket.map() for ticket in resolved_tickets]
 
-    return tickets_data
+    claimed_tickets = Ticket.query.filter_by(
+        creator_id=user.id, status="claimed"
+    ).all()
+
+    claimed_tickets_data = [ticket.map() for ticket in claimed_tickets]
+
+    return resolved_tickets_data
 
 
 @ticket.route("/rate", methods=["POST"])

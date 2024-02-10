@@ -8,7 +8,7 @@ export default function IndexPage() {
   useEffect(() => {
     if (loggedIn) window.location.replace("/home");
   }, [loggedIn]);
-  
+
   return (
     <Container size="xs" className="h-full">
       <Title className="text-center pt-[40%]" size={"100"}>
