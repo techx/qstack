@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { IconMedal, IconTrophy } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { computeNormalizedRating } from "../utils";
 import * as queue from "../api/queue";
 
 interface mentor {
@@ -94,12 +95,30 @@ export default function Leaderboard() {
                 {mentor.name}
               </Text>
             </div>
-            <Rating value={mentor.ratings} size="lg" fractions={10} readOnly />
-            <Badge
-              color="green"
-              variant="light"
-              size="xl"
-            >{`Tickets: ${mentor.tickets}`}</Badge>
+            <Rating
+              value={parseFloat(
+                computeNormalizedRating(mentor.ratings, mentor.tickets)
+              )}
+              size="lg"
+              fractions={10}
+              readOnly
+            />
+            <div>
+              <Badge
+                color="orange"
+                variant="light"
+                size="xl"
+                mr="3"
+              >{`Rating: ${computeNormalizedRating(
+                mentor.ratings,
+                mentor.tickets
+              )}`}</Badge>
+              <Badge
+                color="green"
+                variant="light"
+                size="xl"
+              >{`Tickets: ${mentor.tickets}`}</Badge>
+            </div>
           </Group>
         ))}
       </Paper>

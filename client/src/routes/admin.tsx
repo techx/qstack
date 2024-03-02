@@ -10,6 +10,7 @@ import {
   Rating,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import { computeNormalizedRating } from "../utils";
 import * as admin from "../api/admin";
 
 interface ticket {
@@ -45,7 +46,11 @@ export default function AdminPanel() {
       }
 
       if (ticketRes.ok) {
-        setTicketStats(ticketRes.tags);
+        const ticketStats: ticket = {
+          total: parseInt(ticketRes.tags.total),
+          averageRating: parseFloat(ticketRes.tags.averageRating),
+        };
+        setTicketStats(ticketStats);
         setLoading(false);
       }
 
@@ -74,20 +79,28 @@ export default function AdminPanel() {
             style={{
               justifyContent: "space-between",
               alignItems: "center",
-              borderBottom: "1px solid #333",
               padding: "1rem 0",
             }}
           >
-            <Paper style={{ padding: "md" }} shadow="xs">
+            <Paper style={{ padding: "md", backgroundColor: "#20232a" }}>
               <Title order={2} style={{ marginBottom: "0.5rem" }}>
                 Ticket Stats
               </Title>
               <Text>Total Resolved Tickets: {ticketStats.total}</Text>
               <Text>
-                Average Mentor Rating: {ticketStats.averageRating.toFixed(2)}/5
+                Average Mentor Rating:{" "}
+                {computeNormalizedRating(
+                  ticketStats.averageRating,
+                  ticketStats.total
+                )}
               </Text>
               <Rating
-                value={ticketStats.averageRating}
+                value={parseFloat(
+                  computeNormalizedRating(
+                    ticketStats.averageRating,
+                    ticketStats.total
+                  )
+                )}
                 size="lg"
                 fractions={10}
                 readOnly
