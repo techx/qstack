@@ -59,7 +59,7 @@ export default function TicketPage() {
   const editor = useEditor(
     {
       extensions: [
-        StarterKit,
+        StarterKit as any,
         Underline,
         Link,
         CodeBlockLowlight.configure({

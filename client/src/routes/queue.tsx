@@ -43,7 +43,7 @@ function DisplayContent(props: displayContentProps) {
     content: props.content,
     editable: false,
     extensions: [
-      StarterKit,
+      StarterKit as any,
       CodeBlockLowlight.configure({
         lowlight,
       }),
