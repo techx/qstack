@@ -42,7 +42,11 @@ export default function Leaderboard() {
           parseFloat(computeNormalizedRating(a.ratings, a.tickets))
         );
       });
-      setRankings(res.rankings);
+      newRankings.map((mentor: mentor, idx: any) => ({
+        ...mentor,
+        rank: idx + 1,
+      }));
+      setRankings(newRankings);
       setLoading(false);
     } else {
       navigate("/error");

@@ -15,17 +15,17 @@ admin = APIBlueprint("admin", __name__, url_prefix="/admin")
 def getTicketData():
     mentors = User.query.filter_by(role="mentor").all()
     totalTickets = 0
-    totalRatings = 0
+    sumAverageMentorRating = 0
     totalMentors = 0
 
     for mentor in mentors:
-        totalTickets += mentor.resolved_tickets
+        totalTickets += len(mentor.ratings)
         if len(mentor.ratings) != 0:
-            totalRatings += sum(mentor.ratings) / len(mentor.ratings)
+            sumAverageMentorRating += sum(mentor.ratings) / len(mentor.ratings)
             totalMentors += 1
 
     if totalMentors != 0:
-        averageRating = totalRatings/totalMentors
+        averageRating = sumAverageMentorRating/totalMentors
     else:
         averageRating = 0
 
