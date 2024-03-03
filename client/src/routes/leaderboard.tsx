@@ -17,8 +17,9 @@ import * as queue from "../api/queue";
 interface mentor {
   name: string;
   rank: number;
-  tickets: number;
-  ratings: number;
+  num_resolved_tickets: number;
+  num_ratings: number;
+  average_rating: number;
 }
 
 export default function Leaderboard() {
@@ -35,14 +36,14 @@ export default function Leaderboard() {
   const getRankings = async () => {
     const res = await queue.getMentorRankings();
     if (res.ok) {
-      const newRankings = res.rankings;
-      newRankings.sort((a: mentor, b: mentor) => {
+      const rankings = res.rankings;
+      rankings.sort((a: mentor, b: mentor) => {
         return (
-          parseFloat(computeNormalizedRating(b.ratings, b.tickets)) -
-          parseFloat(computeNormalizedRating(a.ratings, a.tickets))
+          parseFloat(computeNormalizedRating(b.average_rating, b.num_ratings)) -
+          parseFloat(computeNormalizedRating(a.average_rating, a.num_ratings))
         );
       });
-      newRankings.map((mentor: mentor, idx: any) => ({
+      const newRankings = rankings.map((mentor: mentor, idx: any) => ({
         ...mentor,
         rank: idx + 1,
       }));
@@ -108,7 +109,10 @@ export default function Leaderboard() {
             </div>
             <Rating
               value={parseFloat(
-                computeNormalizedRating(mentor.ratings, mentor.tickets)
+                computeNormalizedRating(
+                  mentor.average_rating,
+                  mentor.num_ratings
+                )
               )}
               size="lg"
               fractions={10}
@@ -121,14 +125,14 @@ export default function Leaderboard() {
                 size="xl"
                 mr="3"
               >{`Rating: ${computeNormalizedRating(
-                mentor.ratings,
-                mentor.tickets
+                mentor.average_rating,
+                mentor.num_ratings
               )}`}</Badge>
               <Badge
                 color="green"
                 variant="light"
                 size="xl"
-              >{`Tickets: ${mentor.tickets}`}</Badge>
+              >{`Tickets: ${mentor.num_resolved_tickets}`}</Badge>
             </div>
           </Group>
         ))}
