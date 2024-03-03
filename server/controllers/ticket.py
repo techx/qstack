@@ -204,7 +204,7 @@ def resolve():
 
     data = request.get_json()
     mentor = User.query.get(int(data["mentor_id"]))
-    mentor.resolved_tickets = user.resolved_tickets + 1
+    mentor.resolved_tickets = mentor.resolved_tickets + 1
     mentor.claimed = None
     db.session.commit()
 
