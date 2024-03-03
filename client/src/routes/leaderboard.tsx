@@ -9,7 +9,7 @@ import {
   Title,
   Rating,
 } from "@mantine/core";
-import { IconMedal, IconTrophy } from "@tabler/icons-react";
+// import { IconMedal, IconTrophy } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { computeNormalizedRating } from "../utils";
 import * as queue from "../api/queue";
@@ -35,6 +35,13 @@ export default function Leaderboard() {
   const getRankings = async () => {
     const res = await queue.getMentorRankings();
     if (res.ok) {
+      const newRankings = res.rankings;
+      newRankings.sort((a: mentor, b: mentor) => {
+        return (
+          parseFloat(computeNormalizedRating(b.ratings, b.tickets)) -
+          parseFloat(computeNormalizedRating(a.ratings, a.tickets))
+        );
+      });
       setRankings(res.rankings);
       setLoading(false);
     } else {
@@ -42,18 +49,18 @@ export default function Leaderboard() {
     }
   };
 
-  const renderIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <IconTrophy size={24} color="#ffd700" stroke={1.5} />;
-      case 2:
-        return <IconMedal size={24} color="#c0c0c0" stroke={1.5} />;
-      case 3:
-        return <IconMedal size={24} color="#cd7f32" stroke={1.5} />;
-      default:
-        return <Text>{rank}</Text>; // Just the number for ranks below 3
-    }
-  };
+  // const renderIcon = (rank: number) => {
+  //   switch (rank) {
+  //     case 1:
+  //       return <IconTrophy size={24} color="#ffd700" stroke={1.5} />;
+  //     case 2:
+  //       return <IconMedal size={24} color="#c0c0c0" stroke={1.5} />;
+  //     case 3:
+  //       return <IconMedal size={24} color="#cd7f32" stroke={1.5} />;
+  //     default:
+  //       return <Text>{rank}</Text>; // Just the number for ranks below 3
+  //   }
+  // };
 
   return (
     <Container size="md" py="6rem">
@@ -77,9 +84,9 @@ export default function Leaderboard() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={{ marginRight: "1rem" }}>
+              {/* <div style={{ marginRight: "1rem" }}>
                 {renderIcon(mentor.rank)}
-              </div>
+              </div> */}
               <Text
                 style={{
                   fontWeight: 500,
