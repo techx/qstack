@@ -107,9 +107,9 @@ def ranking():
     for mentor in mentors:
         if len(mentor.ratings) > 0:
             mentor_rating = sum(mentor.ratings)/len(mentor.ratings)
-            ranking.append((mentor.resolved_tickets, mentor.name, mentor_rating))
+            ranking.append((mentor.resolved_tickets, len(mentor.ratings), mentor.name, mentor_rating))
         else:
-            ranking.append((mentor.resolved_tickets, mentor.name, 0))
+            ranking.append((mentor.resolved_tickets, len(mentor.ratings), mentor.name, 0))
 
     ranking = sorted(ranking, key=lambda x: (x[0], x[2]), reverse=True)
 
@@ -118,9 +118,10 @@ def ranking():
     for rank in ranking:
         status = {
             "rank": val,
-            "tickets": rank[0],
-            "name": rank[1],
-            "ratings": rank[2]
+            "num_resolved_tickets": rank[0],
+            "num_ratings": rank[1],
+            "name": rank[2],
+            "average_rating": rank[3]
         }
         val += 1
         rankings.append(status)
