@@ -9,6 +9,7 @@ interface userState {
   location: string;
   zoomlink: string;
   discord: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getUser: () => Promise<any>;
 }
 

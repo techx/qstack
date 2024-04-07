@@ -14,3 +14,7 @@ fi
 echo "Installing dependencies..."
 
 parallel --tag -j2 --line-buffer ::: "pip install --user -r requirements.txt" "cd client && rm -rf node_modules/ && npm install"
+
+echo "Initializing git repository..."
+
+git config --global --add safe.directory /workspaces/qstack

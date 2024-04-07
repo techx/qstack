@@ -43,6 +43,7 @@ export default function Leaderboard() {
           parseFloat(computeNormalizedRating(a.average_rating, a.num_ratings))
         );
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newRankings = rankings.map((mentor: mentor, idx: any) => ({
         ...mentor,
         rank: idx + 1,
