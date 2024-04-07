@@ -71,7 +71,9 @@ export default function TicketPage() {
       content: content,
       editable: !active,
       onUpdate({ editor }) {
-        setContent(editor.getHTML());
+        const htmlContent = editor.getHTML();
+        const sanitizedHTML = htmlContent.replace(/ +/g, '&nbsp;');
+        setContent(sanitizedHTML);
       },
     },
     [active]
