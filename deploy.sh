@@ -2,6 +2,6 @@ ssh -i ~/.ssh/techx-general.pem ubuntu@3.92.255.125 << EOF # replace ~/.ssh/tech
     cd ~/qstack;
     git pull;
     cd client;
-    yarn build;
+    npm build;
     sudo systemctl restart qstack;
 EOF
