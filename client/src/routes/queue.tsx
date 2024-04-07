@@ -43,6 +43,7 @@ function DisplayContent(props: displayContentProps) {
     content: props.content,
     editable: false,
     extensions: [
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       StarterKit as any,
       CodeBlockLowlight.configure({
         lowlight,
@@ -57,7 +58,7 @@ function DisplayContent(props: displayContentProps) {
   );
 }
 
-export default function queuePage() {
+export default function QueuePage() {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Array<ticket>>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -107,6 +108,7 @@ export default function queuePage() {
       });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showNotif = (res: any) => {
     if (res.ok) {
       notifications.show({

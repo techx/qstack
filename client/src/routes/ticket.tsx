@@ -59,6 +59,7 @@ export default function TicketPage() {
   const editor = useEditor(
     {
       extensions: [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         StarterKit as any,
         Underline,
         Link,
@@ -172,6 +173,7 @@ export default function TicketPage() {
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showNotif = (res: any) => {
     if (res.ok) {
       notifications.show({

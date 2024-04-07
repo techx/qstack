@@ -12,7 +12,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import * as auth from "../api/auth";
 
-export default function profilePage() {
+export default function ProfilePage() {
   const [name, email, role, location, zoomlink, getUser, discord] =
     useUserStore((store) => [
       store.name,
