@@ -21,9 +21,7 @@ QStack uses [Flask](https://flask.palletsprojects.com/en/2.2.x/) for its backend
 
 ```
 qstack/
-├── Dockerfile.backend            # Docker files that set up
-├── Dockerfile.frontend           # the dev environments
-├── docker-compose.yml            # Docker Compose lets them work together and talk to each other
+├── .devcontainer                 # Dev container configuration
 ├── README.md
 ├── requirements.txt              # Python dependencies list for backend
 ├── .env                          # Stores secrets that are not in VCS
@@ -73,67 +71,25 @@ If you are developing using [Docker](https://docs.docker.com/get-started/) (see 
 
 ### Env
 
-Fill in the `.env` file (should be able to find it on Slack). 
-```env
-FRONTEND_URL=""
-BACKEND_URL=""
+Copy `.env.sample` to `.env` and fill in the necessary values. You should be able to find them on slack.
 
-AUTH0_SECRET_KEY=""
-AUTH0_CLIENT_ID=""
-AUTH0_CLIENT_SECRET=""
-```
-## Setup
+## Docker
 
-This webapp uses [Docker](https://docs.docker.com/get-started/) to make managing all these different technologies and installation/setup a (hopefully better) experience. So you'll need to install it by following the instructions [here](https://docs.docker.com/get-docker/). If you'd like a slimmer installation, there are options for just the command-line interface through Homebrew if you're on a Mac, or any Linux package manager. It also uses Postgres, so please have Postgres and Node.js installed.
+Using [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container) are strongly recommended when doing development work on Ballot. Containers are a way of provisioning identical environments from computer to computer and alleviates a lot of headache when it comes to installing dependencies, setting up Postgres, etc...
 
-### Clone
+To use Dev Containers you must first install [Visual Studio Code](https://code.visualstudio.com/) and [Docker](https://www.docker.com/get-started/). Then you must install the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for Visual Studio Code.
 
-The first step to contributing to any project with git is to clone it! Navigate to the folder in your terminal where you want to store qstack and run:
+To use Docker, install it [here](https://docs.docker.com/get-docker/). To check if your installation is working, try running
 
 ```sh
-git clone https://github.com/techx/qstack
+docker run hello-world
 ```
 
-Now you'll have a local copy of the project in `qstack/`.
+If you get a message on your screen that starts with "Hello from Docker!", your installation is working.
 
-### Start it!
+After that, follow [this tutorial](https://www.youtube.com/watch?v=Uvf2FVS1F8k) to get your environment set up. Make sure you open this repository as a dev container in VSCode.
 
-Now get into your `qstack/` directory and run one simple command:
-
-```sh
-cd qstack
-docker compose up
-```
-
-This will download all the necessary dependencies for React, Flask, and Postgres onto their separate Docker containers, and then connect them all together so they can talk to each other! After you see qstack-frontend-1 print "project is running at http://...", you should be able to go to `http://localhost:6001` and see Qstack's webpage! The Flask webserver should be at `http://localhost:3001` (though it won't have a landing page). 
-
-Now you can start editing the frontend or backend, and see changes reflected!
-
-### Developing with Docker
-
-Once you're done you can stop all the containers by pressing Ctrl+C on your keyboard. You'll notice by default, running `docker compose up` will connect your terminal to all the terminals of each container (frontend, backend, database) and kind of capture it. You'll see the log outputs of each. But you might want to run it in the background without seeing all of it. You can run in _detached_ mode with:
-
-```sh
-docker compose up -d
-```
-
-Then you can stop them by running a separate command instead of Ctrl+C:
-
-```sh
-docker compose down
-```
-
-And then when you need to check on a specific container's logs you can first find the container's name (usually something like `qstack-frontend-1` or `qstack-backend-1` depending on what you want):
-
-## Development
-
-Note that you when you pull changes, the Dockerfile may have changed. It's always good to run
-
-```sh
-docker compose up --build
-```
-
-after a pull to rebuild images.
+> Note: It can take a few minutes to provision the container if it is your first time starting it up.
 
 ## License
 Released under [AGPL v3.0](./LICENSE). See LICENSE for more details.
