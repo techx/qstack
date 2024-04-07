@@ -1,4 +1,4 @@
-from flask import current_app as app, url_for, redirect, session, request
+from flask import current_app as app, redirect, session, request
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -25,6 +25,7 @@ oauth.register(
     server_metadata_url=f"https://{AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
+
 def auth_required_decorator(roles):
     """
     middleware for protected routes
@@ -50,14 +51,14 @@ def auth_required_decorator(roles):
 
 @auth.route("/login")
 def login():
-    return oauth.auth0.authorize_redirect(
+    return oauth.auth0.authorize_redirect(  # type: ignore
         redirect_uri=FRONTEND_URL + "/api/auth/callback"
     )
 
 
 @auth.route("/callback", methods=["GET", "POST"])
 def callback():
-    token = oauth.auth0.authorize_access_token()
+    token = oauth.auth0.authorize_access_token()  # type: ignore
     session["user"] = token
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -123,7 +124,7 @@ def update():
 
     if data["location"] == "virtual" and len(data["zoomlink"]) == 0:
         return abort(400, "Missing video call link!")
-    
+
     if len(data["discord"]) == 0:
         return abort(400, "Missing discord!")
 

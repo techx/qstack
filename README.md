@@ -27,7 +27,6 @@ qstack/
 ├── .env                          # Stores secrets that are not in VCS
 ├── deploy.sh                    
 └── client/                       # QStack's React frontend
-│   ├── yarn.lock         
 │   ├── index.html         
 │   ├── vite.config.js            # Frontend config for local deployment
 │   ├── tsconfig.json             # Config for TypeScript
@@ -63,7 +62,6 @@ If you are developing using [Docker](https://docs.docker.com/get-started/) (see 
 | Requirement | Version    |
 |-------------|------------|
 | Node.js     | `18.x.x`   |
-| Yarn        | `1.x.x`    |
 | Docker      | `20.x.x`   |
 | Python      | `3.9.x`    |
 
