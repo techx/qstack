@@ -91,5 +91,21 @@ After that, follow [this tutorial](https://www.youtube.com/watch?v=Uvf2FVS1F8k) 
 
 > Note: It can take a few minutes to provision the container if it is your first time starting it up.
 
+## Development
+
+To start the server, run
+
+```sh
+python3 run.py
+```
+
+To start the client, in a different terminal, run 
+```sh
+cd client
+npm run dev
+```
+
+The client runs on port `6001` and the server runs on port `3001`. You should be able to access the website at `http://localhost:6001`.
+
 ## License
 Released under [AGPL v3.0](./LICENSE). See LICENSE for more details.
