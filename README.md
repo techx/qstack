@@ -25,7 +25,10 @@ qstack/
 ├── README.md
 ├── requirements.txt              # Python dependencies list for backend
 ├── .env                          # Stores secrets that are not in VCS
-├── deploy.sh                    
+├── run.py                        # Flask entry point
+├── scripts
+│   ├── deploy.sh                 # Deploy to production server
+│   └── devcontainer_setup.sh     # Run once when the dev container initializes       
 └── client/                       # QStack's React frontend
 │   ├── index.html         
 │   ├── vite.config.js            # Frontend config for local deployment
