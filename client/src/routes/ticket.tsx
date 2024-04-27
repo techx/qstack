@@ -53,6 +53,7 @@ export default function TicketPage() {
   const [mentorData, setMentorData] = useState<mentor>();
   const lowlight = createLowlight(all);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [soundPlayed, setSoundPlayed] = useState<boolean>(false);
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
 
@@ -81,13 +82,25 @@ export default function TicketPage() {
 
   const getStatus = async () => {
     const res = await ticket.getStatus();
-    if (res.ok && res.status == "claimed") {
-      setClaimed(true);
+    if (res.ok && res.status === "claimed") {
+      if (!claimed) {
+        setClaimed(true);
+        if (!soundPlayed) {
+          const playSound = () => {
+            const audio = new Audio('/notif.mp3');
+            audio.play();
+          };
+          playSound();
+          setSoundPlayed(true);
+        }
+      }
       setMentorData(res.mentorData);
-    } else if (res.ok && res.status == "unclaimed") {
+    } else if (res.ok && res.status === "unclaimed") {
+      setSoundPlayed(false);
       setClaimed(false);
       setMentorData(undefined);
-    } else if (res.ok && res.status == "awaiting_feedback") {
+    } else if (res.ok && res.status === "awaiting_feedback") {
+      setSoundPlayed(false);
       setClaimed(false);
       setMentorData(res.mentorData);
     }
