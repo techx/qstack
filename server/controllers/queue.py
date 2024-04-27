@@ -4,7 +4,6 @@ from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
-import csv
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
 from flask import jsonify
@@ -13,7 +12,7 @@ queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
 
 @queue.route("/get")
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["hacker", "mentor"])
 def get():
     tickets = []
     for ticket in Ticket.query.all():
@@ -69,7 +68,7 @@ def unclaim():
 
 
 @queue.route("/resolve", methods=["POST"])
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["mentor", "hacker"])
 def resolve():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -93,7 +92,7 @@ def claimed():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
 
-    for ticket in Ticket.query.filter(Ticket.claimant_id != None).all():
+    for ticket in Ticket.query.filter(Ticket.claimant_id is not None).all():
         if ticket.claimant_id == user.id and ticket.status == "claimed":
             return {"claimed": ticket.id}
 
