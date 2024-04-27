@@ -115,7 +115,7 @@ export default function TicketPage() {
     getStatus();
     const interval = setInterval(getStatus, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [soundPlayed]);
 
   useEffect(() => {
     checkForResolvedTickets();
