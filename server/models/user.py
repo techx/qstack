@@ -2,9 +2,7 @@ from server import db
 from sqlalchemy import (
     Column,
     Integer,
-    Boolean,
     Text,
-    String,
     ForeignKey,
     ARRAY,
     Numeric,

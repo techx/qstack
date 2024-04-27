@@ -9,7 +9,6 @@ import {
   Title,
   Rating,
 } from "@mantine/core";
-// import { IconMedal, IconTrophy } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { computeNormalizedRating } from "../utils";
 import * as queue from "../api/queue";
@@ -54,19 +53,6 @@ export default function Leaderboard() {
       navigate("/error");
     }
   };
-
-  // const renderIcon = (rank: number) => {
-  //   switch (rank) {
-  //     case 1:
-  //       return <IconTrophy size={24} color="#ffd700" stroke={1.5} />;
-  //     case 2:
-  //       return <IconMedal size={24} color="#c0c0c0" stroke={1.5} />;
-  //     case 3:
-  //       return <IconMedal size={24} color="#cd7f32" stroke={1.5} />;
-  //     default:
-  //       return <Text>{rank}</Text>; // Just the number for ranks below 3
-  //   }
-  // };
 
   return (
     <Container size="md" py="6rem">
