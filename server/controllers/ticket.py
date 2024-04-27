@@ -6,6 +6,7 @@ from os import environ as env
 from urllib.parse import quote_plus, urlencode
 import csv
 from server.models import User, Ticket
+from server.controllers.auth import auth_required_decorator
 
 ticket = APIBlueprint("ticket", __name__, url_prefix="/ticket")
 
@@ -23,6 +24,7 @@ def tagslist():
 
 
 @ticket.route("/save", methods=["POST"])
+@auth_required_decorator(roles=["hacker"])
 def save():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -50,6 +52,7 @@ def save():
 
 
 @ticket.route("/submit", methods=["POST"])
+@auth_required_decorator(roles=["hacker"])
 def submit():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -82,6 +85,7 @@ def submit():
 
 
 @ticket.route("/get")
+@auth_required_decorator(roles=["hacker", "mentor"])
 def get():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -98,6 +102,7 @@ def get():
 
 
 @ticket.route("/remove", methods=["POST"])
+@auth_required_decorator(roles=["hacker"])
 def remove():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -117,6 +122,7 @@ def remove():
 
 
 @ticket.route("/status")
+@auth_required_decorator(roles=["mentor", "hacker"])
 def status():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -136,6 +142,7 @@ def status():
 
 
 @ticket.route("/unclaim")
+@auth_required_decorator(roles=["mentor"])
 def unclaim():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -154,6 +161,7 @@ def unclaim():
 
 
 @ticket.route("/awaiting_feedback", methods=["GET"])
+@auth_required_decorator(roles=["mentor", "hacker"])
 def awaiting_feedback():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -164,14 +172,11 @@ def awaiting_feedback():
 
     resolved_tickets_data = [ticket.map() for ticket in resolved_tickets]
 
-    claimed_tickets = Ticket.query.filter_by(creator_id=user.id, status="claimed").all()
-
-    claimed_tickets_data = [ticket.map() for ticket in claimed_tickets]
-
     return resolved_tickets_data
 
 
 @ticket.route("/rate", methods=["POST"])
+@auth_required_decorator(roles=["hacker"])
 def rate():
     data = request.get_json()
     mentor = User.query.get(int(data["mentor_id"]))
@@ -189,6 +194,7 @@ def rate():
 
 
 @ticket.route("/resolve", methods=["POST"])
+@auth_required_decorator(roles=["hacker"])
 def resolve():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()

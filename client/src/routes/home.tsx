@@ -1,4 +1,4 @@
-import { Paper, Text, Title, Container } from "@mantine/core";
+import { Paper, Text, Title, Container, Anchor } from "@mantine/core";
 
 export default function HomePage() {
   return (
@@ -19,7 +19,12 @@ export default function HomePage() {
         </Text>
 
         <Text className="text-2xl mt-5">More questions?</Text>
-        <Text>Visit our helpdesk or email us at help@hackmit.org</Text>
+
+        <Text>Visit our helpdesk or email us at <span></span>
+          <Anchor href="mailto:help@hackmit.org" target="_blank">
+               help@hackmit.org
+          </Anchor>
+        </Text>
       </Paper>
     </Container>
   );
