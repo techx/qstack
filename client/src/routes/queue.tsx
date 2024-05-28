@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Paper,
@@ -64,29 +64,7 @@ export default function QueuePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
 
-  useEffect(() => {
-    getTickets();
-    const interval = setInterval(getTickets, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    checkClaimed();
-    const interval = setInterval(checkClaimed, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkClaimed = () => {
-    queue.checkClaimed().then((res) => {
-      if (res.ok && res.claimed) {
-        setClaimed(parseInt(res.claimed));
-      } else if (res.ok) {
-        setClaimed(undefined);
-      }
-    });
-  };
-
-  const getTickets = () => {
+  const getTickets = useCallback(() => {
     queue
       .getTickets()
       .then((res) => {
@@ -106,6 +84,28 @@ export default function QueuePage() {
         console.error(error);
         navigate("/error");
       });
+  }, [setTickets, setLoading, navigate]);
+
+  useEffect(() => {
+    getTickets();
+    const interval = setInterval(getTickets, 5000);
+    return () => clearInterval(interval);
+  }, [getTickets]);
+
+  useEffect(() => {
+    checkClaimed();
+    const interval = setInterval(checkClaimed, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const checkClaimed = () => {
+    queue.checkClaimed().then((res) => {
+      if (res.ok && res.claimed) {
+        setClaimed(parseInt(res.claimed));
+      } else if (res.ok) {
+        setClaimed(undefined);
+      }
+    });
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

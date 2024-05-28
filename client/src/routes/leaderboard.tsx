@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Paper,
@@ -26,13 +26,7 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState<boolean>(true);
   const [rankings, setRankings] = useState<Array<mentor>>([]);
 
-  useEffect(() => {
-    getRankings();
-    const interval = setInterval(getRankings, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const getRankings = async () => {
+  const getRankings = useCallback(async () => {
     const res = await queue.getMentorRankings();
     if (res.ok) {
       const rankings = res.rankings;
@@ -52,7 +46,13 @@ export default function Leaderboard() {
     } else {
       navigate("/error");
     }
-  };
+  }, [setRankings, navigate]);
+
+  useEffect(() => {
+    getRankings();
+    const interval = setInterval(getRankings, 5000);
+    return () => clearInterval(interval);
+  }, [getRankings]);
 
   return (
     <Container size="md" py="6rem">
