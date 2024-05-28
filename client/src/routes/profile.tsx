@@ -44,7 +44,7 @@ export default function ProfilePage() {
       password: "",
       discord: discord,
     });
-  }, [name]);
+  }, [name, email, role, location, zoomlink, discord]);
 
   const handleUserUpdate = async () => {
     const res = await auth.updateUser(user);

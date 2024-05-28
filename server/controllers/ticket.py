@@ -1,4 +1,4 @@
-from flask import current_app as app, url_for, redirect, session, request
+from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -95,10 +95,10 @@ def get():
 
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.active:
-        return {"active": False, "ticket": ticket.map()}
+        return jsonify({"active": False, "ticket": ticket.map()}), 200
 
     ticket = Ticket.query.get(user.ticket_id)
-    return {"active": True, "ticket": ticket.map()}
+    return jsonify({"active": True, "ticket": ticket.map()}), 200
 
 
 @ticket.route("/remove", methods=["POST"])
