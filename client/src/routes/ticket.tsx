@@ -9,10 +9,14 @@ import {
   Button,
   LoadingOverlay,
   Group,
+  Flex,
   Badge,
   HoverCard,
   Rating,
+  rem,
+  Space
 } from "@mantine/core";
+import { IconUpload, IconPhoto  } from "@tabler/icons-react";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -23,6 +27,12 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { all, createLowlight } from "lowlight";
 import * as ticket from "../api/ticket";
 import { notifications } from "@mantine/notifications";
+import {
+  Dropzone,
+  IMAGE_MIME_TYPE,
+  FileWithPath,
+} from "@mantine/dropzone";
+import classes from "./root.module.css";
 
 interface mentor {
   name: string;
@@ -39,12 +49,14 @@ interface ticket {
   mentor_name: string;
   rating: number;
   question: string;
+  images: Array<string>;
 }
 
 export default function TicketPage() {
   const [question, setQuestion] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [location, setLocation] = useState<string>("");
+  const [images, setImages] = useState<Array<string>>([]);
 
   const [tags, setTags] = useState<Array<string>>([]);
   const [tagsList, setTagsList] = useState<Array<string>>([]);
@@ -174,6 +186,9 @@ export default function TicketPage() {
         setContent(res.ticket.content);
         setLocation(res.ticket.location);
         setTags(res.ticket.tags);
+        setImages(res.ticket.images);
+        console.log(res.ticket);
+        console.log("IMAGES", res.ticket.images);
       }
       if (!res.ticket) {
         setQuestion("");
@@ -183,10 +198,12 @@ export default function TicketPage() {
         }
         setLocation("");
         setTags([]);
+        setImages([]);
       }
       if (!res.active) setActive(false);
     });
   };
+
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showNotif = (res: any) => {
@@ -212,6 +229,7 @@ export default function TicketPage() {
       content: content,
       location: location,
       tags: tags,
+      images: images,
     });
     showNotif(res);
   };
@@ -223,12 +241,14 @@ export default function TicketPage() {
       setClaimed(false);
     }
   };
+  
   const handleSubmit = async () => {
     const res = await ticket.submit({
       question: question,
       content: content,
       location: location,
       tags: tags,
+      images: images,
     });
     if (res.ok) getTicket();
     showNotif(res);
@@ -247,6 +267,46 @@ export default function TicketPage() {
     getStatus();
     getTicket();
   };
+
+  const handleDrop = async (newFiles: Array<FileWithPath>) => {
+    const newImages: Array<string> = await Promise.all(newFiles.map(file => fileToBase64(file))) as Array<string>;
+    setImages((prevImages: Array<string>) => [...prevImages, ...newImages]);
+  };
+
+  const fileToBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };  
+
+  const removeImage = (imageToRemove: string) => {
+    if (!active) {
+      setImages(images.filter((image: string) => image !== imageToRemove));
+    }
+  };  
+
+  const previews = (images: Array<string>, removeImage: (file: string) => void) => {
+    if (images.length === 0) {
+      return <Group></Group>;
+    }
+    return images.map((image, index) => (
+      <div key={index}>
+        <img
+          src={image}
+          alt={`image-${index}`}
+        />
+        <button
+          style={{ position: 'absolute', top: 0, right: 0 }}
+          onClick={() => removeImage(image)}
+        >
+          X
+        </button>
+      </div>
+    ));
+  };  
 
   return (
     <Container size="sm" py="6rem" pb="10rem">
@@ -340,6 +400,61 @@ export default function TicketPage() {
             label="How can we find you?"
             placeholder="red shirt guy at table 3"
           />
+          <Space></Space>
+          <Flex justify="center" gap={30} wrap="wrap">
+            <Dropzone
+              onDrop={handleDrop}
+              maxSize={5 * 528 ** 2}
+              accept={IMAGE_MIME_TYPE}
+              className={classes.dropzone}
+              h={200}
+              w={520}
+              disabled={active}
+              onReject={() => notifications.show({
+                title: "Error",
+                message: "Failed to upload image. Check that your image is less than 3MB.",
+                color: "red",
+              })}
+            >
+            <Group
+              grow
+              justify="center"
+              gap="l"
+            >
+              <Dropzone.Accept>
+                <IconUpload
+                  style={{
+                    width: rem(52),
+                    height: rem(52),
+                    color: "var(--mantine-color-blue-6)",
+                  }}
+                  stroke={1.5}
+                />
+              </Dropzone.Accept>
+              <Dropzone.Idle>
+                {images.length === 0 && (
+                  <IconPhoto
+                    style={{
+                      width: rem(52),
+                      height: rem(52),
+                      color: "var(--mantine-color-dimmed)",
+                    }}
+                    stroke={1.5}
+                  />
+                )}
+              </Dropzone.Idle>
+
+              {images.length !== 0 && (
+                <div className={classes.previewContainer}>
+                  {previews(images, removeImage)}
+                </div>
+              )}
+              <Text size="l" inline ta="center">
+                Drag any images here to give more context to your problem!
+              </Text>
+              </Group>
+            </Dropzone>
+          </Flex>
 
           {!active && (
             <Group grow>
