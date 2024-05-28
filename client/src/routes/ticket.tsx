@@ -187,8 +187,6 @@ export default function TicketPage() {
         setLocation(res.ticket.location);
         setTags(res.ticket.tags);
         setImages(res.ticket.images);
-        console.log(res.ticket);
-        console.log("IMAGES", res.ticket.images);
       }
       if (!res.ticket) {
         setQuestion("");
