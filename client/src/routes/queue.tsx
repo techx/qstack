@@ -42,8 +42,9 @@ function DisplayContent(props: displayContentProps) {
     content: props.content,
     editable: false,
     extensions: [
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      StarterKit as any,
+      StarterKit.configure({
+        codeBlock: false,
+      }),
       CodeBlockLowlight.configure({
         lowlight,
       }),

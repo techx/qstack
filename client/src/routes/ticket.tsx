@@ -72,8 +72,9 @@ export default function TicketPage() {
   const editor = useEditor(
     {
       extensions: [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        StarterKit as any,
+        StarterKit.configure({
+          codeBlock: false,
+        }),
         Underline,
         Link,
         CodeBlockLowlight.configure({
