@@ -29,7 +29,7 @@ interface ticket {
   name: string;
   discord: string;
   createdAt: Date;
-  images?: Array<string>;
+  images: Array<string>;
 }
 
 interface displayContentProps {
@@ -66,51 +66,6 @@ export default function QueuePage() {
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
 
   const getTickets = useCallback(() => {
-    queue
-      .getTickets()
-      .then((res) => {
-        console.log(res);
-        if (res.ok) {
-          const sortedTickets = res.tickets.sort((a: ticket, b: ticket) => {
-            return (
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            );
-          });
-          setTickets(sortedTickets);
-          setLoading(false);
-        } else {
-          throw new Error("Tickets fetch failed");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        navigate("/error");
-      });
-  }, [setTickets, setLoading, navigate]);
-
-  useEffect(() => {
-    getTickets();
-    const interval = setInterval(getTickets, 5000);
-    return () => clearInterval(interval);
-  }, [getTickets]);
-
-  useEffect(() => {
-    checkClaimed();
-    const interval = setInterval(checkClaimed, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkClaimed = () => {
-    queue.checkClaimed().then((res) => {
-      if (res.ok && res.claimed) {
-        setClaimed(parseInt(res.claimed));
-      } else if (res.ok) {
-        setClaimed(undefined);
-      }
-    });
-  };
-
-  const getTickets = () => {
     queue
       .getTickets()
       .then((res) => {
@@ -192,26 +147,6 @@ export default function QueuePage() {
     getTickets();
   };
 
-  const previews = (images: Array<string>, removeImage: (file: string) => void) => {
-    if (images.length === 0) {
-      return <Group></Group>;
-    }
-    return images.map((image, index) => (
-      <div key={index}>
-        <img
-          src={image}
-          alt={`image-${index}`}
-        />
-        <button
-          style={{ position: 'absolute', top: 0, right: 0 }}
-          onClick={() => removeImage(image)}
-        >
-          X
-        </button>
-      </div>
-    ));
-  };  
-
   return (
     <Container size="md" py="6rem">
       <LoadingOverlay visible={loading} />
@@ -240,16 +175,18 @@ export default function QueuePage() {
                       <Group>
                         <Title order={2}>{ticket.question}</Title>
                       </Group>
-                      <Group>
 
-
-                      </Group>
                       <DisplayContent content={ticket.content} />
                       <Group>
                         {ticket.tags.map((tag) => (
                           <Badge key={tag} color="green">
                             {tag}
                           </Badge>
+                        ))}
+                      </Group>
+                      <Group>
+                        {ticket.images.map((image, index) => (
+                          <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
                         ))}
                       </Group>
                       <div className="mt-5">
@@ -298,6 +235,11 @@ export default function QueuePage() {
                           <Badge key={tag} color="green">
                             {tag}
                           </Badge>
+                        ))}
+                      </Group>
+                      <Group>
+                        {ticket.images.map((image, index) => (
+                          <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
                         ))}
                       </Group>
                       <div className="mt-5">
