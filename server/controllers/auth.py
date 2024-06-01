@@ -10,6 +10,8 @@ from server.config import (
     AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET,
     AUTH0_DOMAIN,
+    AUTH_USERNAME,
+    AUTH_PASSWORD
 )
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
@@ -69,6 +71,13 @@ def callback():
         )
         db.session.add(u)
         db.session.commit()
+        
+    for admin in app.config["AUTH_ADMINS"]:
+        if admin["email"] == email:
+            session["user"]["role"] = "admin"
+            user.role = "admin"
+            db.session.commit()
+            break
 
     return redirect(FRONTEND_URL)
 
