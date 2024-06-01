@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Paper,
@@ -6,7 +6,6 @@ import {
   Card,
   Group,
   Badge,
-  Text,
   Button,
   LoadingOverlay,
 } from "@mantine/core";
@@ -44,8 +43,9 @@ function DisplayContent(props: displayContentProps) {
     content: props.content,
     editable: false,
     extensions: [
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      StarterKit as any,
+      StarterKit.configure({
+        codeBlock: false,
+      }),
       CodeBlockLowlight.configure({
         lowlight,
       }),
@@ -65,11 +65,34 @@ export default function QueuePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [claimed, setClaimed] = useState<number | undefined>(undefined);
 
+  const getTickets = useCallback(() => {
+    queue
+      .getTickets()
+      .then((res) => {
+        console.log(res);
+        if (res.ok) {
+          const sortedTickets = res.tickets.sort((a: ticket, b: ticket) => {
+            return (
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+          });
+          setTickets(sortedTickets);
+          setLoading(false);
+        } else {
+          throw new Error("Tickets fetch failed");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        navigate("/error");
+      });
+  }, [setTickets, setLoading, navigate]);
+
   useEffect(() => {
     getTickets();
     const interval = setInterval(getTickets, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [getTickets]);
 
   useEffect(() => {
     checkClaimed();
@@ -91,7 +114,6 @@ export default function QueuePage() {
     queue
       .getTickets()
       .then((res) => {
-        console.log(res);
         if (res.ok) {
           const sortedTickets = res.tickets.sort((a: ticket, b: ticket) => {
             return (
@@ -108,6 +130,28 @@ export default function QueuePage() {
         console.error(error);
         navigate("/error");
       });
+  }, [setTickets, setLoading, navigate]);
+
+  useEffect(() => {
+    getTickets();
+    const interval = setInterval(getTickets, 5000);
+    return () => clearInterval(interval);
+  }, [getTickets]);
+
+  useEffect(() => {
+    checkClaimed();
+    const interval = setInterval(checkClaimed, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const checkClaimed = () => {
+    queue.checkClaimed().then((res) => {
+      if (res.ok && res.claimed) {
+        setClaimed(parseInt(res.claimed));
+      } else if (res.ok) {
+        setClaimed(undefined);
+      }
+    });
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -208,14 +252,13 @@ export default function QueuePage() {
                           </Badge>
                         ))}
                       </Group>
-
-                      <Text className="mt-5">
+                      <div className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
-                      </Text>
-                      <Text className="mt-5">
+                      </div>
+                      <div className="mt-5">
                         Discord: <Badge>{ticket.discord}</Badge>
-                      </Text>
-                      <Text className="mt-5 text-md">
+                      </div>
+                      <div className="mt-5 text-md">
                         Ticket Created At:{" "}
                         <Badge size="lg">
                           {(() => {
@@ -224,7 +267,7 @@ export default function QueuePage() {
                             return date.toLocaleString();
                           })()}
                         </Badge>
-                      </Text>
+                      </div>
                       <Button
                         onClick={() => handleClaim(ticket.id)}
                         className="mt-5"
@@ -243,8 +286,8 @@ export default function QueuePage() {
             {tickets.map(
               (ticket) =>
                 ticket.id == claimed && (
-                  <div key={ticket.id}>
-                    <Card className="my-3">
+                  <Group key={ticket.id} w="100%">
+                    <Card className="my-3" w="100%">
                       <Group>
                         <Title order={2}>{ticket.question}</Title>
                       </Group>
@@ -257,12 +300,12 @@ export default function QueuePage() {
                           </Badge>
                         ))}
                       </Group>
-                      <Text className="mt-5">
+                      <div className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
-                      </Text>
-                      <Text className="mt-5">
+                      </div>
+                      <div className="mt-5">
                         Discord: <Badge>{ticket.discord}</Badge>
-                      </Text>
+                      </div>
                       <Group className="mt-5" grow>
                         <Button
                           onClick={() =>
@@ -279,7 +322,7 @@ export default function QueuePage() {
                         </Button>
                       </Group>
                     </Card>
-                  </div>
+                  </Group>
                 )
             )}
           </Container>

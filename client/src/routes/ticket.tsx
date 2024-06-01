@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Paper,
@@ -72,8 +72,9 @@ export default function TicketPage() {
   const editor = useEditor(
     {
       extensions: [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        StarterKit as any,
+        StarterKit.configure({
+          codeBlock: false,
+        }),
         Underline,
         Link,
         CodeBlockLowlight.configure({
@@ -92,7 +93,7 @@ export default function TicketPage() {
     [active]
   );
 
-  const getStatus = async () => {
+  const getStatus = useCallback(async () => {
     const res = await ticket.getStatus();
     if (res.ok && res.status === "claimed") {
       if (!claimed) {
@@ -116,18 +117,42 @@ export default function TicketPage() {
       setClaimed(false);
       setMentorData(res.mentorData);
     }
-  };
+  }, [claimed, setClaimed, setMentorData, soundPlayed]);
+
+  const getTicket = useCallback(() => {
+    ticket.getTicket().then((res) => {
+      if (res.active || res.ticket) {
+        setActive(true);
+        setQuestion(res.ticket.question);
+        setContent(res.ticket.content);
+        setLocation(res.ticket.location);
+        setTags(res.ticket.tags);
+        setImages(res.ticket.images);
+      }
+      if (!res.ticket) {
+        setQuestion("");
+        setContent("");
+        if (editor) {
+          editor.commands.setContent("");
+        }
+        setLocation("");
+        setTags([]);
+        setImages([]);
+      }
+      if (!res.active) setActive(false);
+    });
+  }, [setActive, setQuestion, setContent, setLocation, setTags, setImages, editor]);
 
   useEffect(() => {
     ticket.getTags().then((res) => setTagsList(res.tags));
     getTicket();
-  }, []);
+  }, [getTicket]);
 
   useEffect(() => {
     getStatus();
     const interval = setInterval(getStatus, 5000);
     return () => clearInterval(interval);
-  }, [soundPlayed]);
+  }, [soundPlayed, getStatus]);
 
   useEffect(() => {
     checkForResolvedTickets();
@@ -176,30 +201,6 @@ export default function TicketPage() {
       });
     }
     setIsSubmitting(false);
-  };
-
-  const getTicket = () => {
-    ticket.getTicket().then((res) => {
-      if (res.active || res.ticket) {
-        setActive(true);
-        setQuestion(res.ticket.question);
-        setContent(res.ticket.content);
-        setLocation(res.ticket.location);
-        setTags(res.ticket.tags);
-        setImages(res.ticket.images);
-      }
-      if (!res.ticket) {
-        setQuestion("");
-        setContent("");
-        if (editor) {
-          editor.commands.setContent("");
-        }
-        setLocation("");
-        setTags([]);
-        setImages([]);
-      }
-      if (!res.active) setActive(false);
-    });
   };
 
 
