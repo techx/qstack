@@ -30,6 +30,7 @@ interface ticket {
   name: string;
   discord: string;
   createdAt: Date;
+  images?: Array<string>;
 }
 
 interface displayContentProps {
@@ -90,6 +91,7 @@ export default function QueuePage() {
     queue
       .getTickets()
       .then((res) => {
+        console.log(res);
         if (res.ok) {
           const sortedTickets = res.tickets.sort((a: ticket, b: ticket) => {
             return (
@@ -146,6 +148,26 @@ export default function QueuePage() {
     getTickets();
   };
 
+  const previews = (images: Array<string>, removeImage: (file: string) => void) => {
+    if (images.length === 0) {
+      return <Group></Group>;
+    }
+    return images.map((image, index) => (
+      <div key={index}>
+        <img
+          src={image}
+          alt={`image-${index}`}
+        />
+        <button
+          style={{ position: 'absolute', top: 0, right: 0 }}
+          onClick={() => removeImage(image)}
+        >
+          X
+        </button>
+      </div>
+    ));
+  };  
+
   return (
     <Container size="md" py="6rem">
       <LoadingOverlay visible={loading} />
@@ -174,7 +196,10 @@ export default function QueuePage() {
                       <Group>
                         <Title order={2}>{ticket.question}</Title>
                       </Group>
+                      <Group>
 
+
+                      </Group>
                       <DisplayContent content={ticket.content} />
                       <Group>
                         {ticket.tags.map((tag) => (
@@ -183,6 +208,7 @@ export default function QueuePage() {
                           </Badge>
                         ))}
                       </Group>
+
                       <Text className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
                       </Text>

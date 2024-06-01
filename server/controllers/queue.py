@@ -12,7 +12,7 @@ queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
 
 @queue.route("/get")
-@auth_required_decorator(roles=["hacker", "mentor"])
+@auth_required_decorator(roles=["hacker", "mentor", "admin"])
 def get():
     tickets = []
     for ticket in Ticket.query.all():
@@ -23,7 +23,7 @@ def get():
 
 
 @queue.route("/claim", methods=["POST"])
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["mentor", "admin"])
 def claim():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -45,7 +45,7 @@ def claim():
 
 
 @queue.route("/unclaim", methods=["POST"])
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -68,7 +68,7 @@ def unclaim():
 
 
 @queue.route("/resolve", methods=["POST"])
-@auth_required_decorator(roles=["mentor", "hacker"])
+@auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def resolve():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -87,7 +87,7 @@ def resolve():
 
 
 @queue.route("/claimed")
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["mentor", "admin"])
 def claimed():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -99,7 +99,7 @@ def claimed():
     return {"claimed": None}
 
 @queue.route("/ranking", methods=["GET"])
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
     mentors = User.query.filter_by(role="mentor")
     ranking = []
