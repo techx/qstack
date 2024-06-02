@@ -1,4 +1,4 @@
-from flask import current_app as session, request
+from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -16,7 +16,7 @@ def get():
         creator = User.query.get(ticket.creator_id)
         if ticket.status != "awaiting_feedback":
             tickets.append(dict(ticket.map(), creator=creator.name))
-    return tickets
+    return jsonify(tickets)
 
 
 @queue.route("/claim", methods=["POST"])
@@ -31,7 +31,7 @@ def claim():
     ticket = Ticket.query.get(ticket_id)
     if ticket.claimant_id is not None:
         return abort(400, "Ticket already claimed")
-    
+
     ticket.status = "claimed"
     ticket.claimant = user
     ticket.active = False
@@ -95,6 +95,7 @@ def claimed():
 
     return {"claimed": None}
 
+
 @queue.route("/ranking", methods=["GET"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
@@ -103,9 +104,11 @@ def ranking():
     for mentor in mentors:
         if len(mentor.ratings) > 0:
             mentor_rating = sum(mentor.ratings)/len(mentor.ratings)
-            ranking.append((mentor.resolved_tickets, len(mentor.ratings), mentor.name, mentor_rating))
+            ranking.append((mentor.resolved_tickets, len(
+                mentor.ratings), mentor.name, mentor_rating))
         else:
-            ranking.append((mentor.resolved_tickets, len(mentor.ratings), mentor.name, 0))
+            ranking.append((mentor.resolved_tickets, len(
+                mentor.ratings), mentor.name, 0))
 
     ranking = sorted(ranking, key=lambda x: (x[0], x[2]), reverse=True)
 

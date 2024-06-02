@@ -17,6 +17,7 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import StarterKit from "@tiptap/starter-kit";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
+import classes from "./root.module.css";
 
 interface ticket {
   id: number;
@@ -186,16 +187,19 @@ export default function QueuePage() {
                         ))}
                       </Group>
                       <Group>
-                        {ticket.images.map((image, index) => (
-                          <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-                        ))}
+                        {<div className={classes.previewContainer}>
+                          {ticket.images.map((image, index) => (
+                            <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
+                          ))}
+                        </div>}
                       </Group>
                       <div className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
                       </div>
                       <div className="mt-5">
-                        Discord: <Badge>{ticket.discord}</Badge>
+                        Discord: <Badge>{ticket.discord ? ticket.discord : "No Discord Provided"}</Badge>
                       </div>
+
                       <div className="mt-5 text-md">
                         Ticket Created At:{" "}
                         <Badge size="lg">
@@ -239,9 +243,11 @@ export default function QueuePage() {
                         ))}
                       </Group>
                       <Group>
-                        {ticket.images.map((image, index) => (
-                          <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-                        ))}
+                        {<div className={classes.previewContainer}>
+                          {ticket.images.map((image, index) => (
+                            <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
+                          ))}
+                        </div>}
                       </Group>
                       <div className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>

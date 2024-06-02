@@ -22,7 +22,7 @@ export default function HomePage() {
 
         <Text>Visit our helpdesk or email us at <span></span>
           <Anchor href="mailto:help@hackmit.org" target="_blank">
-               help@hackmit.org
+            help@hackmit.org
           </Anchor>
         </Text>
       </Paper>
