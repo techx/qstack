@@ -92,18 +92,25 @@ export default function ProfilePage() {
           User Role
         </Text>
         <Group>
-          <Checkbox
-            size="md"
-            checked={user.role == "hacker"}
-            onChange={() => updateUser({ ...user, role: "hacker" })}
-            label={"Hacker"}
-          />
-          <Checkbox
-            size="md"
-            checked={user.role == "mentor"}
-            onChange={() => updateUser({ ...user, role: "mentor" })}
-            label={"Mentor"}
-          />
+          {user.role !== "admin" && (
+            <Group>
+              <Checkbox
+                size="md"
+                checked={user.role == "hacker"}
+                onChange={() => updateUser({ ...user, role: "hacker" })}
+                label={"Hacker"}
+              />
+              <Checkbox
+                size="md"
+                checked={user.role == "mentor"}
+                onChange={() => updateUser({ ...user, role: "mentor" })}
+                label={"Mentor"}
+              />
+            </Group>
+          )}
+          {user.role === "admin" && (
+            <Text className="text-weight-500">Admin</Text>
+          )}
         </Group>
         {user.role == "mentor" && role == "hacker" && (
           <TextInput
@@ -149,10 +156,12 @@ export default function ProfilePage() {
               mt="md"
             />
           )}
+        {user.role !== "admin" && (
+          <Button onClick={handleUserUpdate} className="mt-5">
+            Update
+          </Button>
 
-        <Button onClick={handleUserUpdate} className="mt-5">
-          Update
-        </Button>
+        )}
       </Paper>
     </Container>
   );

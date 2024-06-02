@@ -17,7 +17,7 @@ class Ticket(db.Model):
     content = Column(Text, nullable=False)
     location = Column(Text, nullable=False)
     tags = Column(ARRAY(Text), nullable=False)
-    images = Column(ARRAY(Text))
+    images = Column(ARRAY(Text), nullable=False)
 
     active = Column(Boolean, nullable=False, default=True)
     status = Column(String)
@@ -30,7 +30,7 @@ class Ticket(db.Model):
         self.content = data["content"]
         self.location = data["location"]
         self.tags = data["tags"]
-        self.images = data["images"] if data["images"] else []
+        self.images = data.get("images", [])
         self.active = active
         self.createdAt = db.func.now()
         self.status = "unclaimed"
@@ -39,9 +39,8 @@ class Ticket(db.Model):
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]
-        self.images = data["images"] if data["images"] else []
+        self.images = data.get("images", [])
         self.tags = data["tags"]
-        
 
     def map(self):
         return {
