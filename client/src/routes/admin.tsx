@@ -74,7 +74,7 @@ export default function AdminPanel() {
         style={{ padding: "2rem", backgroundColor: "#20232a", color: "white" }}
         shadow="xs"
       >
-        {ticketStats?.total && (
+        {ticketStats?.total !== undefined && (
           <Group
             style={{
               justifyContent: "space-between",

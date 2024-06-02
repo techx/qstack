@@ -19,13 +19,16 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
 
 AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
 AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
+AUTH_USERNAME = os.environ.get("AUTH_USERNAME")
+AUTH_PASSWORD = os.environ.get("AUTH_PASSWORD")
 AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
 APP_SECRET_KEY = os.environ.get("APP_SECRET_KEY")
 MENTOR_PASS = os.environ.get("MENTOR_PASS")
 
 ENV = os.environ.get("ENVIRONMENT", "development")
 
-# AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-# AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-# AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME")
-# TARGET_IMAGE_PATH = os.environ.get("AWS_TARGET_IMAGE_PATH")
+
+AUTH_ADMINS = [
+    {"name": "HackMIT", "email": "admin@hackmit.org"},
+    {"name": "HackMIT", "email": "team@hackmit.org"}
+]
