@@ -1,12 +1,9 @@
-from flask import current_app as app, url_for, redirect, session, request
+from flask import current_app as session, request
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
-from os import environ as env
-from urllib.parse import quote_plus, urlencode
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
-from flask import jsonify
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
