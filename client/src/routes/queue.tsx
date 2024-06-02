@@ -69,6 +69,7 @@ export default function QueuePage() {
     queue
       .getTickets()
       .then((res) => {
+        console.log(res);
         if (res.ok) {
           const sortedTickets = res.tickets.sort((a: ticket, b: ticket) => {
             return (
