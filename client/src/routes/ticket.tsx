@@ -16,7 +16,7 @@ import {
   rem,
   Space
 } from "@mantine/core";
-import { IconUpload, IconPhoto  } from "@tabler/icons-react";
+import { IconUpload, IconPhoto } from "@tabler/icons-react";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -240,7 +240,7 @@ export default function TicketPage() {
       setClaimed(false);
     }
   };
-  
+
   const handleSubmit = async () => {
     const res = await ticket.submit({
       question: question,
@@ -279,13 +279,13 @@ export default function TicketPage() {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
-  };  
+  };
 
   const removeImage = (imageToRemove: string) => {
     if (!active) {
       setImages(images.filter((image: string) => image !== imageToRemove));
     }
-  };  
+  };
 
   const previews = (images: Array<string>, removeImage: (file: string) => void) => {
     if (images.length === 0) {
@@ -305,7 +305,7 @@ export default function TicketPage() {
         </button>
       </div>
     ));
-  };  
+  };
 
   return (
     <Container size="sm" py="6rem" pb="10rem">
@@ -415,42 +415,42 @@ export default function TicketPage() {
                 color: "red",
               })}
             >
-            <Group
-              grow
-              justify="center"
-              gap="l"
-            >
-              <Dropzone.Accept>
-                <IconUpload
-                  style={{
-                    width: rem(52),
-                    height: rem(52),
-                    color: "var(--mantine-color-blue-6)",
-                  }}
-                  stroke={1.5}
-                />
-              </Dropzone.Accept>
-              <Dropzone.Idle>
-                {images.length === 0 && (
-                  <IconPhoto
+              <Group
+                grow
+                justify="center"
+                gap="l"
+              >
+                <Dropzone.Accept>
+                  <IconUpload
                     style={{
                       width: rem(52),
                       height: rem(52),
-                      color: "var(--mantine-color-dimmed)",
+                      color: "var(--mantine-color-blue-6)",
                     }}
                     stroke={1.5}
                   />
-                )}
-              </Dropzone.Idle>
+                </Dropzone.Accept>
+                <Dropzone.Idle>
+                  {images.length === 0 && (
+                    <IconPhoto
+                      style={{
+                        width: rem(52),
+                        height: rem(52),
+                        color: "var(--mantine-color-dimmed)",
+                      }}
+                      stroke={1.5}
+                    />
+                  )}
+                </Dropzone.Idle>
 
-              {images.length !== 0 && (
-                <div className={classes.previewContainer}>
-                  {previews(images, removeImage)}
-                </div>
-              )}
-              <Text size="l" inline ta="center">
-                Drag any images here to give more context to your problem!
-              </Text>
+                {images.length !== 0 && (
+                  <div className={classes.previewContainer}>
+                    {previews(images, removeImage)}
+                  </div>
+                )}
+                <Text size="l" inline ta="center">
+                  Drag any images here to give more context to your problem!
+                </Text>
               </Group>
             </Dropzone>
           </Flex>

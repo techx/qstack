@@ -24,7 +24,8 @@ oauth.register(
     client_kwargs={
         "scope": "openid profile email",
     },
-    server_metadata_url=f"https://{AUTH0_DOMAIN}/.well-known/openid-configuration",
+    server_metadata_url=f"https://{
+        AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
 
@@ -69,15 +70,12 @@ def callback():
             name=session["user"]["userinfo"]["name"],
             email=session["user"]["userinfo"]["email"],
         )
+
+        for admin in app.config["AUTH_ADMINS"]:
+            if admin["email"] == email:
+                u.role = "admin"
         db.session.add(u)
         db.session.commit()
-        
-    for admin in app.config["AUTH_ADMINS"]:
-        if admin["email"] == email:
-            session["user"]["role"] = "admin"
-            user.role = "admin"
-            db.session.commit()
-            break
 
     return redirect(FRONTEND_URL)
 

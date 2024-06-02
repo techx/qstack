@@ -41,7 +41,6 @@ class Ticket(db.Model):
         self.location = data["location"]
         self.images = data.get("images", [])
         self.tags = data["tags"]
-        
 
     def map(self):
         return {

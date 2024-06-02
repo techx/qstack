@@ -1,18 +1,18 @@
 html {
     scroll-behavior: smooth !important;
 }
-  
+
 ul li {
     margin-left: -1rem;
 }
 
-.dropzone{
+.dropzone {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    @media screen and (max-width: 768px){
+    @media screen and (max-width: 768px) {
         width: 75%;
     }
 }
@@ -25,18 +25,18 @@ ul li {
     overflow: auto;
     max-height: 150px;
 }
-  
+
 .previewContainer div {
     position: relative;
     display: inline-block;
 }
-  
+
 .previewContainer img {
     max-width: 100px;
     max-height: 100px;
     display: block;
 }
-  
+
 .previewContainer button {
     position: absolute;
     top: 0;
@@ -47,4 +47,3 @@ ul li {
     padding: 2px 5px;
     font-size: 12px;
 }
-  

@@ -10,6 +10,7 @@ from server.models import User, Ticket
 
 admin = APIBlueprint("admin", __name__, url_prefix="/admin")
 
+
 @admin.route("/ticketdata")
 @auth_required_decorator(roles=["admin"])
 def getTicketData():
@@ -29,7 +30,8 @@ def getTicketData():
     else:
         averageRating = 0
 
-    return {"total": totalTickets, "averageRating": averageRating  }
+    return {"total": totalTickets, "averageRating": averageRating}
+
 
 @admin.route("/userdata")
 @auth_required_decorator(roles=["admin"])
