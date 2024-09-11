@@ -181,6 +181,8 @@ def rate():
     data = request.get_json()
     mentor = User.query.get(int(data["mentor_id"]))
     mentor.ratings.append(data["rating"])
+    if len(data['review']) != 0:
+        mentor.reviews.append(data['review'])
     db.session.commit()
 
     ticket = Ticket.query.get(int(data["id"]))

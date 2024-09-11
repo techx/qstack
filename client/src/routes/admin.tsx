@@ -8,6 +8,7 @@ import {
   Table,
   Group,
   Rating,
+  Button
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { computeNormalizedRating } from "../utils";
@@ -24,6 +25,8 @@ interface user {
   role: string;
   location: string;
   discord: string;
+  reviews: Array<string>;
+  id: number;
 }
 
 export default function AdminPanel() {
@@ -31,6 +34,11 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState<boolean>(true);
   const [ticketStats, setTicketStats] = useState<ticket>();
   const [users, setUsers] = useState<Array<user>>([]);
+  const [expandedUserId, setExpandedUserId] = useState<number | null>(null); // Track which user's row is expanded
+
+  const toggleExpandRow = (userId: number) => {
+    setExpandedUserId(expandedUserId === userId ? null : userId); // Toggle between expanding and collapsing
+  };
 
   const fetchStats = useCallback(async () => {
     try {
@@ -134,17 +142,49 @@ export default function AdminPanel() {
                   <Table.Th>Role</Table.Th>
                   <Table.Th>Location</Table.Th>
                   <Table.Th>Discord</Table.Th>
+                  <Table.Th>Reviews</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {users.map((user, index) => (
-                  <tr key={index}>
-                    <Table.Td>{user.name}</Table.Td>
-                    <Table.Td>{user.email}</Table.Td>
-                    <Table.Td>{user.role}</Table.Td>
-                    <Table.Td>{user.location}</Table.Td>
-                    <Table.Td>{user.discord}</Table.Td>
-                  </tr>
+                  <>
+                    <Table.Tr>
+                      <Table.Td>{user.name}</Table.Td>
+                      <Table.Td>{user.email}</Table.Td>
+                      <Table.Td>{user.role}</Table.Td>
+                      <Table.Td>{user.location}</Table.Td>
+                      <Table.Td>{user.discord}</Table.Td>
+                      <Table.Td>
+                        {user.reviews && user.reviews.length > 0 && (
+                          <Button
+                            onClick={() => toggleExpandRow(user.id)}
+                            variant="outline"
+                          >
+                            {expandedUserId === user.id ? "Hide Reviews" : "View Reviews"}
+                          </Button>
+                        )}
+                      </Table.Td>
+                    </Table.Tr>
+                    {expandedUserId === user.id && (
+                      <>
+                        {user.reviews.length > 0 ? (
+                          user.reviews.map((review, index) => (
+                            <Table.Tr key={index}>
+                              <Table.Td colSpan={7} style={{ paddingLeft: "2rem" }}>
+                                <strong>Review {index + 1}:</strong> {review}
+                              </Table.Td>
+                            </Table.Tr>
+                          ))
+                        ) : (
+                          <Table.Tr>
+                            <Table.Td colSpan={7} style={{ paddingLeft: "2rem" }}>
+                              No reviews available
+                            </Table.Td>
+                          </Table.Tr>
+                        )}
+                      </>
+                    )}
+                  </>
                 ))}
               </Table.Tbody>
             </Table>
