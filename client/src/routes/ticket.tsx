@@ -14,7 +14,8 @@ import {
   HoverCard,
   Rating,
   rem,
-  Space
+  Space,
+  Textarea
 } from "@mantine/core";
 import { IconUpload, IconPhoto } from "@tabler/icons-react";
 import { RichTextEditor } from "@mantine/tiptap";
@@ -52,6 +53,7 @@ interface ticket {
   images: Array<string>;
 }
 
+
 export default function TicketPage() {
   const [question, setQuestion] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -66,6 +68,8 @@ export default function TicketPage() {
   const lowlight = createLowlight(all);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [soundPlayed, setSoundPlayed] = useState<boolean>(false);
+  const [ratings, setRatings] = useState<Map<number, number>>(new Map<number, number>());
+  const [reviews, setReviews] = useState<Map<number, string>>(new Map<number, string>);
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
 
@@ -180,14 +184,33 @@ export default function TicketPage() {
     }
   };
 
-  const submitRating = async (ratedTicket: ticket, rating: number) => {
+  const handleRatingChange = (ticketId: number, rating: number) => {
+    setRatings((prevRatings) => {
+      const newRatings = new Map(prevRatings);  
+      newRatings.set(ticketId, rating); 
+      return newRatings;
+    });
+  };  
+
+  const handleReviewChange = (ticketId: number, review: string) => {
+    setReviews((prevReviews) => {
+      const newReviews = new Map(prevReviews);  
+      newReviews.set(ticketId, review);  
+      return newReviews;
+    });
+  };  
+
+  const submitRating = async (ratedTicket: ticket) => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    const rating = ratings.get(ratedTicket.id) as number || 3;
+    const review = reviews.get(ratedTicket.id) || "";
     const res = await ticket.rate(
       ratedTicket.id,
       ratedTicket.mentor_id,
-      rating
+      rating,
+      review
     );
     if (res.ok) {
       notifications.show({
@@ -543,19 +566,27 @@ export default function TicketPage() {
             <Title className="text-center" style={{ color: "#FFF" }}>
               Rate Your Mentor: {ticket.mentor_name}
             </Title>
-            <Text
-              style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}
-            >
+            <Text style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}>
               Please rate the support provided by your mentor for the ticket: "
               {ticket.question}"
             </Text>
             <Rating
-              onChange={(rating) => submitRating(ticket, rating)}
-              value={0}
+              onChange={(rating) => handleRatingChange(ticket.id, rating)}
+              value={ratings.get(ticket.id)|| 0}
               fractions={2}
               size="lg"
               color="yellow"
             />
+            <Textarea
+              placeholder="Leave a review..."
+              value={reviews.get(ticket.id) || ''}
+              onChange={(event) => handleReviewChange(ticket.id, event.target.value)}
+              minRows={4}
+              style={{ width: "100%", maxWidth: "80%" }}
+            />
+            <Button onClick={() => submitRating(ticket)} color="yellow">
+              Submit Rating
+            </Button>
           </div>
         </Paper>
       ))}
