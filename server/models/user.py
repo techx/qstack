@@ -23,6 +23,7 @@ class User(db.Model):
     discord = Column(Text, nullable=False)
     resolved_tickets = Column(Integer)
     ratings = Column(MutableList.as_mutable(ARRAY(Numeric(2, 1))))
+    reviews = Column(MutableList.as_mutable(ARRAY(Text)), nullable=False)
 
     ticket_id = Column(Integer, ForeignKey("tickets.id", ondelete="SET NULL"))
     ticket = relationship("Ticket", foreign_keys=[ticket_id])
@@ -56,5 +57,5 @@ class User(db.Model):
                 if self.role == "mentor" and len(self.ratings) != 0
                 else None
             ),
-            "reviews": self.reviews,
+            "reviews": self.reviews if self.reviews != None else [],
         }
