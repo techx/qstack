@@ -149,7 +149,7 @@ export default function AdminPanel() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {users.map((user, index) => (
+                {users.map((user, _) => (
                   <>
                     <Table.Tr>
                       <Table.Td>{user.name}</Table.Td>
