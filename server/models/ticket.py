@@ -2,8 +2,6 @@ from server import db
 from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
 from sqlalchemy.orm import relationship
 
-from server.controllers.queue import claimed
-
 
 class Ticket(db.Model):
     __tablename__ = "tickets"
