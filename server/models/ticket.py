@@ -53,5 +53,5 @@ class Ticket(db.Model):
             "createdAt": self.createdAt,
             "status": self.status,
             "mentor_name": self.claimant.name if self.claimant else None,
-            "mentor_id": self.claimant_id if self.claimant_id else None
+            "mentor_id": self.claimant_id
         }
