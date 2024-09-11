@@ -333,7 +333,7 @@ export default function TicketPage() {
               <HoverCard.Dropdown>
                 <Text size="sm">
                   {active
-                    ? "Your ticket is currently in queue. A mentor will be with you shortly!"
+                    ? "Your ticket is currently in queue. A mentor will be with you shortly! Turn on your sound -- this page will make a sound when a mentor claims your ticket."
                     : "Your ticket is currently in edit mode. To submit to queue, click on the submit button!"}
                 </Text>
               </HoverCard.Dropdown>
