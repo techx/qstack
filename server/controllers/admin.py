@@ -18,19 +18,31 @@ def getTicketData():
     totalTickets = 0
     sumAverageMentorRating = 0
     totalMentors = 0
+    avgTime = 0
+    totalTickets = 0
 
     for mentor in mentors:
         totalTickets += len(mentor.ratings)
         if len(mentor.ratings) != 0:
             sumAverageMentorRating += sum(mentor.ratings) / len(mentor.ratings)
             totalMentors += 1
+    
+    for ticket in Ticket.query.all():
+        if ticket.claimedAt is not None:
+            avgTime += (ticket.claimedAt - ticket.createdAt).total_seconds()
+            totalTickets += 1
 
     if totalMentors != 0:
         averageRating = sumAverageMentorRating/totalMentors
     else:
         averageRating = 0
+    
+    if totalTickets != 0:
+        avgTimeToClaim = avgTime/totalTickets
+    else:
+        avgTimeToClaim = 0
 
-    return {"total": totalTickets, "averageRating": averageRating}
+    return {"total": totalTickets, "averageRating": averageRating, "averageTime": avgTimeToClaim}
 
 
 @admin.route("/userdata")
