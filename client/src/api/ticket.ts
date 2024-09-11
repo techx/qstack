@@ -65,7 +65,7 @@ export async function getFeedback() {
   return { ok: res.ok, tickets: JSON.parse(await res.text()) };
 }
 
-export async function rate(id: number, mentor_id: number, rating: number, review: string[]) {
+export async function rate(id: number, mentor_id: number, rating: number, review: string) {
   const res = await fetch("/api/ticket/rate", {
     method: "POST",
     headers: {
