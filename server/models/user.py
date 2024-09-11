@@ -37,6 +37,7 @@ class User(db.Model):
         self.discord = ""
         self.resolved_tickets = 0
         self.ratings = []
+        self.reviews = []
 
     def map(self):
         return {
@@ -55,4 +56,5 @@ class User(db.Model):
                 if self.role == "mentor" and len(self.ratings) != 0
                 else None
             ),
+            "reviews": self.reviews,
         }
