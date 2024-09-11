@@ -3,6 +3,7 @@ interface Ticket {
   content: string;
   location: string;
   tags: Array<string>;
+  images: Array<string>;
 }
 
 export async function getTags() {
@@ -31,6 +32,7 @@ export async function submit(ticket: Ticket) {
   });
   return { ok: res.ok, ...JSON.parse(await res.text()) };
 }
+
 
 export async function getTicket() {
   const res = await fetch("/api/ticket/get");
