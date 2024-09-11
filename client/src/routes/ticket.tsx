@@ -53,7 +53,6 @@ interface ticket {
   images: Array<string>;
 }
 
-type RatingsDict = Map<number, number>;
 
 export default function TicketPage() {
   const [question, setQuestion] = useState<string>("");
@@ -69,8 +68,8 @@ export default function TicketPage() {
   const lowlight = createLowlight(all);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [soundPlayed, setSoundPlayed] = useState<boolean>(false);
-  const [ratings, setRatings] = useState<RatingsDict>(new Map());
-  const [reviews, setReviews] = useState<Map<number, string[]>>(new Map());
+  const [ratings, setRatings] = useState<Map<number, number>>(new Map<number, number>());
+  const [reviews, setReviews] = useState<Map<number, string>>(new Map<number, string>);
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
 
@@ -186,25 +185,27 @@ export default function TicketPage() {
   };
 
   const handleRatingChange = (ticketId: number, rating: number) => {
-    setRatings((prevRatings) => ({
-      ...prevRatings,
-      [ticketId]: rating,
-    }));
-  };
+    setRatings((prevRatings) => {
+      const newRatings = new Map(prevRatings);  
+      newRatings.set(ticketId, rating); 
+      return newRatings;
+    });
+  };  
 
-  const handleReviewChange = (ticketId: number, review:string) => {
-    setReviews((prevReviews) => ({
-      ...prevReviews,
-      [ticketId]: review,
-    }));
-  };
+  const handleReviewChange = (ticketId: number, review: string) => {
+    setReviews((prevReviews) => {
+      const newReviews = new Map(prevReviews);  
+      newReviews.set(ticketId, review);  
+      return newReviews;
+    });
+  };  
 
   const submitRating = async (ratedTicket: ticket) => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const rating = ratings.get(ratedTicket.id) || 3;
-    const review: string[] = reviews.get(ratedTicket.id) || [];
+    const rating = ratings.get(ratedTicket.id) as number || 3;
+    const review = reviews.get(ratedTicket.id) || "";
     const res = await ticket.rate(
       ratedTicket.id,
       ratedTicket.mentor_id,
