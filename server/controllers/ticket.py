@@ -1,4 +1,4 @@
-from flask import current_app as app, url_for, redirect, session, request
+from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -24,7 +24,7 @@ def tagslist():
 
 
 @ticket.route("/save", methods=["POST"])
-@auth_required_decorator(roles=["hacker"])
+@auth_required_decorator(roles=["hacker", "admin"])
 def save():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -52,7 +52,7 @@ def save():
 
 
 @ticket.route("/submit", methods=["POST"])
-@auth_required_decorator(roles=["hacker"])
+@auth_required_decorator(roles=["hacker", "admin"])
 def submit():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -85,7 +85,7 @@ def submit():
 
 
 @ticket.route("/get")
-@auth_required_decorator(roles=["hacker", "mentor"])
+@auth_required_decorator(roles=["hacker", "mentor", "admin"])
 def get():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -95,14 +95,14 @@ def get():
 
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.active:
-        return {"active": False, "ticket": ticket.map()}
+        return jsonify({"active": False, "ticket": ticket.map()}), 200
 
     ticket = Ticket.query.get(user.ticket_id)
-    return {"active": True, "ticket": ticket.map()}
+    return jsonify({"active": True, "ticket": ticket.map()}), 200
 
 
 @ticket.route("/remove", methods=["POST"])
-@auth_required_decorator(roles=["hacker"])
+@auth_required_decorator(roles=["hacker", "admin"])
 def remove():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -122,7 +122,7 @@ def remove():
 
 
 @ticket.route("/status")
-@auth_required_decorator(roles=["mentor", "hacker"])
+@auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def status():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -142,7 +142,7 @@ def status():
 
 
 @ticket.route("/unclaim")
-@auth_required_decorator(roles=["mentor"])
+@auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -161,7 +161,7 @@ def unclaim():
 
 
 @ticket.route("/awaiting_feedback", methods=["GET"])
-@auth_required_decorator(roles=["mentor", "hacker"])
+@auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def awaiting_feedback():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
@@ -176,7 +176,7 @@ def awaiting_feedback():
 
 
 @ticket.route("/rate", methods=["POST"])
-@auth_required_decorator(roles=["hacker"])
+@auth_required_decorator(roles=["hacker", "admin"])
 def rate():
     data = request.get_json()
     mentor = User.query.get(int(data["mentor_id"]))
@@ -194,7 +194,7 @@ def rate():
 
 
 @ticket.route("/resolve", methods=["POST"])
-@auth_required_decorator(roles=["hacker"])
+@auth_required_decorator(roles=["hacker", "admin"])
 def resolve():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()

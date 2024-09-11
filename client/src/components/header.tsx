@@ -81,17 +81,17 @@ export default function HeaderNav() {
             label="Ticket"
           />
         )}
-        {role === "mentor" && (
+        {role !== "hacker" && (
           <QNavLink icon={<IconListCheck />} link="/queue" label="Queue" />
         )}
-        {role === "mentor" && (
+        {role !== "hacker" && (
           <QNavLink
             icon={<IconTrophy />}
             link="/leaderboard"
             label="Leaderboard"
           />
         )}
-        {role === "mentor" && (
+        {role === "admin" && (
           <QNavLink
             icon={<IconClipboardData />}
             link="/stats"

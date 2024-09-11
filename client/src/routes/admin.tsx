@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Paper,
@@ -32,11 +32,7 @@ export default function AdminPanel() {
   const [ticketStats, setTicketStats] = useState<ticket>();
   const [users, setUsers] = useState<Array<user>>([]);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const ticketRes = await admin.getTicketStats();
       const userRes = await admin.getUserStats();
@@ -61,7 +57,11 @@ export default function AdminPanel() {
     } catch (error) {
       navigate("/error");
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   return (
     <Container size="md" py="6rem">
@@ -74,7 +74,7 @@ export default function AdminPanel() {
         style={{ padding: "2rem", backgroundColor: "#20232a", color: "white" }}
         shadow="xs"
       >
-        {ticketStats?.total && (
+        {ticketStats?.total !== undefined && (
           <Group
             style={{
               justifyContent: "space-between",

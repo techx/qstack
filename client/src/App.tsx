@@ -48,6 +48,6 @@ export default function App() {
     window.location.replace("/");
   useEffect(() => {
     getUser();
-  }, []);
+  }, [getUser]);
   return <RouterProvider router={router} />;
 }
