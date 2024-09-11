@@ -17,6 +17,7 @@ import * as admin from "../api/admin";
 interface ticket {
   total: number;
   averageRating: number;
+  averageTime: number;
 }
 
 interface user {
@@ -53,6 +54,7 @@ export default function AdminPanel() {
         const ticketStats: ticket = {
           total: parseInt(ticketRes.tags.total),
           averageRating: parseFloat(ticketRes.tags.averageRating),
+          averageTime: parseInt(ticketRes.tags.averageTime)
         };
         setTicketStats(ticketStats);
         setLoading(false);
@@ -95,6 +97,7 @@ export default function AdminPanel() {
                 Ticket Stats
               </Title>
               <Text>Total Resolved Tickets: {ticketStats.total}</Text>
+              <Text>Average Time to Claim Ticket: {ticketStats.averageTime}</Text>
               <Text>
                 Average Mentor Rating:{" "}
                 {computeNormalizedRating(

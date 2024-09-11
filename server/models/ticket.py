@@ -2,6 +2,8 @@ from server import db
 from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
 from sqlalchemy.orm import relationship
 
+from server.controllers.queue import claimed
+
 
 class Ticket(db.Model):
     __tablename__ = "tickets"
@@ -23,6 +25,7 @@ class Ticket(db.Model):
     status = Column(String)
 
     createdAt = Column(DateTime, nullable=False)
+    claimedAt = Column(DateTime)
 
     def __init__(self, user, data, active):
         self.creator = user
@@ -34,6 +37,7 @@ class Ticket(db.Model):
         self.active = active
         self.createdAt = db.func.now()
         self.status = "unclaimed"
+        self.claimedAt = None
 
     def update(self, data):
         self.question = data["question"]
