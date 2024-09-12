@@ -252,7 +252,7 @@ export default function QueuePage() {
                         Location: <Badge>{ticket.location}</Badge>
                       </div>
                       <div className="mt-5">
-                        Discord: <Badge>{ticket.discord}</Badge>
+                        Discord: <Badge>{ticket.discord ? ticket.discord : "No Discord Provided"}</Badge>
                       </div>
                       <Group className="mt-5" grow>
                         <Button
