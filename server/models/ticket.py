@@ -23,6 +23,7 @@ class Ticket(db.Model):
     status = Column(String)
 
     createdAt = Column(DateTime, nullable=False)
+    claimedAt = Column(DateTime)
 
     def __init__(self, user, data, active):
         self.creator = user
@@ -34,6 +35,7 @@ class Ticket(db.Model):
         self.active = active
         self.createdAt = db.func.now()
         self.status = "unclaimed"
+        self.claimedAt = None
 
     def update(self, data):
         self.question = data["question"]
