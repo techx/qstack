@@ -186,19 +186,19 @@ export default function TicketPage() {
 
   const handleRatingChange = (ticketId: number, rating: number) => {
     setRatings((prevRatings) => {
-      const newRatings = new Map(prevRatings);  
-      newRatings.set(ticketId, rating); 
+      const newRatings = new Map(prevRatings);
+      newRatings.set(ticketId, rating);
       return newRatings;
     });
-  };  
+  };
 
   const handleReviewChange = (ticketId: number, review: string) => {
     setReviews((prevReviews) => {
-      const newReviews = new Map(prevReviews);  
-      newReviews.set(ticketId, review);  
+      const newReviews = new Map(prevReviews);
+      newReviews.set(ticketId, review);
       return newReviews;
     });
-  };  
+  };
 
   const submitRating = async (ratedTicket: ticket) => {
     if (isSubmitting) return;
@@ -531,7 +531,10 @@ export default function TicketPage() {
           {mentorData.location == "virtual" && (
             <Text className="mt-5 text-lg">
               Your mentor is virtual! <br /> Please join their video call link:{" "}
-              <a href={mentorData.zoomlink}>{mentorData.zoomlink}</a>
+              <a href={mentorData.zoomlink.startsWith('http') ? mentorData.zoomlink : `https://${mentorData.zoomlink}`}>
+                {mentorData.zoomlink}
+              </a>
+
             </Text>
           )}
 
@@ -572,7 +575,7 @@ export default function TicketPage() {
             </Text>
             <Rating
               onChange={(rating) => handleRatingChange(ticket.id, rating)}
-              value={ratings.get(ticket.id)|| 0}
+              value={ratings.get(ticket.id) || 0}
               fractions={2}
               size="lg"
               color="yellow"
