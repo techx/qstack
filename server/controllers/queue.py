@@ -36,6 +36,7 @@ def claim():
     ticket.claimant = user
     ticket.active = False
     user.claimed = ticket
+    ticket.claimedAt = db.func.now()
 
     db.session.commit()
     return {"message": "Ticket claimed!"}
@@ -59,6 +60,7 @@ def unclaim():
     ticket.claimant_id = None
     ticket.status = None
     user.claimed = None
+    ticket.claimedAt = None
 
     db.session.commit()
     return {"message": "Ticket unclaimed!"}
