@@ -28,7 +28,6 @@ oauth.register(
         AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
-
 def auth_required_decorator(roles):
     """
     middleware for protected routes
