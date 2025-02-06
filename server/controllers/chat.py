@@ -1,0 +1,74 @@
+from server.config import (
+    FRONTEND_URL
+)
+from flask import current_app as app, Flask, url_for, redirect, session, request, send_file, jsonify
+from flask_socketio import emit, join_room, leave_room, send, SocketIO
+from server import db, socketio
+from authlib.integrations.flask_client import OAuth
+from apiflask import APIBlueprint, abort
+from os import environ as env
+from server.models import User
+from server.models.chatroom import Chatroom
+
+import random
+from string import ascii_uppercase
+
+chat = APIBlueprint("chat", __name__, url_prefix="/chat")
+
+
+
+rooms = {}
+
+def generate_unique_code(length):
+    while True:
+        code = ""
+        for _ in range(length):
+            code += random.choice(ascii_uppercase)
+        
+        if code not in rooms:
+            break
+    
+    return code
+
+@chat.route("/", methods=["POST", "GET"])
+def home():
+    session.clear()
+    if request.method == "POST":
+        name = request.form.get("name")
+        code = request.form.get("code")
+        join = request.form.get("join", False)
+        create = request.form.get("create", False)
+
+        if not name:
+            return redirect(FRONTEND_URL)
+
+            # return render_template("home.html", error="Please enter a name.", code=code, name=name)
+
+        if join is not False and not code:
+            return redirect(FRONTEND_URL)
+
+            # return render_template("home.html", error="Please enter a room code.", code=code, name=name)
+        
+        room = code
+        if create is not False:
+            room = generate_unique_code(4)
+            rooms[room] = {"members": 0, "messages": []}
+        elif code not in rooms:
+            return redirect(FRONTEND_URL)
+
+            # return render_template("home.html", error="Room does not exist.", code=code, name=name)
+        
+        session["room"] = room
+        session["name"] = name
+        return redirect(url_for("room"))
+
+
+@chat.route("/room")
+def room():
+    room = session.get("room")
+    if room is None or session.get("name") is None or room not in rooms:
+        return redirect(url_for("home"))
+
+    redirect(url_for("room")) 
+    # return render_template("room.html", code=room, messages=rooms[room]["messages"])
+
