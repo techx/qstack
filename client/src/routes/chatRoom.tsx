@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import styles from "./chat.module.css";
-from server import socketio
 
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:6001");
 
 export default function ChatRoom() {
   const location = useLocation();
