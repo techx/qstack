@@ -1,40 +1,27 @@
-from server import db
-from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
-from sqlalchemy.orm import relationship
+from flask_socketio import emit, join_room
 
+@socketio.on('send_message')
+def handle_send_message(data):
+    token = request.args.get('token')
+    user_id = decode_jwt(token)
+    chat_room_id = data['chat_room_id']
+    message_content = data['message']
+    sender_type = data['sender_type']
+    admin_id = data.get('admin_id')
 
-class ChatRoom(db.Model):
-    __tablename__ = "chatrooms"
+    chat_room = ChatRoom.query.get(chat_room_id)
+    if chat_room:
+        new_message = Message(content=message_content, user_id=user_id, sender_type=sender_type, admin_id=admin_id, chatroom_id=chat_room_id, timestamp=datetime.utcnow())
+        db.session.add(new_message)
+        db.session.commit()
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    creator_id = Column(Integer, ForeignKey("users.id"))
-    creator = relationship("User", foreign_keys=[creator_id])
+        print(new_message)
+        new_message_id = new_message.id
+        emit('new_message', {'id': new_message_id, 'content': message_content, "sender_type": sender_type}, room=data['chat_room_id'])
+        print(message_content)
 
-    claimant_id = Column(Integer, ForeignKey("users.id"))
-    claimant = relationship("User", foreign_keys=[claimant_id])
-
-    code = Column(String)
-    
-    active = Column(Boolean, nullable=False, default=True)
-    status = Column(String)
-
-    def __init__(self, user, data, active):
-        self.creator = user
-        self.code = data["code"]
-        self.active = active
-        self.status = "unclaimed"
-
-
-    def update(self, data):
-        self.code = data["code"]
-
-    def map(self):
-        return {
-            "id": self.id,
-            "active": self.active,
-            "code": self.code,
-            "creator": self.creator_id,
-            "status": self.status,
-            "mentor_name": self.claimant.name if self.claimant else None,
-            "mentor_id": self.claimant_id
-        }
+@socketio.on('join_room')
+def on_join(data):
+    room = data['chat_room_id']
+    join_room(room)
+    emit('room_notification', {'message': 'A new user has joined.'}, room=room)
