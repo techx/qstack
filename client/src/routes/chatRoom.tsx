@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import styles from "./chat.module.css";
 
 
-const socket = io("http://localhost:6001");
+const socket = io("http://127.0.0.1:3001", { transports: ["websocket"] });
 
 export default function ChatRoom() {
   const location = useLocation();
@@ -25,6 +25,7 @@ export default function ChatRoom() {
     socket.emit("join", { name, code });
 
     socket.on("message", (data: { name: string; message: string }) => {
+      console.log("new message:", data)
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -45,6 +46,14 @@ export default function ChatRoom() {
       <div className={styles.messageBox}>
         <h2>Chat Room: {code}</h2>
         <div className={styles.messages}>
+            {/* Temporary hardcoded message for debugging */}
+          <div className={styles.text}>
+            <span>
+              <strong>Test User</strong>: This is a test message
+            </span>
+            <span className={styles.muted}>{new Date().toLocaleString()}</span>
+          </div>
+          
           {messages.map((msg, index) => (
             <div key={index} className={styles.text}>
               <span>
