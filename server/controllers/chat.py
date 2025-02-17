@@ -82,12 +82,13 @@ def message(data):
         "name": session.get("name"),
         "message": data["data"]
     }
-    emit(content, to=room)
+    emit("message", content, to=room)
     rooms[room]["messages"].append(content)
     print(f"{session.get('name')} said: {data['data']}")
 
 @socketio.on("connect")
 def connect(auth):
+    print("client connected")
     room = session.get("room")
     name = session.get("name")
     if not room or not name:
@@ -97,7 +98,7 @@ def connect(auth):
         return
     
     join_room(room)
-    emit({"name": name, "message": "has entered the room"}, to=room)
+    emit("message", {"name": name, "message": "has entered the room"}, to=room)
     rooms[room]["members"] += 1
     print(f"{name} joined room {room}")
 
@@ -112,6 +113,6 @@ def disconnect():
         if rooms[room]["members"] <= 0:
             del rooms[room]
     
-    emit({"name": name, "message": "has left the room"}, to=room)
+    emit("message", {"name": name, "message": "has left the room"}, to=room)
     print(f"{name} has left the room {room}")
 
