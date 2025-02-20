@@ -1,61 +1,83 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import styles from "./chat.module.css";
 
-
-const socket = io("http://127.0.0.1:3001", { transports: ["websocket"] });
+// Create socket instance outside component to avoid recreation on re-renders
+const socket = io("http://127.0.0.1:3001", {
+  autoConnect: false // Prevent auto-connecting before we have user details
+});
 
 export default function ChatRoom() {
-  const location = useLocation();
+  const { code } = useParams();
   const navigate = useNavigate();
-  const queryParams = new URLSearchParams(location.search);
-  const name = queryParams.get("name") || "";
-  const code = queryParams.get("code") || "";
+  const [name, setName] = useState("");
 
   const [messages, setMessages] = useState<{ name: string; message: string }[]>([]);
   const [message, setMessage] = useState<string>("");
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (!name || !code) {
-      navigate("/");
+    // Get name from session storage
+    const storedName = sessionStorage.getItem("chatName");
+    if (!storedName || !code) {
+      navigate("/chat");
       return;
     }
+    setName(storedName);
 
-    socket.emit("join", { name, code });
+    // Connect only when we have valid name and code
+    socket.connect();
+    socket.emit("join", { name: storedName, code });
+
+    socket.on("connect", () => {
+      console.log("Connected to server");
+      setIsConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+      setIsConnected(false);
+    });
 
     socket.on("message", (data: { name: string; message: string }) => {
-      console.log("new message:", data)
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
+    // Cleanup function
     return () => {
+      socket.off("connect");
+      socket.off("disconnect");
       socket.off("message");
-      socket.emit("leave", { name, code });
+      socket.disconnect();
     };
-  }, [name, code, navigate]);
+  }, [code, navigate]);
 
   const sendMessage = () => {
-    if (message.trim() === "") return;
+    if (message.trim() === "" || !isConnected) return;
     socket.emit("message", { data: message });
     setMessage("");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   };
 
   return (
     <div className={styles.content}>
       <div className={styles.messageBox}>
-        <h2>Chat Room: {code}</h2>
+        <div className={styles.header}>
+          <h2>Chat Room: {code}</h2>
+          <span className={isConnected ? styles.connected : styles.disconnected}>
+            {isConnected ? "Connected" : "Disconnected"}
+          </span>
+        </div>
         <div className={styles.messages}>
-            {/* Temporary hardcoded message for debugging */}
-          <div className={styles.text}>
-            <span>
-              <strong>Test User</strong>: This is a test message
-            </span>
-            <span className={styles.muted}>{new Date().toLocaleString()}</span>
-          </div>
-          
           {messages.map((msg, index) => (
-            <div key={index} className={styles.text}>
+            <div key={index} className={`${styles.text} ${msg.name === name ? styles.ownMessage : ''}`}>
               <span>
                 <strong>{msg.name}</strong>: {msg.message}
               </span>
@@ -66,13 +88,21 @@ export default function ChatRoom() {
         <div className={styles.inputs}>
           <textarea
             rows={3}
-            placeholder="Message"
+            placeholder={isConnected ? "Type your message..." : "Connecting..."}
             name="message"
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
+            disabled={!isConnected}
           />
-          <button type="button" name="send" id="send-btn" onClick={sendMessage}>
+          <button 
+            type="button" 
+            name="send" 
+            id="send-btn" 
+            onClick={sendMessage}
+            disabled={!isConnected}
+          >
             Send
           </button>
         </div>

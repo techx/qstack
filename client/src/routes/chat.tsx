@@ -8,23 +8,66 @@ export default function Chat() {
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
-  const handleJoinRoom = (e: React.FormEvent) => {
+  const handleJoinRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !code) {
       setError("Please enter a name and room code.");
       return;
     }
-    navigate(`/room?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`);
+
+    try {
+      const response = await fetch("/api/chat/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          code,
+          join: true
+        })
+      });
+
+      if (response.ok) {
+        navigate(`/room/${code}`);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to join room");
+      }
+    } catch (err) {
+      setError("Error connecting to server");
+    }
   };
 
-  const handleCreateRoom = (e: React.FormEvent) => {
+  const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) {
       setError("Please enter a name.");
       return;
     }
-    const newCode = Math.random().toString(36).substring(2, 6).toUpperCase();
-    navigate(`/room?name=${encodeURIComponent(name)}&code=${encodeURIComponent(newCode)}`);
+
+    try {
+      const response = await fetch("/api/chat/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          create: true
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        navigate(`/room/${data.code}`);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to create room");
+      }
+    } catch (err) {
+      setError("Error connecting to server");
+    }
   };
 
   return (
@@ -47,7 +90,8 @@ export default function Chat() {
             placeholder="Room Code"
             name="code"
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            maxLength={4}
           />
           <button type="submit" name="join">
             Join a Room
