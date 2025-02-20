@@ -1,5 +1,14 @@
 from server import db
-from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
+from sqlalchemy import (
+    Column,
+    Integer,
+    Boolean,
+    Text,
+    String,
+    ForeignKey,
+    ARRAY,
+    DateTime,
+)
 from sqlalchemy.orm import relationship
 
 
@@ -14,7 +23,7 @@ class Chatroom(db.Model):
     claimant = relationship("User", foreign_keys=[claimant_id])
 
     code = Column(String)
-    
+
     active = Column(Boolean, nullable=False, default=True)
     status = Column(String)
 
@@ -23,7 +32,6 @@ class Chatroom(db.Model):
         self.code = data["code"]
         self.active = active
         self.status = "unclaimed"
-
 
     def update(self, data):
         self.code = data["code"]
@@ -36,5 +44,5 @@ class Chatroom(db.Model):
             "creator": self.creator_id,
             "status": self.status,
             "mentor_name": self.claimant.name if self.claimant else None,
-            "mentor_id": self.claimant_id
+            "mentor_id": self.claimant_id,
         }
