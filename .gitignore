@@ -3,3 +3,5 @@
 !client/.env
 __pycache__
 .DS_Store
+
+flask_session/
