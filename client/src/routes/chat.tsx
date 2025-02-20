@@ -14,6 +14,13 @@ export default function Chat() {
       setError("Please enter a name and room code.");
       return;
     }
+    // TODO: use ChatRoom model, you will need to call an API endpoint here
+    // TODO: create an API endpoint in chat.py
+    // check that the code is existing in the database (if not error)
+    // if code is existing, check that the room is active (if not error)
+    // if room is active, check that the room is not full (if full error)
+    // if user is added to room, navigate to the room
+    // navigate to "/room/${code}" also change in App.tsx
     navigate(`/room?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`);
   };
 
@@ -23,6 +30,12 @@ export default function Chat() {
       setError("Please enter a name.");
       return;
     }
+    // TODO: call api endpoint / create it
+    // need to check that randomly generated code does not exist in datbase
+    // if it does, generate a new one until it does not exist in the database
+    // if it does not exist, create the room in the database
+    // if room is created, navigate to the room
+    // navigate to "/room/${code}" also change in App.tsx
     const newCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     navigate(`/room?name=${encodeURIComponent(name)}&code=${encodeURIComponent(newCode)}`);
   };
