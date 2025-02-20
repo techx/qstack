@@ -60,6 +60,7 @@ export default function Chat() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data.code);
         navigate(`/room/${data.code}`);
       } else {
         const data = await response.json();
