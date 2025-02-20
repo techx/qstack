@@ -4,13 +4,14 @@ import io from "socket.io-client";
 import styles from "./chat.module.css";
 
 
-const socket = io("http://127.0.0.1:3001", { transports: ["websocket"] });
+const socket = io("http://127.0.0.1:3001", { transports: ["polling", "websocket"] });
 
 export default function ChatRoom() {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const name = queryParams.get("name") || "";
+  // TODO: get code from the url getParams
   const code = queryParams.get("code") || "";
 
   const [messages, setMessages] = useState<{ name: string; message: string }[]>([]);
@@ -45,12 +46,14 @@ export default function ChatRoom() {
     <div className={styles.content}>
       <div className={styles.messageBox}>
         <h2>Chat Room: {code}</h2>
+        {/* add a message that says chat not saved, if they refresh ask are you sure you will lose your chat msg */}
         <div className={styles.messages}>
             {/* Temporary hardcoded message for debugging */}
           <div className={styles.text}>
             <span>
               <strong>Test User</strong>: This is a test message
             </span>
+            {/* TODO: check out date problem */}
             <span className={styles.muted}>{new Date().toLocaleString()}</span>
           </div>
           
