@@ -1,90 +1,86 @@
-from server.config import (
-    FRONTEND_URL
-)
-from flask import current_app as app, Flask, url_for, redirect, session, request, send_file, jsonify
-from flask_socketio import emit, join_room, leave_room, send, SocketIO
-from server import db, socketio
-from authlib.integrations.flask_client import OAuth
-from apiflask import APIBlueprint, abort
-from os import environ as env
-from server.models import User
-from server.models.chatroom import Chatroom
+from flask import session, request, redirect, url_for
+from flask_socketio import emit, join_room, leave_room
+from apiflask import APIBlueprint
+from server import socketio
+from server.config import FRONTEND_URL
 
 import random
 from string import ascii_uppercase
 
 chat = APIBlueprint("chat", __name__, url_prefix="/chat")
 
-
-
 rooms = {}
+
 
 def generate_unique_code(length):
     while True:
         code = ""
         for _ in range(length):
             code += random.choice(ascii_uppercase)
-        
+
         if code not in rooms:
             break
-    
+
     return code
 
-@chat.route("/", methods=["POST", "GET"])
+
+@chat.route("/post", methods=["POST"])
 def home():
+    print("home")
     session.clear()
-    if request.method == "POST":
+    if request.is_json:
+        data = request.get_json()
+        name = data.get("name")
+        create = data.get("create", False)
+
+        if not name:
+            return {"error": "Please enter a name"}, 400
+
+        if create:
+            room = generate_unique_code(4)
+            rooms[room] = {"members": 0, "messages": []}
+            session["room"] = room
+            session["name"] = name
+            return {"code": room}, 200
+
+    else:
         name = request.form.get("name")
         code = request.form.get("code")
         join = request.form.get("join", False)
-        create = request.form.get("create", False)
 
         if not name:
-            return redirect(FRONTEND_URL)
+            return {"error": "Please enter a name"}, 400
 
-            # return render_template("home.html", error="Please enter a name.", code=code, name=name)
+        if join and not code:
+            return {"error": "Please enter a room code"}, 400
 
-        if join is not False and not code:
-            return redirect(FRONTEND_URL)
+        if code not in rooms:
+            return {"error": "Room does not exist"}, 404
 
-            # return render_template("home.html", error="Please enter a room code.", code=code, name=name)
-        
-        room = code
-        if create is not False:
-            room = generate_unique_code(4)
-            rooms[room] = {"members": 0, "messages": []}
-        elif code not in rooms:
-            return redirect(FRONTEND_URL)
-
-            # return render_template("home.html", error="Room does not exist.", code=code, name=name)
-        
-        session["room"] = room
+        session["room"] = code
         session["name"] = name
-        return redirect(url_for("room"))
+        return {"success": True}, 200
 
 
 @chat.route("/room")
 def room():
     room = session.get("room")
     if room is None or session.get("name") is None or room not in rooms:
-        return redirect(url_for("home"))
+        return redirect(url_for("chat.home"))
+    return redirect(url_for("chat.room"))
 
-    redirect(url_for("room")) 
-    # return render_template("room.html", code=room, messages=rooms[room]["messages"])
 
-@socketio.on("message") # TODO: MOVE THIS TO CHAT.PY
+@socketio.on("message")  # TODO: MOVE THIS TO CHAT.PY
 def message(data):
     room = session.get("room")
     if room not in rooms:
-        return 
-    
-    content = {
-        "name": session.get("name"),
-        "message": data["data"]
-    }
+        return
+
+    content = {"name": session.get("name"), "message": data["data"]}
     emit("message", content, to=room)
     rooms[room]["messages"].append(content)
     print(f"{session.get('name')} said: {data['data']}")
+
 
 @socketio.on("connect")
 def connect(auth):
@@ -96,11 +92,12 @@ def connect(auth):
     if room not in rooms:
         leave_room(room)
         return
-    
+
     join_room(room)
     emit("message", {"name": name, "message": "has entered the room"}, to=room)
     rooms[room]["members"] += 1
     print(f"{name} joined room {room}")
+
 
 @socketio.on("disconnect")
 def disconnect():
@@ -112,7 +109,6 @@ def disconnect():
         rooms[room]["members"] -= 1
         if rooms[room]["members"] <= 0:
             del rooms[room]
-    
+
     emit("message", {"name": name, "message": "has left the room"}, to=room)
     print(f"{name} has left the room {room}")
-

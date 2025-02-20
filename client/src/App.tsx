@@ -28,7 +28,7 @@ import HeaderNav from "./components/header";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
-      element={window.location.pathname != "/" && <HeaderNav />}
+      element={window.location.pathname !== "/" && <HeaderNav />}
       errorElement={<NotFoundPage />}
     >
       <Route index path="/" element={<IndexPage />} />
@@ -38,7 +38,7 @@ const router = createBrowserRouter(
       <Route index path="/queue" element={<QueuePage />} />
       <Route index path="/leaderboard" element={<Leaderboard />} />
       <Route index path="/chat" element={<Chat />} />
-      <Route index path="/room" element={<ChatRoom />} /> 
+      <Route index path="/room/:code" element={<ChatRoom />} /> 
       <Route index path="/stats" element={<AdminPanel />} />
     </Route>
   )
