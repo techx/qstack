@@ -34,6 +34,8 @@ import {
   FileWithPath,
 } from "@mantine/dropzone";
 import classes from "./root.module.css";
+import ChatRoomModal from "./chatRoomModal.tsx"; // Import the modal component
+
 
 interface mentor {
   name: string;
@@ -72,6 +74,7 @@ export default function TicketPage() {
   const [reviews, setReviews] = useState<Map<number, string>>(new Map<number, string>);
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
   const editor = useEditor(
     {
@@ -277,7 +280,12 @@ export default function TicketPage() {
       tags: tags,
       images: images,
     });
-    if (res.ok) getTicket();
+    if (res.ok) {
+      sessionStorage.setItem("chatName", "default name"); // Ensure this line is present
+
+      getTicket();
+      setIsModalOpen(true);
+    }
     showNotif(res);
   };
 
@@ -491,6 +499,8 @@ export default function TicketPage() {
               <Button onClick={() => handleSubmit()} className="mt-5">
                 Submit
               </Button>
+              {/* Render the modal only if isModalOpen is true */}
+              {isModalOpen && <ChatRoomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />}
             </Group>
           )}
           {active && (
