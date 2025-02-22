@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import styles from "./chat.module.css";
 
@@ -8,50 +8,47 @@ const socket = io("http://127.0.0.1:3001", {
   autoConnect: false // Prevent auto-connecting before we have user details
 });
 
-export default function ChatRoom() {
-  const { code } = useParams();
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
 
+export default function ChatRoomModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { code } = useParams();
+  const [name, setName] = useState("");
   const [messages, setMessages] = useState<{ name: string; message: string }[]>([]);
   const [message, setMessage] = useState<string>("");
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) return; // Only connect when modal is open
+
     // Get name from session storage
     const storedName = sessionStorage.getItem("chatName");
+    
     if (!storedName || !code) {
-      navigate("/chat");
+      // WE IN HERE
+      console.log("heeeee", name)
+      // onClose(); // Close modal if there's no name or code
+      setName("default name")
+      console.log("heeeee 2", name)
       return;
     }
-    setName(storedName);
+    setName(storedName); 
 
-    // Connect only when we have valid name and code
+    // Connect to socket
     socket.connect();
     socket.emit("join", { name: storedName, code });
 
-    socket.on("connect", () => {
-      console.log("Connected to server");
-      setIsConnected(true);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Disconnected from server");
-      setIsConnected(false);
-    });
-
+    socket.on("connect", () => setIsConnected(true));
+    socket.on("disconnect", () => setIsConnected(false));
     socket.on("message", (data: { name: string; message: string }) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
-    // Cleanup function
     return () => {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("message");
       socket.disconnect();
     };
-  }, [code, navigate]);
+  }, [code, isOpen, onClose]);
 
   const sendMessage = () => {
     if (message.trim() === "" || !isConnected) return;
@@ -60,11 +57,13 @@ export default function ChatRoom() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
+
+  if (!isOpen) return null; // Don't render when modal is closed
 
   return (
     <div className={styles.content}>
@@ -81,7 +80,9 @@ export default function ChatRoom() {
               <span>
                 <strong>{msg.name}</strong>: {msg.message}
               </span>
-              <span className={styles.muted}>{new Date().toLocaleString()}</span>
+              <div className = {styles.modal}>
+                <span className={styles.muted}>{new Date().toLocaleString()}</span>
+              </div>
             </div>
           ))}
         </div>
