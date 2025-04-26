@@ -1,18 +1,20 @@
-from flask import current_app as app, redirect, session, request
-from server import db
-from authlib.integrations.flask_client import OAuth
-from apiflask import APIBlueprint, abort
+import functools
 from urllib.parse import quote_plus, urlencode
-from server.models import User
+
+from apiflask import APIBlueprint, abort
+from authlib.integrations.flask_client import OAuth
+from flask import current_app as app
+from flask import redirect, request, session
+
+from server import db
 from server.config import (
-    FRONTEND_URL,
-    MENTOR_PASS,
     AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET,
     AUTH0_DOMAIN,
-    AUTH_USERNAME,
-    AUTH_PASSWORD
+    FRONTEND_URL,
+    MENTOR_PASS,
 )
+from server.models import User
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
 oauth = OAuth(app)
@@ -29,24 +31,28 @@ oauth.register(
 )
 
 
-def auth_required_decorator(roles):
+def is_user_valid(user, valid_roles):
+    if not user or not user.role:
+        return False
+    elif user.role not in valid_roles:
+        return False
+    return True
+
+
+def auth_required_decorator(valid_roles):
     """
     middleware for protected routes
     """
 
     def auth_required(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             email = session["user"]["userinfo"]["email"]
             user = User.query.filter_by(email=email).first()
-            if not user or not user.role:
-                return abort(401)
-            elif user.role not in roles:
+            if not is_user_valid(user, valid_roles):
                 return abort(401)
             return func(*args, **kwargs)
 
-        wrapper.__name__ = (
-            func.__name__
-        )  # avoid overwriting wrapper. something about scoping issues
         return wrapper
 
     return auth_required
