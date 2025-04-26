@@ -39,7 +39,7 @@ def is_user_valid(user, valid_roles):
     return True
 
 
-def auth_required_decorator(valid_roles):
+def auth_required_decorator(roles):
     """
     middleware for protected routes
     """
@@ -49,7 +49,7 @@ def auth_required_decorator(valid_roles):
         def wrapper(*args, **kwargs):
             email = session["user"]["userinfo"]["email"]
             user = User.query.filter_by(email=email).first()
-            if not is_user_valid(user, valid_roles):
+            if not is_user_valid(user, roles):
                 return abort(401)
             return func(*args, **kwargs)
 
