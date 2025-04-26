@@ -3,74 +3,20 @@ from flask_socketio import emit, join_room, leave_room
 from apiflask import APIBlueprint
 from server import socketio
 from server.config import FRONTEND_URL
-
-import random
-from string import ascii_uppercase
+from server.controllers.auth import is_user_valid
+from server.models.user import User
 
 chat = APIBlueprint("chat", __name__, url_prefix="/chat")
 
-rooms = {}
+@socketio.on("connect")
+def chat_connect():
+    valid_roles = ["hacker", "mentor", "admin"]
+    email = session["user"]["userinfo"]["email"]
+    user = User.query.filter_by(email=email).first()
+    if not is_user_valid(user, valid_roles):
+        return abort(401)
 
-
-def generate_unique_code(length):
-    while True:
-        code = ""
-        for _ in range(length):
-            code += random.choice(ascii_uppercase)
-
-        if code not in rooms:
-            break
-
-    return code
-
-
-@chat.route("/post", methods=["POST"])
-def home():
-    print("home")
-    session.clear()
-    if request.is_json:
-        data = request.get_json()
-        name = data.get("name")
-        create = data.get("create", False)
-
-        if not name:
-            return {"error": "Please enter a name"}, 400
-
-        if create:
-            room = generate_unique_code(4)
-            rooms[room] = {"members": 0, "messages": []}
-            session["room"] = room
-            session["name"] = name
-            return {"code": room}, 200
-
-    else:
-        name = request.form.get("name")
-        code = request.form.get("code")
-        join = request.form.get("join", False)
-
-        if not name:
-            return {"error": "Please enter a name"}, 400
-
-        if join and not code:
-            return {"error": "Please enter a room code"}, 400
-
-        if code not in rooms:
-            return {"error": "Room does not exist"}, 404
-
-        session["room"] = code
-        session["name"] = name
-        return {"success": True}, 200
-
-
-@chat.route("/room")
-def room():
-    room = session.get("room")
-    if room is None or session.get("name") is None or room not in rooms:
-        return redirect(url_for("chat.home"))
-    return redirect(url_for("chat.room"))
-
-
-@socketio.on("message")  # TODO: MOVE THIS TO CHAT.PY
+@socketio.on("message")
 def message(data):
     room = session.get("room")
     if room not in rooms:
