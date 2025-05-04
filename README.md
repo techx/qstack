@@ -72,7 +72,7 @@ If you are developing using [Docker](https://docs.docker.com/get-started/) (see 
 
 ### Env
 
-Make a new file `.env`. Copy `.env.sample` to `.env` and fill in the necessary values. You should be able to find them on slack.
+Make a new file `.env`. Copy `.env.sample` to `.env` and fill in the necessary values. You should be able to find them on slack in #dev-qstack.
 
 ## Docker
 
@@ -95,6 +95,10 @@ container in VSCode. The tutorial is outdated, so run the vscode command
 ```
 Dev Containers: Open Folder in Container
 ```
+
+If you have a Windows, you might run into a error creating the dev container due to differences between Windows and Linux.
+Navigate to `devcontainer_setup.sh` and change the end of line sequence for the file from CRLF to LF. Save your changes and rebuild the container.
+
 > Note: It can take a few minutes to provision the container if it is your first time starting it up.
 
 ## Development
