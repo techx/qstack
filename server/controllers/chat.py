@@ -80,16 +80,20 @@ def connect_handler(_auth=None):
 
 @socketio.on("send_message")
 def message_handler(data):
+    if not isinstance(data, dict) or "content" not in data:
+        return
+    content = data["content"]
+
     ctx = setup_ticket_chat()
     if ctx is None:
         return
     room, name = ctx
 
     ts = floor(time())
-    content = {"name": name, "ts": ts, "message": data["data"]}
-    emit("recv_message", content, to=room, include_self=False)
-    print(f"{name} in {room} said: {data['data']}")
-    return ts
+    message_data = {"name": name, "ts": ts, "message": content}
+    emit("recv_message", message_data, to=room, include_self=False)
+    print(f"{name} in {room} said: {content}")
+    return {"ts": ts}
 
 
 @socketio.on("disconnect")
