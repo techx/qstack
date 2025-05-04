@@ -8,6 +8,8 @@ from flask_socketio import (
     join_room,
     leave_room,
 )
+from time import time
+from math import floor
 
 from server import socketio
 from server.config import FRONTEND_URL
@@ -23,7 +25,7 @@ def fmt_room_name(ticket_id):
 
 
 def force_disconnect_later(client_sid, room=None):
-    socketio.sleep(0.5)  # Give the close message a chance to go out
+    socketio.sleep(0.5) # Give the close message a chance to go out
     socketio.server.disconnect(client_sid)
 
 
@@ -76,15 +78,18 @@ def connect_handler(_auth=None):
     print(f"{name} joined {room}")
 
 
-@socketio.on("message")
+@socketio.on("send_message")
 def message_handler(data):
     ctx = setup_ticket_chat()
     if ctx is None:
         return
     room, name = ctx
-    content = {"name": name, "message": data["data"]}
-    emit("message", content, to=room)
+
+    ts = floor(time())
+    content = {"name": name, "ts": ts, "message": data["data"]}
+    emit("recv_message", content, to=room, include_self=False)
     print(f"{name} in {room} said: {data['data']}")
+    return ts
 
 
 @socketio.on("disconnect")
