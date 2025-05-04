@@ -12,10 +12,11 @@
   "dependencies": {
     "@mantine/core": "^7.7.1",
     "@mantine/dropzone": "^7.10.0",
+    "@mantine/form": "^7.17.7",
     "@mantine/hooks": "^7.7.1",
     "@mantine/notifications": "^7.7.1",
     "@mantine/tiptap": "^7.7.1",
-    "@tabler/icons-react": "^2.34.0",
+    "@tabler/icons-react": "^2.47.0",
     "@tiptap/core": "^2.0.0",
     "@tiptap/extension-bubble-menu": "^2.0.0",
     "@tiptap/extension-code-block": "^2.0.0",

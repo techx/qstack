@@ -12,6 +12,10 @@ body {
   font-family: "Mabry";
 }
 
+#root {
+  width: 100%;
+}
+
 .mantine-Title-root {
   font-family: "Mabry";
 }
