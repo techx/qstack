@@ -72,13 +72,13 @@ If you are developing using [Docker](https://docs.docker.com/get-started/) (see 
 
 ### Env
 
-Copy `.env.sample` to `.env` and fill in the necessary values. You should be able to find them on slack.
+Make a new file `.env`. Copy `.env.sample` to `.env` and fill in the necessary values. You should be able to find them on slack.
 
 ## Docker
 
 Using [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container) are strongly recommended when doing development work on qstack. Containers are a way of provisioning identical environments from computer to computer and alleviates a lot of headache when it comes to installing dependencies, setting up Postgres, etc...
 
-To use Dev Containers you must first install [Visual Studio Code](https://code.visualstudio.com/) and [Docker](https://www.docker.com/get-started/). Then you must install the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for Visual Studio Code.
+To use Dev Containers you must first install [Visual Studio Code](https://code.visualstudio.com/) and [Docker](https://www.docker.com/get-started/). Then you must install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for Visual Studio Code.
 
 To use Docker, install it [here](https://docs.docker.com/get-docker/). To check if your installation is working, try running
 
@@ -88,8 +88,13 @@ docker run hello-world
 
 If you get a message on your screen that starts with "Hello from Docker!", your installation is working.
 
-After that, follow [this tutorial](https://www.youtube.com/watch?v=Uvf2FVS1F8k) to get your environment set up. Make sure you open this repository as a dev container in VSCode.
+After that, follow [this tutorial](https://www.youtube.com/watch?v=Uvf2FVS1F8k)
+to get your environment set up. Make sure docker is open, and that you open this repository as a dev
+container in VSCode. The tutorial is outdated, so run the vscode command 
 
+```
+Dev Containers: Open Folder in Container
+```
 > Note: It can take a few minutes to provision the container if it is your first time starting it up.
 
 ## Development
