@@ -204,7 +204,7 @@ export default function TicketPage() {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const rating = ratings.get(ratedTicket.id) as number || 3;
+    const rating = ratings.get(ratedTicket.id) as number;
     const review = reviews.get(ratedTicket.id) || "";
     const res = await ticket.rate(
       ratedTicket.id,

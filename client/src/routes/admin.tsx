@@ -98,13 +98,18 @@ export default function AdminPanel() {
               </Title>
               <Text>Total Resolved Tickets: {ticketStats.total}</Text>
               <Text>Average Time to Claim Ticket: {ticketStats.averageTime}</Text>
-              <Text>
                 Average Mentor Rating:{" "}
+                {ticketStats.averageRating == 0 ?
+                  <Text>None yet!</Text>
+                :
+                  <Text>
                 {computeNormalizedRating(
                   ticketStats.averageRating,
                   ticketStats.total
                 )}
-              </Text>
+                </Text>
+                }
+              
               <Rating
                 value={parseFloat(
                   computeNormalizedRating(
