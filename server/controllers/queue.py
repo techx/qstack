@@ -2,6 +2,7 @@ from flask import current_app as app, url_for, redirect, session, request, send_
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
+from server.controllers.chat import close_ticket_room
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
 
@@ -63,6 +64,9 @@ def unclaim():
     ticket.claimedAt = None
 
     db.session.commit()
+
+    close_ticket_room(ticket.id, "ticket unclaimed. end of chat")
+
     return {"message": "Ticket unclaimed!"}
 
 

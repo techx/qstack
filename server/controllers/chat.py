@@ -29,6 +29,14 @@ def force_disconnect_later(client_sid, room=None):
     socketio.server.disconnect(client_sid)
 
 
+def close_room_later(room):
+    socketio.sleep(0.5)
+    print("closing room", room)
+    for sid, _ in socketio.server.manager.get_participants("/", room):
+        socketio.server.disconnect(sid)
+    socketio.close_room(room)
+
+
 def get_user_ticket(user):
     if user.role == "hacker":
         if user.ticket_id is None:
@@ -45,9 +53,17 @@ def get_user_ticket(user):
     raise AssertionError(f"unepxected role {user.role!r}")
 
 
+def close_ticket_room(ticket_id, message):
+    ts = floor(time())
+    message_data = {"ts": ts, "message": message}
+    room_name = fmt_room_name(ticket_id)
+    emit("system_message", message_data, to=room_name, namespace="/")
+    socketio.start_background_task(close_room_later, room_name)
+
+
 def setup_ticket_chat():
     def delayed_disconnect(client_sid):
-        socketio.start_background_task(lambda: force_disconnect_later(client_sid))
+        socketio.start_background_task(force_disconnect_later, client_sid)
 
     valid_roles = ["hacker", "mentor", "admin"]
     email = session["user"]["userinfo"]["email"]
