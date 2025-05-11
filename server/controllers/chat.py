@@ -69,13 +69,13 @@ def setup_ticket_chat():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
     if not is_user_valid(user, valid_roles):
-        emit("error", {"message": "unauthorized"})
+        emit("open_chat_error", {"message": "Unauthorized"})
         delayed_disconnect(request.sid)
         return
 
     ticket = get_user_ticket(user)
     if not ticket:
-        emit("error", {"message": "no active ticket"})
+        emit("open_chat_error", {"message": "No active ticket"})
         delayed_disconnect(request.sid)
         return
 

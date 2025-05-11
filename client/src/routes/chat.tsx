@@ -12,6 +12,7 @@ import {
   Paper,
   Stack,
   TextInput,
+  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconSend } from "@tabler/icons-react";
@@ -41,7 +42,9 @@ const startOfChatMsg: SystemMessageData = {
 
 export default function Chat() {
   const socketRef = useRef<Socket | undefined>(undefined);
+  const [openError, setOpenError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isActive, setIsActive] = useState<boolean>(false);
   const [partnerName, setPartnerName] = useState<string>("Unknown");
   const [partnerRole, setPartnerRole] = useState<string>("");
   const [messages, setMessages] = useState<ChatMessageData[]>([startOfChatMsg]);
@@ -66,10 +69,14 @@ export default function Chat() {
 
   const onConnect = () => {
     setIsLoading(false);
+    setIsActive(true);
   };
 
-  const onDisconnect = () => {
-    setIsLoading(true);
+  const onDisconnect = (socket: Socket) => {
+    // if socket.active is true, we are reconnecting
+    setIsLoading(socket.active);
+    // if socket.active is false, disable message box
+    setIsActive(socket.active);
   };
 
   const sendMessage = (message: string) => {
@@ -114,7 +121,11 @@ export default function Chat() {
     (window as unknown as Record<string, Socket>).socket = socketRef.current;
 
     socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
+    socket.on("disconnect", () => onDisconnect(socket));
+
+    socket.on("open_chat_error", (msg) => {
+      setOpenError(msg?.message || "Unknown error when opening chat");
+    });
 
     socket.on("recv_message", (msg) => {
       if (!msg.name || !msg.message) return;
@@ -149,35 +160,48 @@ export default function Chat() {
 
   return (
     <Box className="h-full w-full flex flex-col min-h-0">
-      <LoadingOverlay visible={false && isLoading} />
+      <LoadingOverlay visible={isLoading && !openError} />
 
       <Paper
         p="xl"
         shadow="xs"
         className="bg-neutral-800 h-full flex flex-col min-h-0"
       >
-        <Box className="flex w-100 justify-start">
-          <Box>
-            <Box className="text-lg">{partnerName}</Box>
-            <Box className="opacity-75">{partnerRole}</Box>
+        {isLoading || openError ? null : (
+          <Box className="flex w-100 justify-start">
+            <Box>
+              <Box className="text-lg">{partnerName}</Box>
+              <Box className="opacity-75">{partnerRole}</Box>
+            </Box>
           </Box>
-        </Box>
-        <Box
-          className="flex-1 overflow-auto min-h-0"
-          ref={containerRef}
-          onScroll={onScroll}
-        >
-          {messages.map((msg, i) => (
-            <ChatMessage key={i} msg={msg} />
-          ))}
-          <div ref={endOfMessagesRef} />
-        </Box>
-        <Box className="shrink-0">
-          <ComposeMessage
-            sendMessage={sendMessage}
-            disabled={!socketRef.current?.active}
-          />
-        </Box>
+        )}
+        {isLoading || openError ? null : (
+          <Box
+            className="flex-1 overflow-auto min-h-0"
+            ref={containerRef}
+            onScroll={onScroll}
+          >
+            {messages.map((msg, i) => (
+              <ChatMessage key={i} msg={msg} />
+            ))}
+            <div ref={endOfMessagesRef} />
+          </Box>
+        )}
+        {isLoading || openError ? null : (
+          <Box className="shrink-0">
+            <ComposeMessage
+              sendMessage={sendMessage}
+              disabled={!isActive}
+            />
+          </Box>
+        )}
+        {openError ? (
+          <>
+            <Title className="text-center pt-[30%]" order={1}>
+              {openError}
+            </Title>
+          </>
+        ) : null}
       </Paper>
     </Box>
   );
