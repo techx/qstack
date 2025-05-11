@@ -42,6 +42,8 @@ const startOfChatMsg: SystemMessageData = {
 export default function Chat() {
   const socketRef = useRef<Socket | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [partnerName, setPartnerName] = useState<string>("Unknown");
+  const [partnerRole, setPartnerRole] = useState<string>("");
   const [messages, setMessages] = useState<ChatMessageData[]>([startOfChatMsg]);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -96,7 +98,6 @@ export default function Chat() {
           console.error("unexpected message ack", { ack });
           return;
         }
-        console.log("received ack for idx", idx, ack);
         setMessages((msgs) => {
           const msgData = msgs[idx] as OwnMessageData;
           const newMsgs = [...msgs];
@@ -119,11 +120,26 @@ export default function Chat() {
       if (!msg.name || !msg.message) return;
       const newMsg: ChatMessageData = {
         type: "received",
-        ts: msg.ts || 0,
+        ts: Number(msg.ts) || 0,
         name: msg.name.toString(),
         message: msg.message.toString(),
       };
       setMessages((currMsgs) => currMsgs.concat(newMsg));
+    });
+
+    socket.on("system_message", (msg) => {
+      if (!msg.message) return;
+      const newMsg: SystemMessageData = {
+        type: "system",
+        message: msg.message,
+      };
+      setMessages((currMsgs) => currMsgs.concat(newMsg));
+    });
+
+    socket.on("partner_metadata", (msg) => {
+      if (!msg.name || !msg.role) return;
+      setPartnerName("" + msg.name);
+      setPartnerRole("" + msg.role);
     });
 
     return () => {
@@ -140,6 +156,12 @@ export default function Chat() {
         shadow="xs"
         className="bg-neutral-800 h-full flex flex-col min-h-0"
       >
+        <Box className="flex w-100 justify-start">
+          <Box>
+            <Box className="text-lg">{partnerName}</Box>
+            <Box className="opacity-75">{partnerRole}</Box>
+          </Box>
+        </Box>
         <Box
           className="flex-1 overflow-auto min-h-0"
           ref={containerRef}
@@ -151,7 +173,10 @@ export default function Chat() {
           <div ref={endOfMessagesRef} />
         </Box>
         <Box className="shrink-0">
-          <ComposeMessage sendMessage={sendMessage} />
+          <ComposeMessage
+            sendMessage={sendMessage}
+            disabled={!socketRef.current?.active}
+          />
         </Box>
       </Paper>
     </Box>
@@ -206,7 +231,8 @@ const SentMessage: React.FC<{
 
 const ComposeMessage: React.FC<{
   sendMessage: (msg: string) => void;
-}> = ({ sendMessage }) => {
+  disabled: boolean;
+}> = ({ sendMessage, disabled }) => {
   const form = useForm({
     mode: "controlled",
     initialValues: {
@@ -234,9 +260,10 @@ const ComposeMessage: React.FC<{
             w="100%"
             placeholder="Message"
             onKeyDown={onKeyDown}
+            disabled={disabled}
             {...form.getInputProps("message")}
           />
-          <ActionIcon type="submit" size="lg">
+          <ActionIcon type="submit" size="lg" disabled={disabled}>
             <IconSend />
           </ActionIcon>
         </Group>

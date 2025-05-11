@@ -81,7 +81,20 @@ def setup_ticket_chat():
 
     room = fmt_room_name(ticket.id)
     name = user.role
-    return room, name
+    return user, ticket, room, name
+
+
+def chat_partner_metadata(user, ticket):
+    if user.role == "hacker":
+        mentor_name = ticket.claimant.name if ticket.claimant else "Unknown"
+        return mentor_name, "Mentor"
+
+    if user.role in ("mentor", "admin"):
+        creator = User.query.get(ticket.creator_id)
+        creator_name = creator.name if creator else "Unknown"
+        return creator_name, "Hacker"
+
+    raise AssertionError(f"unepxected role {user.role!r}")
 
 
 @socketio.on("connect")
@@ -89,8 +102,10 @@ def connect_handler(_auth=None):
     ctx = setup_ticket_chat()
     if ctx is None:
         return
-    room, name = ctx
+    user, ticket, room, name = ctx
     join_room(room)
+    name, role = chat_partner_metadata(user, ticket)
+    emit("partner_metadata", {"name": name, "role": role})
     print(f"{name} joined {room}")
 
 
@@ -103,7 +118,7 @@ def message_handler(data):
     ctx = setup_ticket_chat()
     if ctx is None:
         return
-    room, name = ctx
+    _, _, room, name = ctx
 
     ts = floor(time())
     message_data = {"name": name, "ts": ts, "message": content}
