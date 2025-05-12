@@ -1,4 +1,12 @@
-from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
+from flask import (
+    current_app as app,
+    url_for,
+    redirect,
+    session,
+    request,
+    send_file,
+    jsonify,
+)
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -105,12 +113,15 @@ def ranking():
     ranking = []
     for mentor in mentors:
         if len(mentor.ratings) > 0:
-            mentor_rating = sum(mentor.ratings)/len(mentor.ratings)
-            ranking.append((mentor.resolved_tickets, len(
-                mentor.ratings), mentor.name, mentor_rating))
-        else:
-            ranking.append((mentor.resolved_tickets, len(
-                mentor.ratings), mentor.name, 0))
+            mentor_rating = sum(mentor.ratings) / len(mentor.ratings)
+            ranking.append(
+                (
+                    mentor.resolved_tickets,
+                    len(mentor.ratings),
+                    mentor.name,
+                    mentor_rating,
+                )
+            )
 
     ranking = sorted(ranking, key=lambda x: (x[0], x[2]), reverse=True)
 
@@ -122,7 +133,7 @@ def ranking():
             "num_resolved_tickets": rank[0],
             "num_ratings": rank[1],
             "name": rank[2],
-            "average_rating": rank[3]
+            "average_rating": rank[3],
         }
         val += 1
         rankings.append(status)

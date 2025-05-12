@@ -34,6 +34,7 @@ def save():
         len(data["question"]) == 0
         or len(data["content"]) == 0
         or len(data["location"]) == 0
+        or len(data["tags"]) == 0
     ):
         return abort(404, "Make sure to fill every field!")
 
@@ -71,6 +72,7 @@ def submit():
         len(data["question"]) == 0
         or len(data["content"]) == 0
         or len(data["location"]) == 0
+        or len(data["tags"]) == 0
     ):
         return abort(404, "Make sure to fill every field!")
 
