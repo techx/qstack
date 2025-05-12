@@ -122,9 +122,6 @@ def ranking():
                     mentor_rating,
                 )
             )
-        # else:
-        #     ranking.append((mentor.resolved_tickets, len(
-        #         mentor.ratings), mentor.name, 0))
 
     ranking = sorted(ranking, key=lambda x: (x[0], x[2]), reverse=True)
 
