@@ -6,12 +6,15 @@ from urllib.parse import quote_plus, urlencode
 from server.models import User
 from server.config import (
     FRONTEND_URL,
+    BACKEND_URL,
     MENTOR_PASS,
     AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET,
     AUTH0_DOMAIN,
     AUTH_USERNAME,
-    AUTH_PASSWORD
+    AUTH_PASSWORD,
+    DISCORD_CLIENT_ID,
+    DISCORD_CLIENT_SECRET
 )
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
@@ -28,6 +31,15 @@ oauth.register(
         AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
+oauth.register(
+    "discord",
+    client_id=DISCORD_CLIENT_ID,
+    client_secret=DISCORD_CLIENT_SECRET,
+    access_token_url="https://discord.com/api/oauth2/token",
+    authorize_url="https://discord.com/api/oauth2/authorize",
+    api_base_url="https://discord.com/api/",
+    client_kwargs={"scope": "identify email"},
+)
 
 def auth_required_decorator(roles):
     """
@@ -95,6 +107,58 @@ def logout():
             quote_via=quote_plus,
         )
     )
+
+@auth.route("/discord/login")
+def discord_login():
+    if "user" not in session:
+        return redirect(FRONTEND_URL + "/api/auth/login")
+
+    return oauth.discord.authorize_redirect(
+        redirect_uri=FRONTEND_URL + "/auth/discord/callback"
+    )
+
+@auth.route("/discord/exchange-token", methods=["POST"])
+def discord_exchange_token():
+    data = request.get_json()
+    code = data.get("code")
+
+    if not code:
+        return abort(400, "Missing authorization code")
+
+    # Check if user is logged in via Auth0 first
+    if "user" not in session:
+        return {"success": False, "error": "Must be logged in via Auth0 first"}
+
+    try:
+        # Exchange code for token using the Discord OAuth client
+        token = oauth.discord.fetch_access_token(
+            code=code,
+            redirect_uri=FRONTEND_URL + "/auth/discord/callback"
+        )
+
+        # Get Discord user profile
+        resp = oauth.discord.get("users/@me", token=token)
+        profile = resp.json()
+
+        # Extract Discord info
+        discord_tag = f"{profile['username']}#{profile['discriminator']}"
+        discord_id = profile['id']
+
+        # Update user in database
+        email = session["user"]["userinfo"]["email"]
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return {"success": False, "error": "User not found"}
+
+        user.discord = discord_tag
+        db.session.commit()
+
+        return {"success": True, "discord_tag": discord_tag}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 
 
 @auth.route("/whoami")

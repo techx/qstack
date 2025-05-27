@@ -21,6 +21,7 @@ import HomePage from "./routes/home";
 import Leaderboard from "./routes/leaderboard";
 import AdminPanel from "./routes/admin";
 import HeaderNav from "./components/header";
+import DiscordCallback from "./routes/discordCallback";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,6 +36,7 @@ const router = createBrowserRouter(
       <Route index path="/queue" element={<QueuePage />} />
       <Route index path="/leaderboard" element={<Leaderboard />} />
       <Route index path="/stats" element={<AdminPanel />} />
+      <Route path="/auth/discord/callback" element={<DiscordCallback />} />
     </Route>
   )
 );
