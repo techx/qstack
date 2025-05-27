@@ -78,21 +78,24 @@ def load_all_users():
     ec2_conn, ec2_cur = create_ec2_connection()
     qstack_conn, qstack_cur = create_qstack_connection()
     
-    # deletes existing and creates new users table
+    #############################################################################
+    #             DELETES existing table and creates new user table             #
+    #############################################################################
     #qstack_cur.execute(f'DROP TABLE IF EXISTS users CASCADE;')
+    #qstack_cur.execute(f'CREATE SEQUENCE users_id_seq')
     #qstack_cur.execute(f"""
     #    CREATE TABLE users (
-    #        id INTEGER PRIMARY KEY,
-    #        name TEXT,
-    #        email TEXT,
-    #        role TEXT,
-    #        location TEXT,
-    #        zoomlink TEXT,
-    #        discord TEXT,
-    #        resolved_tickets INTEGER,
-    #        ratings NUMERIC(2,1)[],
-    #        reviews TEXT[],
-    #        ticket_id INTEGER
+    #        id                 INTEGER             NOT NULL        DEFAULT NEXTVAL('users_id_seq'::regclass)       PRIMARY KEY,
+    #        name               TEXT                NOT NULL,
+    #        email              TEXT                NOT NULL,
+    #        role               TEXT                NOT NULL,
+    #        location           TEXT                NOT NULL,
+    #        zoomlink           TEXT                NOT NULL,
+    #        discord            TEXT                NOT NULL,
+    #        resolved_tickets   INTEGER,
+    #        ratings            NUMERIC(2,1)[],
+    #        reviews            TEXT[]              NOT NULL,
+    #        ticket_id          INTEGER
     #    );
     #""")
     #qstack_conn.commit()
@@ -106,6 +109,7 @@ def load_all_users():
 
     # add user data to qstack's users table
     for i in range(len(uids)):
+        # retrieve name and email columns from plume's "user" table
         uid = uids[i]
         
         ec2_cur.execute(f"""
@@ -116,14 +120,13 @@ def load_all_users():
 
         name = " ".join([uid_info[0], uid_info[1]])
         email = uid_info[2]
-        print(name)
-        #try:
+
+
+        # insert into qstack's users table
         #qstack_cur.execute(f"""
         #    INSERT INTO users (id, name, email, role) VALUES ('{int(i)}', '{(name)}', '{(email)}', 'hacker');
         #""")
         #qstack_conn.commit()
-        #except:
-        #    print(name)
     
     return len(uids) # number of users
 
@@ -132,41 +135,39 @@ def load_all_users():
 #########################################################
 #    DON'T USE THIS FUNC, ID AND USER_ID DON'T MATCH    #
 #########################################################
-def load_new_users():
-    # set up connections
-    ec2_conn, ec2_cur = create_ec2_connection()
-    qstack_conn, qstack_cur = create_qstack_connection()
+# def load_new_users():
+#     # set up connections
+#     ec2_conn, ec2_cur = create_ec2_connection()
+#     qstack_conn, qstack_cur = create_qstack_connection()
 
-    ec2_cur.execute(f"""
-        select id from "user";
-    """)
-    load_uids = [uid[0] for uid in ec2_cur.fetchall()]
+#     ec2_cur.execute(f"""
+#         select id from "user";
+#     """)
+#     load_uids = [uid[0] for uid in ec2_cur.fetchall()]
 
-    qstack_cur.execute(f"""
-        select user_id from users;
-    """)
-    existing_uids = [uid[0] for uid in qstack_cur.fetchall()]
+#     qstack_cur.execute(f"""
+#         select user_id from users;
+#     """)
+#     existing_uids = [uid[0] for uid in qstack_cur.fetchall()]
 
-    uids = [uid for uid in load_uids if uid not in existing_uids]
+#     uids = [uid for uid in load_uids if uid not in existing_uids]
 
-    id = get_last_user_id()+1
+#     id = get_last_user_id()+1
 
-    # add user data to qstack's users table
-    for i in range(len(uids)):
-        uid = uids[i]
-        ec2_cur.execute(f"""
-            SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
-        """)
-        # uids = [uid[0] for uid in ec2_cur.fetchall()]
-        uid_info = ec2_cur.fetchall()[0]
+#     # add user data to qstack's users table
+#     for i in range(len(uids)):
+#         uid = uids[i]
+#         ec2_cur.execute(f"""
+#             SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
+#         """)
+#         # uids = [uid[0] for uid in ec2_cur.fetchall()]
+#         uid_info = ec2_cur.fetchall()[0]
 
-        name = " ".join([uid_info[0], uid_info[1]])
-        email = uid_info[2]
-        qstack_cur.execute(f"""
-            INSERT INTO users (id, name, email, role) VALUES ('{int(id+i)}', '{str(name)}', '{str(email)}', 'hacker');
-        """)
-        qstack_conn.commit()
+#         name = " ".join([uid_info[0], uid_info[1]])
+#         email = uid_info[2]
+#         qstack_cur.execute(f"""
+#             INSERT INTO users (id, name, email, role) VALUES ('{int(id+i)}', '{str(name)}', '{str(email)}', 'hacker');
+#         """)
+#         qstack_conn.commit()
     
-    return len(uids)
-
-load_all_users()
+#     return len(uids)
