@@ -1,11 +1,11 @@
-# intitate everyone one with hacker role (mentor role given why the enter password on their own)
+# intitate everyone one with hacker role (mentor role given when they enter password on their own)
 # add "application_complete" check later
 
 import os
 from dotenv import load_dotenv
 import psycopg2
 from urllib.parse import urlparse
-from info import USER_MAP
+#from info import USER_MAP
 import uuid
 
 load_dotenv()
@@ -36,14 +36,11 @@ def create_ec2_connection():
 
 def create_qstack_connection():
     conn = psycopg2.connect(
-        host="database", # service name in docker-compose
+        host="database", # service name in docker-compose.yml
         port=5432,
-        ########################################################################
-                                    #CHANGE DBNAME???
-        ########################################################################
-        dbname="hack",
+        dbname="qstackdb",
         user="postgres",
-        password="postgres"
+        password="password"
     )
 
     cur = conn.cursor()
@@ -61,69 +58,115 @@ def create_qstack_connection():
     # cur.execute("ROLLBACK")
     # conn.commit()
 
-def load_answers(qstack_cur, qstack_conn, ec2_cur, ec2_conn):
-    # create user table
-    qstack_cur.execute(f'DROP TABLE IF EXISTS users;')
+
+def get_last_user_id():
+    qstack_conn, qstack_cur = create_qstack_connection()
+    
     qstack_cur.execute(f"""
-        CREATE TABLE users (
-            id INTEGER PRIMARY KEY DEFAULT nextval('users_id_seq'::regclass),
-            name TEXT,
-            email TEXT,
-            role TEXT,
-            location TEXT,
-            zoomlink TEXT,
-            discord TEXT,
-            resolved_tickets INTEGER,
-            ratings NUMERIC(2,1)[],
-            reviews TEXT[],
-            ticket_id INTEGER
-        );
+        SELECT id FROM users ORDER BY id DESC LIMIT 1
     """)
-    qstack_conn.commit()
+    last_user = qstack_cur.fetchall()
+
+    #print(last_user[0][0])
+    return last_user[0][0]
+
+
+
+
+def load_all_users():
+    # set up connections
+    ec2_conn, ec2_cur = create_ec2_connection()
+    qstack_conn, qstack_cur = create_qstack_connection()
+    
+    # deletes existing and creates new users table
+    #qstack_cur.execute(f'DROP TABLE IF EXISTS users CASCADE;')
+    #qstack_cur.execute(f"""
+    #    CREATE TABLE users (
+    #        id INTEGER PRIMARY KEY,
+    #        name TEXT,
+    #        email TEXT,
+    #        role TEXT,
+    #        location TEXT,
+    #        zoomlink TEXT,
+    #        discord TEXT,
+    #        resolved_tickets INTEGER,
+    #        ratings NUMERIC(2,1)[],
+    #        reviews TEXT[],
+    #        ticket_id INTEGER
+    #    );
+    #""")
+    #qstack_conn.commit()
+
+    # load user data from plume's user table
+    ec2_cur.execute(f"""
+        SELECT id from "user";
+    """) # include quote because user is special keyword is psql?
+    uids = [uid[0] for uid in ec2_cur.fetchall()]
+    #uids = ec2_cur.fetchall()
+
+    # add user data to qstack's users table
+    for i in range(len(uids)):
+        uid = uids[i]
+        
+        ec2_cur.execute(f"""
+            SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
+        """)
+        # uids = [uid[0] for uid in ec2_cur.fetchall()]
+        uid_info = ec2_cur.fetchall()[0]
+
+        name = " ".join([uid_info[0], uid_info[1]])
+        email = uid_info[2]
+        print(name)
+        #try:
+        #qstack_cur.execute(f"""
+        #    INSERT INTO users (id, name, email, role) VALUES ('{int(i)}', '{(name)}', '{(email)}', 'hacker');
+        #""")
+        #qstack_conn.commit()
+        #except:
+        #    print(name)
+    
+    return len(uids) # number of users
+
+
+
+#########################################################
+#    DON'T USE THIS FUNC, ID AND USER_ID DON'T MATCH    #
+#########################################################
+def load_new_users():
+    # set up connections
+    ec2_conn, ec2_cur = create_ec2_connection()
+    qstack_conn, qstack_cur = create_qstack_connection()
 
     ec2_cur.execute(f"""
-        select user_id from user_hackathon_role where hackathon_id='bp-2025';
+        select id from "user";
     """)
-    uids = [uid[0] for uid in ec2_cur.fetchall()]
+    load_uids = [uid[0] for uid in ec2_cur.fetchall()]
 
-    # create answer table
-    qstack_cur.execute(f'DROP TABLE IF EXISTS answer;')
     qstack_cur.execute(f"""
-        CREATE TABLE answer (
-            user_id VARCHAR (100),
-            question_id VARCHAR (100),
-            response_text TEXT
-        );
+        select user_id from users;
     """)
-    qstack_conn.commit()
+    existing_uids = [uid[0] for uid in qstack_cur.fetchall()]
 
-    # add answer data to tables
-    for uid in uids:
+    uids = [uid for uid in load_uids if uid not in existing_uids]
+
+    id = get_last_user_id()+1
+
+    # add user data to qstack's users table
+    for i in range(len(uids)):
+        uid = uids[i]
+        ec2_cur.execute(f"""
+            SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
+        """)
+        # uids = [uid[0] for uid in ec2_cur.fetchall()]
+        uid_info = ec2_cur.fetchall()[0]
+
+        name = " ".join([uid_info[0], uid_info[1]])
+        email = uid_info[2]
         qstack_cur.execute(f"""
-            INSERT INTO users (user_id, round_number) VALUES ('{str(uid)}', 1);
+            INSERT INTO users (id, name, email, role) VALUES ('{int(id+i)}', '{str(name)}', '{str(email)}', 'hacker');
         """)
         qstack_conn.commit()
-
-        ec2_cur.execute(f"""
-            SELECT answer.text, choice.question_id FROM answer JOIN choice ON answer.choice_id = choice.id WHERE answer.user_id = '{uid}';
-        """)
-        res = ec2_cur.fetchall()
-        for answer in res:
-            try:
-                text = answer[0].replace("'", "''")
-                qid = answer[1]
-                qstack_cur.execute(f"""
-                    INSERT INTO answer (user_id, question_id, response_text) VALUES ('{str(uid)}', '{str(qid)}', '{str(text)}');
-                """)
-                qstack_conn.commit()
-
-                if qid in APPLICANT_MAP["applicant"]:
-                    qstack_cur.execute(f"""
-                        UPDATE users SET {APPLICANT_MAP["applicant"][qid]} = '{str(text)}' WHERE user_id = '{str(uid)}';
-                    """)
-                    qstack_conn.commit()
-            except:
-                continue
     
     return len(uids)
 
+load_all_users()
