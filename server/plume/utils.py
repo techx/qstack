@@ -101,9 +101,9 @@ def load_all_users():
     #qstack_conn.commit()
 
     # load user data from plume's user table
-    ec2_cur.execute(f"""
+    ec2_cur.execute("""
         SELECT id from "user";
-    """) # include quote because user is special keyword is psql?
+    """)
     uids = [uid[0] for uid in ec2_cur.fetchall()]
     #uids = ec2_cur.fetchall()
 
@@ -115,22 +115,18 @@ def load_all_users():
         ec2_cur.execute(f"""
             SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
         """)
-        # uids = [uid[0] for uid in ec2_cur.fetchall()]
         uid_info = ec2_cur.fetchall()[0]
 
         name = " ".join([uid_info[0], uid_info[1]])
         email = uid_info[2]
 
-
         # insert into qstack's users table
-        #qstack_cur.execute(f"""
-        #    INSERT INTO users (id, name, email, role) VALUES ('{int(i)}', '{(name)}', '{(email)}', 'hacker');
-        #""")
-        #qstack_conn.commit()
+        qstack_cur.execute(f"""
+           INSERT INTO users (id, name, email, role) VALUES ('{int(i)}', '{(name)}', '{(email)}', 'hacker');
+        """)
+        qstack_conn.commit()
     
     return len(uids) # number of users
-
-
 
 #########################################################
 #    DON'T USE THIS FUNC, ID AND USER_ID DON'T MATCH    #
