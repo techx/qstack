@@ -40,7 +40,7 @@ def create_qstack_connection():
     """
     conn = psycopg2.connect(
         host="database", # service name in docker-compose.yml
-        port=5433,
+        port=5432,
         dbname="qstackdb",
         user="postgres",
         password="password"
@@ -67,7 +67,6 @@ def init_new_users_table():
     """
 
     # set up connections
-    ec2_conn, ec2_cur = create_ec2_connection()
     qstack_conn, qstack_cur = create_qstack_connection()
 
     # rename current users table => users_old
@@ -79,11 +78,11 @@ def init_new_users_table():
         DROP CONSTRAINT tickets_claimant_id_fkey,
         DROP CONSTRAINT tickets_creator_id_fkey;
     """)
-    
+
     # create new users table
     qstack_cur.execute("""
         CREATE TABLE users (
-            id                 CHARACTER VARYING   NOT NULL,    PRIMARY KEY,
+            id                 CHARACTER VARYING   NOT NULL,
             role               TEXT                NOT NULL,
             location           TEXT                NOT NULL,
             zoomlink           TEXT                NOT NULL,
@@ -92,6 +91,7 @@ def init_new_users_table():
             ratings            NUMERIC(2,1)[],
             reviews            TEXT[]              NOT NULL,
             ticket_id          INTEGER,
+            PRIMARY KEY (id),
             CONSTRAINT users_ticket_id_fkey
                 FOREIGN KEY (ticket_id)
                 REFERENCES tickets(id)
@@ -99,13 +99,22 @@ def init_new_users_table():
         );
     """)
 
+    # change tickets table's creator and claimant id column types
+    qstack_cur.execute("""
+        ALTER TABLE tickets
+            ALTER COLUMN creator_id
+                TYPE CHARACTER VARYING,
+            ALTER COLUMN claimant_id
+                TYPE CHARACTER VARYING;
+    """)
+
     # redefine tickets table's fkey constraints
     qstack_cur.execute("""
         ALTER TABLE tickets
-        ADD CONSTRAINT tickets_claimant_id_fkey
-            FOREIGN KEY (claimant_id) REFERENCES users(id);
-        ADD CONSTRAINT tickets_creator_id_fkey
-            FOREIGN KEY (creator_id) REFERENCES users(id);
+            ADD CONSTRAINT tickets_claimant_id_fkey
+                FOREIGN KEY (claimant_id) REFERENCES users(id),
+            ADD CONSTRAINT tickets_creator_id_fkey
+                FOREIGN KEY (creator_id) REFERENCES users(id);
     """)
 
     qstack_conn.commit()
@@ -130,7 +139,7 @@ def load_all_users():
         uid = uids[i]
 
         qstack_cur.execute(f"""
-           INSERT INTO users (id, role, location, zoomlink, discord, reviews) VALUES ('{int(i)}', 'hacker', '', '', '', '');
+           INSERT INTO users (id, role, location, zoomlink, discord, reviews) VALUES ('{str(uid)}', 'hacker', '', '', '', ARRAY[]::text[]);
         """)
         qstack_conn.commit()
 
@@ -144,6 +153,7 @@ def delete_users_old():
     # load user data from plume's user table
     qstack_cur.execute("""
         DROP TABLE IF EXISTS users_old CASCADE;
+        DROP SEQUENCE IF EXISTS users_id_seq;
     """)
     qstack_conn.commit()
 
@@ -234,7 +244,7 @@ def get_email(uid):
 #     #             DELETES existing table and creates new user table             #
 #     #############################################################################
 #     #qstack_cur.execute('DROP TABLE IF EXISTS users CASCADE;')
-#     #qstack_cur.execute('CREATE SEQUENCE users_id_seq')
+#     #qstack_cur.execute('CREATE SEQUENCE users_id_seq OWNED BY users.id')
 #     #qstack_cur.execute("""
 #     #    CREATE TABLE users (
 #     #        id                 INTEGER             NOT NULL        DEFAULT NEXTVAL('users_id_seq'::regclass)       PRIMARY KEY,
