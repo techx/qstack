@@ -70,13 +70,13 @@ def init_new_users_table():
     qstack_conn, qstack_cur = create_qstack_connection()
 
     # rename current users table => users_old
-    qstack_cur.execute("ALTER TABLE users RENAME TO users_old;")
+    qstack_cur.execute("ALTER TABLE IF EXISTS users RENAME TO users_old;")
 
     # delete tickets table's fkey constraints
     qstack_cur.execute("""
         ALTER TABLE tickets
-        DROP CONSTRAINT tickets_claimant_id_fkey,
-        DROP CONSTRAINT tickets_creator_id_fkey;
+        DROP CONSTRAINT IF EXISTS tickets_claimant_id_fkey,
+        DROP CONSTRAINT IF EXISTS tickets_creator_id_fkey;
     """)
 
     # create new users table
@@ -139,7 +139,9 @@ def load_all_users():
         uid = uids[i]
 
         qstack_cur.execute(f"""
-           INSERT INTO users (id, role, location, zoomlink, discord, reviews) VALUES ('{str(uid)}', 'hacker', '', '', '', ARRAY[]::text[]);
+            INSERT INTO users (id, role, location, zoomlink, discord, reviews)
+            VALUES ('{str(uid)}', 'hacker', '', '', '', ARRAY[]::text[])
+            ON CONFLICT (id) DO NOTHING;
         """)
         qstack_conn.commit()
 
