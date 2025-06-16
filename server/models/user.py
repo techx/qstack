@@ -6,6 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     ARRAY,
     Numeric,
+    VARCHAR,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableList
@@ -14,9 +15,11 @@ from sqlalchemy.ext.mutable import MutableList
 class User(db.Model):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    name = Column(Text, nullable=False)
-    email = Column(Text, nullable=False)
+    # commented it out table's columns
+    # id = Column(Integer, primary_key=True, nullable=False)
+    # name = Column(Text, nullable=False)
+    # email = Column(Text, nullable=False)
+    id = Column(VARCHAR, primary_key=True, nullable=False)
     role = Column(Text, nullable=False)
     location = Column(Text, nullable=False)
     zoomlink = Column(Text, nullable=False)
@@ -30,8 +33,8 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.name is None:
-            self.name = ""
+        # if self.name is None:
+        #     self.name = ""
         self.role = "hacker"
         self.location = "in person"
         self.zoomlink = ""
@@ -43,8 +46,8 @@ class User(db.Model):
     def map(self):
         return {
             "id": self.id,
-            "name": self.name,
-            "email": self.email,
+            # "name": self.name,
+            # "email": self.email,
             "role": self.role,
             "location": self.location,
             "zoomlink": self.zoomlink,

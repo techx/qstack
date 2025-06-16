@@ -140,7 +140,7 @@ def load_all_users():
 
         qstack_cur.execute(f"""
             INSERT INTO users (id, role, location, zoomlink, discord, reviews)
-            VALUES ('{str(uid)}', 'hacker', '', '', '', ARRAY[]::text[])
+            VALUES ('{str(uid)}', 'hacker', 'in person', '', '', ARRAY[]::text[])
             ON CONFLICT (id) DO NOTHING;
         """)
         qstack_conn.commit()
