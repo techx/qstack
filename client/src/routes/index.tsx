@@ -19,7 +19,8 @@ export default function IndexPage() {
       </Title>
       <Center>
         <Button
-          onClick={() => window.location.replace(`/api/auth/login`)}
+          // onClick={() => window.location.replace(`/api/auth/login`)}
+          onClick={() => window.location.replace("https://plume.hackmit.org/login")}
           fullWidth
           size="md"
           mt="md"

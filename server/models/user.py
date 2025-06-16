@@ -15,7 +15,7 @@ from sqlalchemy.ext.mutable import MutableList
 class User(db.Model):
     __tablename__ = "users"
 
-    # commented it out table's columns
+    # commented out table's columns
     # id = Column(Integer, primary_key=True, nullable=False)
     # name = Column(Text, nullable=False)
     # email = Column(Text, nullable=False)
