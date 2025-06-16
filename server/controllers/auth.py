@@ -56,8 +56,12 @@ def login():
     # return oauth.auth0.authorize_redirect(  # type: ignore
     #     redirect_uri=FRONTEND_URL + "/api/auth/callback"
     # )
-    # Redirect to Plume login page
-    return redirect("https://plume.hackmit.org/login")
+    # Get the return URL from query parameters, default to FRONTEND_URL
+    return_url = request.args.get("return_url", FRONTEND_URL)
+    # Store the return URL in session for use after login
+    session["return_url"] = return_url
+    # Redirect to Plume login page with return URL
+    return redirect(f"https://plume.hackmit.org/login?return_url={quote_plus(return_url)}")
 
 
 @auth.route("/callback", methods=["GET", "POST"])
@@ -94,7 +98,9 @@ def callback():
         db.session.add(user)
         db.session.commit()
     
-    return redirect(FRONTEND_URL)
+    # Get the return URL from session, default to FRONTEND_URL
+    return_url = session.pop("return_url", FRONTEND_URL)
+    return redirect(return_url)
 
 
 @auth.route("/logout")

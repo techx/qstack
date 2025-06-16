@@ -20,7 +20,10 @@ export default function IndexPage() {
       <Center>
         <Button
           // onClick={() => window.location.replace(`/api/auth/login`)}
-          onClick={() => window.location.replace("https://plume.hackmit.org/login")}
+          onClick={() => {
+            const returnUrl = encodeURIComponent(window.location.origin);
+            window.location.replace(`https://plume.hackmit.org/login?return_url=${returnUrl}`);
+          }}
           fullWidth
           size="md"
           mt="md"
