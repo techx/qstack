@@ -21,8 +21,12 @@ export default function IndexPage() {
         <Button
           // onClick={() => window.location.replace(`/api/auth/login`)}
           onClick={() => {
-            const returnUrl = encodeURIComponent(window.location.origin);
-            window.location.replace(`https://plume.hackmit.org/login?return_url=${returnUrl}`);
+            const returnUrl = encodeURIComponent(
+              `${window.location.origin}/auth/callback`
+            );
+            window.location.replace(
+              `https://plume.hackmit.org/login?return_url=${returnUrl}`
+            );
           }}
           fullWidth
           size="md"

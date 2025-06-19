@@ -56,12 +56,10 @@ def login():
     # return oauth.auth0.authorize_redirect(  # type: ignore
     #     redirect_uri=FRONTEND_URL + "/api/auth/callback"
     # )
-    # Get the return URL from query parameters, default to FRONTEND_URL
+    
     return_url = request.args.get("return_url", FRONTEND_URL)
-    # Store the return URL in session for use after login
     session["return_url"] = return_url
-    # Redirect to Plume login page with return URL
-    return redirect(f"https://plume.hackmit.org/login?return_url={quote_plus(return_url)}")
+    return redirect(f"https://plume.hackmit.org/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
 
 
 @auth.route("/callback", methods=["GET", "POST"])
@@ -82,21 +80,18 @@ def callback():
     #     db.session.add(u)
     #     db.session.commit()
 
-    # Get user ID from Plume session
     user_id = request.args.get("user_id")
     if not user_id:
         return abort(401, "No user ID provided")
     
-    # Store user ID in session
     session["user_id"] = user_id
     
-    # Check if user exists in our database
-    user = User.query.filter_by(id=user_id).first()
-    if not user:
-        # Create new user with default role as hacker
-        user = User(id=user_id)
-        db.session.add(user)
-        db.session.commit()
+    # Check if user exists in our database -- DELETE, NEW USER HANDLED THROUGH PLUME
+    # user = User.query.filter_by(id=user_id).first()
+    # if not user:
+    #     user = User(id=user_id)
+    #     db.session.add(user)
+    #     db.session.commit()
     
     # Get the return URL from session, default to FRONTEND_URL
     return_url = session.pop("return_url", FRONTEND_URL)
