@@ -7,6 +7,7 @@ from urllib.parse import quote_plus, urlencode
 import csv
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
+from server.plume.utils import get_name, get_email
 
 ticket = APIBlueprint("ticket", __name__, url_prefix="/ticket")
 
@@ -26,7 +27,8 @@ def tagslist():
 @ticket.route("/save", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def save():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     data = request.get_json()
@@ -54,7 +56,8 @@ def save():
 @ticket.route("/submit", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def submit():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     if len(user.name) == 0:
@@ -87,7 +90,8 @@ def submit():
 @ticket.route("/get")
 @auth_required_decorator(roles=["hacker", "mentor", "admin"])
 def get():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     if not user.ticket_id:
@@ -104,7 +108,8 @@ def get():
 @ticket.route("/remove", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def remove():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     if not user.ticket_id:
@@ -124,7 +129,8 @@ def remove():
 @ticket.route("/status")
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def status():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     if not user.ticket_id:
@@ -144,7 +150,8 @@ def status():
 @ticket.route("/unclaim")
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     if not user.ticket_id:
@@ -163,7 +170,8 @@ def unclaim():
 @ticket.route("/awaiting_feedback", methods=["GET"])
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def awaiting_feedback():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     resolved_tickets = Ticket.query.filter_by(
@@ -198,7 +206,8 @@ def rate():
 @ticket.route("/resolve", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def resolve():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     if not user.ticket_id:

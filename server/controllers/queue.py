@@ -4,6 +4,7 @@ from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
+from server.plume.utils import get_name, get_email
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
@@ -22,7 +23,8 @@ def get():
 @queue.route("/claim", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def claim():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     data = request.get_json()
@@ -45,7 +47,8 @@ def claim():
 @queue.route("/unclaim", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     data = request.get_json()
@@ -69,7 +72,8 @@ def unclaim():
 @queue.route("/resolve", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def resolve():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     data = request.get_json()
@@ -88,7 +92,8 @@ def resolve():
 @queue.route("/claimed")
 @auth_required_decorator(roles=["mentor", "admin"])
 def claimed():
-    email = session["user"]["userinfo"]["email"]
+    # email = session["user"]["userinfo"]["email"]
+    email = get_email(session["user_id"])
     user = User.query.filter_by(email=email).first()
 
     for ticket in Ticket.query.filter(Ticket.claimant_id is not None).all():

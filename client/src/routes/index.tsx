@@ -19,15 +19,15 @@ export default function IndexPage() {
       </Title>
       <Center>
         <Button
-          // onClick={() => window.location.replace(`/api/auth/login`)}
-          onClick={() => {
-            const returnUrl = encodeURIComponent(
-              `${window.location.origin}/auth/callback`
-            );
-            window.location.replace(
-              `https://plume.hackmit.org/login?return_url=${returnUrl}`
-            );
-          }}
+          onClick={() => window.location.replace(`/api/auth/login`)}
+          // onClick={() => {
+          //   const returnUrl = encodeURIComponent(
+          //     `${window.location.origin}/auth/callback`
+          //   );
+          //   window.location.replace(
+          //     `https://plume.hackmit.org/login?return_url=${returnUrl}`
+          //   );
+          // }}
           fullWidth
           size="md"
           mt="md"
