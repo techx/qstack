@@ -187,7 +187,8 @@ def awaiting_feedback():
 @auth_required_decorator(roles=["hacker", "admin"])
 def rate():
     data = request.get_json()
-    mentor = User.query.get(int(data["mentor_id"]))
+    # mentor = User.query.get(int(data["mentor_id"]))
+    mentor = User.query.get(data["mentor_id"])
     mentor.ratings.append(data["rating"])
     if len(data['review']) != 0:
         mentor.reviews.append(data['review'])
@@ -217,7 +218,8 @@ def resolve():
     ticket.status = "awaiting_feedback"
 
     data = request.get_json()
-    mentor = User.query.get(int(data["mentor_id"]))
+    # mentor = User.query.get(int(data["mentor_id"]))
+    mentor = User.query.get(data["mentor_id"])
     mentor.resolved_tickets = mentor.resolved_tickets + 1
     mentor.claimed = None
     db.session.commit()
