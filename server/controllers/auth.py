@@ -57,7 +57,7 @@ def login():
     #     redirect_uri=FRONTEND_URL + "/api/auth/callback"
     # )
     
-    return_url = request.args.get("return_url", FRONTEND_URL)
+    return_url = request.args.get("return_url", FRONTEND_URL + "/home")
     session["return_url"] = return_url
     return redirect(f"https://plume.hackmit.org/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
 
@@ -86,15 +86,15 @@ def callback():
     
     session["user_id"] = user_id
     
-    # Check if user exists in our database -- DELETE, NEW USER HANDLED THROUGH PLUME
-    # user = User.query.filter_by(id=user_id).first()
-    # if not user:
-    #     user = User(id=user_id)
-    #     db.session.add(user)
-    #     db.session.commit()
+    # Check if user exists in our database, create if not
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        user = User(id=user_id)
+        db.session.add(user)
+        db.session.commit()
     
-    # Get the return URL from session, default to FRONTEND_URL
-    return_url = session.pop("return_url", FRONTEND_URL)
+    # Get the return URL from session, default to FRONTEND_URL/home
+    return_url = session.pop("return_url", FRONTEND_URL + "/home")
     return redirect(return_url)
 
 
