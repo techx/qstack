@@ -195,6 +195,21 @@ def get_email(uid):
 
     return email
 
+def load_user(uid):
+    """
+    Copy single user from plume to qstack
+    """
+    # set up connections
+    ec2_conn, ec2_cur = create_ec2_connection()
+    qstack_conn, qstack_cur = create_qstack_connection()
+
+    qstack_cur.execute(f"""
+        INSERT INTO users (id, role, location, zoomlink, discord, reviews)
+        VALUES ('{str(uid)}', 'hacker', 'in person', '', '', ARRAY[]::text[])
+        ON CONFLICT (id) DO NOTHING;
+    """)
+    qstack_conn.commit()
+
 
 
 

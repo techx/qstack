@@ -61,6 +61,9 @@ def login():
     session["return_url"] = return_url
     return redirect(f"https://plume.hackmit.org/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
 
+    # use this return for local run
+    # return redirect(f"http://localhost:2003/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
+
 
 @auth.route("/callback", methods=["GET", "POST"])
 def callback():
