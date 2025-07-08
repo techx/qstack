@@ -212,14 +212,6 @@ def get_email(uid):
 
 
 
-
-
-
-
-
-
-
-
 # def get_last_user_id():
 #     """
 #     Get id number of last user added to qstack user table

@@ -24,8 +24,8 @@ def get():
 @auth_required_decorator(roles=["mentor", "admin"])
 def claim():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -48,8 +48,8 @@ def claim():
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -73,8 +73,8 @@ def unclaim():
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def resolve():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -93,8 +93,8 @@ def resolve():
 @auth_required_decorator(roles=["mentor", "admin"])
 def claimed():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     for ticket in Ticket.query.filter(Ticket.claimant_id is not None).all():
         if ticket.claimant_id == user.id and ticket.status == "claimed":

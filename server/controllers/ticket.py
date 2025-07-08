@@ -28,8 +28,8 @@ def tagslist():
 @auth_required_decorator(roles=["hacker", "admin"])
 def save():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     if (
@@ -57,8 +57,8 @@ def save():
 @auth_required_decorator(roles=["hacker", "admin"])
 def submit():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if len(user.name) == 0:
         return abort(404, "Update name in profile page before submitting!")
@@ -91,11 +91,11 @@ def submit():
 @auth_required_decorator(roles=["hacker", "mentor", "admin"])
 def get():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
-        return {"active": False}
+        return jsonify({"active": False, "ticket": None}), 200
 
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.active:
@@ -109,8 +109,8 @@ def get():
 @auth_required_decorator(roles=["hacker", "admin"])
 def remove():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return abort(404, "No active ticket!")
@@ -130,8 +130,8 @@ def remove():
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def status():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return {"status": "unclaimed", "message": "No ticket!"}
@@ -151,8 +151,8 @@ def status():
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return abort(404, "No active ticket!")
@@ -171,8 +171,8 @@ def unclaim():
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def awaiting_feedback():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     resolved_tickets = Ticket.query.filter_by(
         creator_id=user.id, status="awaiting_feedback"
@@ -208,8 +208,8 @@ def rate():
 @auth_required_decorator(roles=["hacker", "admin"])
 def resolve():
     # email = session["user"]["userinfo"]["email"]
-    email = get_email(session["user_id"])
-    user = User.query.filter_by(email=email).first()
+    # user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return abort(404, "No active ticket!")
