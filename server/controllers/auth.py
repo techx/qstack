@@ -118,6 +118,9 @@ def logout():
     # )
     return redirect("https://plume.hackmit.org/logout")
 
+    # uncomment for local
+    # return redirect("http://localhost:2003/logout")
+
 
 @auth.route("/whoami")
 def whoami():
