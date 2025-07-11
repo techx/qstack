@@ -4,7 +4,7 @@ from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
-from server.plume.utils import get_name, get_email
+# from server.plume.utils import get_name, get_email
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 

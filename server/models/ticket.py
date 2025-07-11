@@ -7,10 +7,12 @@ class Ticket(db.Model):
     __tablename__ = "tickets"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    creator_id = Column(Integer, ForeignKey("users.id"))
+    # creator_id = Column(Integer, ForeignKey("users.id"))
+    creator_id = Column(String, ForeignKey("users.id"))
     creator = relationship("User", foreign_keys=[creator_id])
 
-    claimant_id = Column(Integer, ForeignKey("users.id"))
+    # claimant_id = Column(Integer, ForeignKey("users.id"))
+    claimant_id = Column(String, ForeignKey("users.id"))
     claimant = relationship("User", foreign_keys=[claimant_id])
 
     question = Column(Text, nullable=False)

@@ -40,6 +40,7 @@ def auth_required_decorator(roles):
             # user = User.query.filter_by(email=email).first()
             if "user_id" not in session:
                 return abort(401)
+            
             user = User.query.filter_by(id=session["user_id"]).first()
             if not user or not user.role:
                 return abort(401)
@@ -88,8 +89,10 @@ def callback():
         return abort(401, "No user ID provided")
     
     session["user_id"] = user_id
+    session["user_email"] = get_email(user_id)
+    session["user_name"] = get_name(user_id)
     
-    # Check if user exists in our database, create if not
+    # Check if user exists in qstack database, create if not
     user = User.query.filter_by(id=user_id).first()
     if not user:
         user = User(id=user_id)
@@ -134,8 +137,8 @@ def whoami():
         if user:
             user_data = dict(user.map())
             # Add name and email from Plume
-            user_data["name"] = get_name(user.id)
-            user_data["email"] = get_email(user.id)
+            user_data["name"] = session["user_name"]
+            user_data["email"] = session["user_email"]
             user_data["loggedIn"] = True
             return user_data
     return {"loggedIn": False}

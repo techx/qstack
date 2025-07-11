@@ -8,6 +8,8 @@ from urllib.parse import urlparse
 #from info import USER_MAP
 import uuid
 
+from sqlalchemy import null
+
 load_dotenv()
 load_dotenv(dotenv_path='server/.env')
 EC2_DATABASE_HOST = os.getenv("EC2_DATABASE_HOST")
@@ -171,9 +173,9 @@ def get_name(uid):
     ec2_cur.execute(f"""
         SELECT first_name, last_name from "user" WHERE id='{str(uid)}';
     """)
-    uinfo = ec2_cur.fetchall()[0]
+    uinfo = ec2_cur.fetchone()
 
-    name = " ".join([uinfo[0], uinfo[1]])
+    name = " ".join([uinfo[0], uinfo[1]]) if uinfo else None
 
     return name
 
@@ -189,9 +191,9 @@ def get_email(uid):
     ec2_cur.execute(f"""
         SELECT email from "user" WHERE id='{str(uid)}';
     """)
-    uinfo = ec2_cur.fetchall()[0]
+    uinfo = ec2_cur.fetchone()
 
-    email = uinfo[0]
+    email = uinfo[0] if uinfo else None
 
     return email
 
@@ -210,6 +212,10 @@ def load_user(uid):
     """)
     qstack_conn.commit()
 
+# if __name__ == "__main__":
+#     init_new_users_table()
+#     load_all_users()
+#     delete_users_old()
 
 
 

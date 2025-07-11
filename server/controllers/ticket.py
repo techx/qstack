@@ -7,7 +7,7 @@ from urllib.parse import quote_plus, urlencode
 import csv
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
-from server.plume.utils import get_name, get_email
+# from server.plume.utils import get_name, get_email
 
 ticket = APIBlueprint("ticket", __name__, url_prefix="/ticket")
 
@@ -59,6 +59,8 @@ def submit():
     # email = session["user"]["userinfo"]["email"]
     # user = User.query.filter_by(email=email).first()
     user = User.query.filter_by(id=session["user_id"]).first()
+    if not user:
+        return abort(401, "User not found or not logged in.")
 
     if len(user.name) == 0:
         return abort(404, "Update name in profile page before submitting!")

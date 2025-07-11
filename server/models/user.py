@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     ARRAY,
     Numeric,
-    VARCHAR,
+    String,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableList
@@ -19,7 +19,7 @@ class User(db.Model):
     # id = Column(Integer, primary_key=True, nullable=False)
     # name = Column(Text, nullable=False)
     # email = Column(Text, nullable=False)
-    id = Column(VARCHAR, primary_key=True, nullable=False)
+    id = Column(String, primary_key=True, nullable=False)
     role = Column(Text, nullable=False)
     location = Column(Text, nullable=False)
     zoomlink = Column(Text, nullable=False)
