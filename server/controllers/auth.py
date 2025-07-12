@@ -13,7 +13,7 @@ from server.config import (
     # AUTH_USERNAME,
     # AUTH_PASSWORD
 )
-from server.plume.utils import get_name, get_email
+from server.plume.utils import get_info
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
 # oauth = OAuth(app)
@@ -78,27 +78,30 @@ def callback():
     #         email=session["user"]["userinfo"]["email"],
     #     )
 
-    #     for admin in app.config["AUTH_ADMINS"]:
-    #         if admin["email"] == email:
-    #             u.role = "admin"
-    #     db.session.add(u)
-    #     db.session.commit()
-
     user_id = request.args.get("user_id")
     if not user_id:
         return abort(401, "No user ID provided")
     
     session["user_id"] = user_id
-    session["user_email"] = get_email(user_id)
-    session["user_name"] = get_name(user_id)
+
+    info = get_info([user_id])[user_id]
+    session["user_name"] = info["name"]
+    session["user_email"] = info["email"]
     
     # Check if user exists in qstack database, create if not
     user = User.query.filter_by(id=user_id).first()
     if not user:
-        user = User(id=user_id)
+        user = User(
+            id=user_id
+        )
+
+        for admin in app.config["AUTH_ADMINS"]:
+            if admin["email"] == session["user_email"]:
+                user.role = "admin"
+        
         db.session.add(user)
         db.session.commit()
-    
+
     # Get the return URL from session, default to FRONTEND_URL/home
     return_url = session.pop("return_url", FRONTEND_URL + "/home")
     return redirect(return_url)
@@ -167,9 +170,9 @@ def update():
     if data["role"] == "hacker":
         user.role = "hacker"
 
-    # if len(data["name"]) == 0:
-    #     return abort(400, "Missing name!")
-    # user.name = data["name"]
+    if len(data["name"]) == 0:
+        return abort(400, "Missing name!")
+    session["user_name"] = data["name"]
 
     if data["location"] == "virtual" and len(data["zoomlink"]) == 0:
         return abort(400, "Missing video call link!")

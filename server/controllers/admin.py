@@ -7,6 +7,7 @@ from urllib.parse import quote_plus, urlencode
 import csv
 from server.controllers.auth import auth_required_decorator
 from server.models import User, Ticket
+from server.plume.utils import get_info
 
 admin = APIBlueprint("admin", __name__, url_prefix="/admin")
 
@@ -49,9 +50,14 @@ def getTicketData():
 @auth_required_decorator(roles=["admin"])
 def getUserData():
     users = User.query.all()
+    info = get_info([u.id for u in users])
     userData = []
 
     for user in users:
-        userData.append(user.map())
+        userMap = user.map()
+
+        userMap["name"] = info[user.id]["name"]
+        userMap["email"] = info[user.id]["email"]
+        userData.append(userMap)
 
     return userData

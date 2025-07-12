@@ -4,7 +4,7 @@ from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
-# from server.plume.utils import get_name, get_email
+from server.plume.utils import get_info
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
@@ -14,9 +14,8 @@ queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 def get():
     tickets = []
     for ticket in Ticket.query.all():
-        creator = User.query.get(ticket.creator_id)
         if ticket.status != "awaiting_feedback":
-            tickets.append(dict(ticket.map(), creator=creator.name))
+            tickets.append(dict(ticket.map()))
     return jsonify(tickets)
 
 
@@ -36,6 +35,7 @@ def claim():
 
     ticket.status = "claimed"
     ticket.claimant = user
+    ticket.claimant_name = session["user_name"]
     ticket.active = False
     user.claimed = ticket
     ticket.claimedAt = db.func.now()
@@ -61,6 +61,7 @@ def unclaim():
     ticket.active = True
     ticket.claimant = None
     ticket.claimant_id = None
+    ticket.claimant_name = None
     ticket.status = None
     user.claimed = None
     ticket.claimedAt = None
@@ -107,15 +108,17 @@ def claimed():
 @auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
     mentors = User.query.filter_by(role="mentor")
+    info = get_info([u.id for u in mentors])
+
     ranking = []
     for mentor in mentors:
         if len(mentor.ratings) > 0:
             mentor_rating = sum(mentor.ratings)/len(mentor.ratings)
             ranking.append((mentor.resolved_tickets, len(
-                mentor.ratings), mentor.name, mentor_rating))
+                mentor.ratings), info[mentor.id]["name"], mentor_rating))
         else:
             ranking.append((mentor.resolved_tickets, len(
-                mentor.ratings), mentor.name, 0))
+                mentor.ratings), info[mentor.id]["name"], 0))
 
     ranking = sorted(ranking, key=lambda x: (x[0], x[2]), reverse=True)
 

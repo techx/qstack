@@ -31,8 +31,8 @@ def create_ec2_connection():
         dbname=EC2_DATABASE_NAME
     )
     cur = conn.cursor()
-    cur.execute("ROLLBACK")
-    conn.commit()
+    # cur.execute("ROLLBACK")
+    # conn.commit()
 
     return conn, cur
 
@@ -161,56 +161,35 @@ def delete_users_old():
     """)
     qstack_conn.commit()
 
-def get_name(uid):
+
+def get_info(uids: list[str]):
+    """
+    Get user name and email from plume db
+    """
+    # set up connections
+    ec2_conn, ec2_cur = create_ec2_connection()
+    qstack_conn, qstack_cur = create_qstack_connection()
+
     """
     Get user name from plume db
     """
     # set up connections
     ec2_conn, ec2_cur = create_ec2_connection()
     qstack_conn, qstack_cur = create_qstack_connection()
+    info = {}
 
     # load user data from plume's user table
-    ec2_cur.execute(f"""
-        SELECT first_name, last_name from "user" WHERE id='{str(uid)}';
-    """)
-    uinfo = ec2_cur.fetchone()
+    for uid in uids:
+        ec2_cur.execute(f"""
+            SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
+        """)
+        uinfo = ec2_cur.fetchone()
+        info[uid]={
+            "name": " ".join([uinfo[0], uinfo[1]]) if uinfo else None, 
+            "email": uinfo[2] if uinfo else None
+        }
 
-    name = " ".join([uinfo[0], uinfo[1]]) if uinfo else None
-
-    return name
-
-def get_email(uid):
-    """
-    Get user email from plume db
-    """
-    # set up connections
-    ec2_conn, ec2_cur = create_ec2_connection()
-    qstack_conn, qstack_cur = create_qstack_connection()
-
-    # load user data from plume's user table
-    ec2_cur.execute(f"""
-        SELECT email from "user" WHERE id='{str(uid)}';
-    """)
-    uinfo = ec2_cur.fetchone()
-
-    email = uinfo[0] if uinfo else None
-
-    return email
-
-def load_user(uid):
-    """
-    Copy single user from plume to qstack
-    """
-    # set up connections
-    ec2_conn, ec2_cur = create_ec2_connection()
-    qstack_conn, qstack_cur = create_qstack_connection()
-
-    qstack_cur.execute(f"""
-        INSERT INTO users (id, role, location, zoomlink, discord, reviews)
-        VALUES ('{str(uid)}', 'hacker', 'in person', '', '', ARRAY[]::text[])
-        ON CONFLICT (id) DO NOTHING;
-    """)
-    qstack_conn.commit()
+    return info
 
 # if __name__ == "__main__":
 #     init_new_users_table()

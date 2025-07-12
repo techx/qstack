@@ -10,10 +10,12 @@ class Ticket(db.Model):
     # creator_id = Column(Integer, ForeignKey("users.id"))
     creator_id = Column(String, ForeignKey("users.id"))
     creator = relationship("User", foreign_keys=[creator_id])
+    creator_name = None
 
     # claimant_id = Column(Integer, ForeignKey("users.id"))
     claimant_id = Column(String, ForeignKey("users.id"))
     claimant = relationship("User", foreign_keys=[claimant_id])
+    claimant_name = None
 
     question = Column(Text, nullable=False)
     content = Column(Text, nullable=False)
@@ -27,8 +29,9 @@ class Ticket(db.Model):
     createdAt = Column(DateTime, nullable=False)
     claimedAt = Column(DateTime)
 
-    def __init__(self, user, data, active):
+    def __init__(self, user, name, data, active):
         self.creator = user
+        self.creator_name = name
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]
@@ -55,10 +58,10 @@ class Ticket(db.Model):
             "tags": self.tags,
             "location": self.location,
             "images": self.images,
-            "creator": self.creator_id,
+            "creator": self.creator_name,
             "discord": self.creator.discord,
             "createdAt": self.createdAt,
             "status": self.status,
-            "mentor_name": self.claimant.name if self.claimant else None,
+            "mentor_name": self.claimant_name,
             "mentor_id": self.claimant_id
         }

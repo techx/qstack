@@ -7,7 +7,6 @@ from urllib.parse import quote_plus, urlencode
 import csv
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
-# from server.plume.utils import get_name, get_email
 
 ticket = APIBlueprint("ticket", __name__, url_prefix="/ticket")
 
@@ -40,7 +39,7 @@ def save():
         return abort(404, "Make sure to fill every field!")
 
     if not user.ticket_id:
-        ticket = Ticket(user, data, False)
+        ticket = Ticket(user, session["user_name"], data, False)
         db.session.add(ticket)
         db.session.commit()
         user.ticket_id = ticket.id
@@ -62,7 +61,7 @@ def submit():
     if not user:
         return abort(401, "User not found or not logged in.")
 
-    if len(user.name) == 0:
+    if len(session["user_name"]) == 0:
         return abort(404, "Update name in profile page before submitting!")
 
     if user.ticket_id:
@@ -79,7 +78,7 @@ def submit():
     ):
         return abort(404, "Make sure to fill every field!")
 
-    ticket = Ticket(user, data, True)
+    ticket = Ticket(user, session["user__name"], data, True)
     db.session.add(ticket)
     db.session.commit()
 
@@ -97,7 +96,7 @@ def get():
     user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
-        return jsonify({"active": False, "ticket": None}), 200
+        return jsonify({"active": False})
 
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.active:
@@ -163,6 +162,7 @@ def unclaim():
 
     ticket.active = True
     ticket.claimant = None
+    ticket.claimant_name = None
     ticket.claimant_id = None
     db.session.commit()
 
