@@ -1,3 +1,4 @@
+# from concurrent.futures import thread
 from flask import current_app as app, url_for, redirect, session, request
 from server import db
 from authlib.integrations.flask_client import OAuth
@@ -8,6 +9,7 @@ import csv
 from server.controllers.auth import auth_required_decorator
 from server.models import User, Ticket
 from server.plume.utils import get_info
+import multiprocessing
 
 admin = APIBlueprint("admin", __name__, url_prefix="/admin")
 
@@ -50,9 +52,22 @@ def getTicketData():
 @auth_required_decorator(roles=["admin"])
 def getUserData():
     users = User.query.all()
-    info = get_info([u.id for u in users])
-    userData = []
+    uids = [u.id for u in users]
+    
+    threads = 10
+    pool = multiprocessing.Pool(processes=threads)
+    inputs = []
+    for i in range(0, threads):
+        if i == threads-1:
+            inputs.append(uids[i*len(uids)//threads:])
+        else:
+            inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
 
+    info = {}
+    for output in pool.map(get_info, inputs):
+        info.update(output)
+
+    userData = []
     for user in users:
         userMap = user.map()
 

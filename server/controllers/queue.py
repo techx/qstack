@@ -5,6 +5,7 @@ from apiflask import APIBlueprint, abort
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
 from server.plume.utils import get_info
+import multiprocessing
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
@@ -108,7 +109,20 @@ def claimed():
 @auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
     mentors = User.query.filter_by(role="mentor")
-    info = get_info([u.id for u in mentors])
+    uids = [u.id for u in mentors]
+
+    threads = 10
+    pool = multiprocessing.Pool(processes=threads)
+    inputs = []
+    for i in range(0, threads):
+        if i == threads-1:
+            inputs.append(uids[i*len(uids)//threads:])
+        else:
+            inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
+
+    info = {}
+    for output in pool.map(get_info, inputs):
+        info.update(output)
 
     ranking = []
     for mentor in mentors:
