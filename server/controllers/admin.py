@@ -47,32 +47,57 @@ def getTicketData():
 
     return {"total": totalTickets, "averageRating": averageRating, "averageTime": avgTimeToClaim}
 
-
+# Admin Stats
 @admin.route("/userdata")
 @auth_required_decorator(roles=["admin"])
 def getUserData():
     users = User.query.all()
     uids = [u.id for u in users]
     
-    threads = 10
-    pool = multiprocessing.Pool(processes=threads)
-    inputs = []
-    for i in range(0, threads):
-        if i == threads-1:
-            inputs.append(uids[i*len(uids)//threads:])
-        else:
-            inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
+    info = get_info(uids)
+    # print("Info fetched")
 
-    info = {}
-    for output in pool.map(get_info, inputs):
-        info.update(output)
 
+    # print("Updating info...")
     userData = []
     for user in users:
         userMap = user.map()
 
-        userMap["name"] = info[user.id]["name"]
-        userMap["email"] = info[user.id]["email"]
+        userMap["name"] = info[user.id]["name"] if user.id in info else None
+        userMap["email"] = info[user.id]["email"] if user.id in info else None
         userData.append(userMap)
 
+    # print("Maps updated")
     return userData
+
+
+# def process_user(user, info):
+#     """Helper function to process a single user's data"""
+#     userMap = user.map()
+#     userMap["name"] = info[user.id]["name"] if user.id in info else None
+#     userMap["email"] = info[user.id]["email"] if user.id in info else None
+#     return userMap
+
+
+# # Admin Stats
+# @admin.route("/userdata")
+# @auth_required_decorator(roles=["admin"])
+# def getUserData():
+#     users = User.query.all()
+#     uids = [u.id for u in users]
+    
+#     info = get_info(uids)
+#     print("Info fetched")
+
+
+#     print("Updating info...")
+    
+#     # Use ThreadPoolExecutor to parallelize user processing
+#     with ThreadPoolExecutor(max_workers=2) as executor:
+#         # Create a partial function with the info parameter
+#         process_user_with_info = partial(process_user, info=info)
+#         # Map the function over all users in parallel
+#         userData = list(executor.map(process_user_with_info, users))
+
+#     print("Maps updated")
+#     return userData

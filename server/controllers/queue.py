@@ -5,7 +5,7 @@ from apiflask import APIBlueprint, abort
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
 from server.plume.utils import get_info
-import multiprocessing
+# import multiprocessing
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
@@ -36,7 +36,7 @@ def claim():
 
     ticket.status = "claimed"
     ticket.claimant = user
-    ticket.claimant_name = session["user_name"]
+    # ticket.claimant_name = session["user_name"]
     ticket.active = False
     user.claimed = ticket
     ticket.claimedAt = db.func.now()
@@ -62,7 +62,7 @@ def unclaim():
     ticket.active = True
     ticket.claimant = None
     ticket.claimant_id = None
-    ticket.claimant_name = None
+    # ticket.claimant_name = None
     ticket.status = None
     user.claimed = None
     ticket.claimedAt = None
@@ -104,26 +104,27 @@ def claimed():
 
     return {"claimed": None}
 
-
+# Leaderboard
 @queue.route("/ranking", methods=["GET"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
     mentors = User.query.filter_by(role="mentor")
     uids = [u.id for u in mentors]
 
-    threads = 10
-    pool = multiprocessing.Pool(processes=threads)
-    inputs = []
-    for i in range(0, threads):
-        if i == threads-1:
-            inputs.append(uids[i*len(uids)//threads:])
-        else:
-            inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
+    # threads = 10
+    # pool = multiprocessing.Pool(processes=threads)
+    # inputs = []
+    # for i in range(0, threads):
+    #     if i == threads-1:
+    #         inputs.append(uids[i*len(uids)//threads:])
+    #     else:
+    #         inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
 
-    info = {}
-    for output in pool.map(get_info, inputs):
-        info.update(output)
+    # info = {}
+    # for output in pool.map(get_info, inputs):
+    #     info.update(output)
 
+    info = get_info(uids)
     ranking = []
     for mentor in mentors:
         if len(mentor.ratings) > 0:
