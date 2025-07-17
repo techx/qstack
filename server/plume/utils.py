@@ -6,9 +6,10 @@ from dotenv import load_dotenv
 import psycopg2
 from urllib.parse import urlparse
 #from info import USER_MAP
-import uuid
+# import uuid
 
 from sqlalchemy import null
+# import multiprocessing
 
 load_dotenv()
 load_dotenv(dotenv_path='server/.env')
@@ -21,9 +22,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 def create_ec2_connection():
     """
-    Initiate a connection to plum db
+    Initiate a connection to plume db
     """
-
     conn = psycopg2.connect(
         host=EC2_DATABASE_HOST,
         user=EC2_DATABASE_USER,
@@ -33,7 +33,6 @@ def create_ec2_connection():
     cur = conn.cursor()
     # cur.execute("ROLLBACK")
     # conn.commit()
-
     return conn, cur
 
 def create_qstack_connection():
@@ -47,9 +46,11 @@ def create_qstack_connection():
         user="postgres",
         password="password"
     )
-
     cur = conn.cursor()
+    # cur.execute("ROLLBACK")
+    # conn.commit()
     return conn, cur
+
     # uncommented part use for local run, not for docker
     # url = urlparse(DATABASE_URL)
     # conn = psycopg2.connect(
@@ -62,6 +63,7 @@ def create_qstack_connection():
     # cur = conn.cursor()
     # cur.execute("ROLLBACK")
     # conn.commit()
+    # return conn, cur
 
 def init_new_users_table():
     """
@@ -114,10 +116,10 @@ def init_new_users_table():
     qstack_cur.execute("""
         ALTER TABLE tickets
             ADD CONSTRAINT tickets_claimant_id_fkey
-                FOREIGN KEY (claimant_id) REFERENCES users(id),
+                FOREIGN KEY (claimant_id) REFERENCES users(id) ON DELETE CASCADE,
             ADD CONSTRAINT tickets_creator_id_fkey
-                FOREIGN KEY (creator_id) REFERENCES users(id);
-    """)
+                FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE;
+    """)    
 
     qstack_conn.commit()
 
@@ -145,7 +147,8 @@ def load_all_users():
             VALUES ('{str(uid)}', 'hacker', 'in person', '', '', ARRAY[]::text[])
             ON CONFLICT (id) DO NOTHING;
         """)
-        qstack_conn.commit()
+    
+    qstack_conn.commit()
 
 def delete_users_old():
     """
@@ -162,168 +165,97 @@ def delete_users_old():
     qstack_conn.commit()
 
 
-def get_info(uids: list[str]):
-    """
-    Get user name and email from plume db
-    """
-    # set up connections
-    ec2_conn, ec2_cur = create_ec2_connection()
-    qstack_conn, qstack_cur = create_qstack_connection()
-
-    """
-    Get user name from plume db
-    """
-    # set up connections
-    ec2_conn, ec2_cur = create_ec2_connection()
-    qstack_conn, qstack_cur = create_qstack_connection()
-    info = {}
-
-    # load user data from plume's user table
-    for uid in uids:
-        ec2_cur.execute(f"""
-            SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
-        """)
-        uinfo = ec2_cur.fetchone()
-        info[uid]={
-            "name": " ".join([uinfo[0], uinfo[1]]) if uinfo else None, 
-            "email": uinfo[2] if uinfo else None
-        }
-
-    return info
-
-# if __name__ == "__main__":
-#     init_new_users_table()
-#     load_all_users()
-#     delete_users_old()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def get_last_user_id():
+# def get_single_info(uid: str):
 #     """
-#     Get id number of last user added to qstack user table
+#     Get user name and email from plume db
 #     """
-#     qstack_conn, qstack_cur = create_qstack_connection()
-    
-#     qstack_cur.execute("""
-#         SELECT id FROM users ORDER BY id DESC LIMIT 1
-#     """)
-#     last_user = qstack_cur.fetchall()
-
-#     #print(last_user[0][0])
-#     return last_user[0][0]
-
-
-
-
-# def load_all_users():
 #     # set up connections
 #     ec2_conn, ec2_cur = create_ec2_connection()
 #     qstack_conn, qstack_cur = create_qstack_connection()
-    
-#     #############################################################################
-#     #             DELETES existing table and creates new user table             #
-#     #############################################################################
-#     #qstack_cur.execute('DROP TABLE IF EXISTS users CASCADE;')
-#     #qstack_cur.execute('CREATE SEQUENCE users_id_seq OWNED BY users.id')
-#     #qstack_cur.execute("""
-#     #    CREATE TABLE users (
-#     #        id                 INTEGER             NOT NULL        DEFAULT NEXTVAL('users_id_seq'::regclass)       PRIMARY KEY,
-#     #        name               TEXT                NOT NULL,
-#     #        email              TEXT                NOT NULL,
-#     #        role               TEXT                NOT NULL,
-#     #        location           TEXT                NOT NULL,
-#     #        zoomlink           TEXT                NOT NULL,
-#     #        discord            TEXT                NOT NULL,
-#     #        resolved_tickets   INTEGER,
-#     #        ratings            NUMERIC(2,1)[],
-#     #        reviews            TEXT[]              NOT NULL,
-#     #        ticket_id          INTEGER,
-#     #        CONSTRAINT users_ticket_id_fkey
-#     #            FOREIGN KEY (ticket_id)
-#     #            REFERENCES tickets(id)
-#     #            ON DELETE SET NULL
-#     #    );
-#     #""")
-#     #qstack_conn.commit()
+
+#     """
+#     Get user name from plume db
+#     """
+#     # set up connections
+#     ec2_conn, ec2_cur = create_ec2_connection()
+#     qstack_conn, qstack_cur = create_qstack_connection()
 
 #     # load user data from plume's user table
-#     ec2_cur.execute("""
-#         SELECT id from "user";
+#     ec2_cur.execute(f"""
+#         SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
 #     """)
-#     uids = [uid[0] for uid in ec2_cur.fetchall()]
-#     #uids = ec2_cur.fetchall()
+#     uinfo = ec2_cur.fetchone()
+#     info={
+#         "name": " ".join([uinfo[0], uinfo[1]]) if uinfo else None, 
+#         "email": uinfo[2] if uinfo else None
+#     }
 
-#     # add user data to qstack's users table
-#     for i in range(len(uids)):
-#         # retrieve name and email columns from plume's "user" table
-#         uid = uids[i]
-        
-#         ec2_cur.execute(f"""
-#             SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
-#         """)
-#         uid_info = ec2_cur.fetchall()[0]
+#     return info
 
-#         name = " ".join([uid_info[0], uid_info[1]])
-#         email = uid_info[2]
-
-#         # insert into qstack's users table
-#         qstack_cur.execute(f"""
-#            INSERT INTO users (id, name, email, role) VALUES ('{int(i)}', '{(name)}', '{(email)}', 'hacker');
-#         """)
-#         qstack_conn.commit()
-    
-#     return len(uids) # number of users
-
-#########################################################
-#    DON'T USE THIS FUNC, ID AND USER_ID DON'T MATCH    #
-#########################################################
-# def load_new_users():
+# def get_bulk_info(uids: list[str]):
+#     """
+#     Get user name and email from plume db
+#     """
 #     # set up connections
 #     ec2_conn, ec2_cur = create_ec2_connection()
 #     qstack_conn, qstack_cur = create_qstack_connection()
 
-#     ec2_cur.execute(f"""
-#         select id from "user";
-#     """)
-#     load_uids = [uid[0] for uid in ec2_cur.fetchall()]
+#     def get_info(ids: list[str]):
+#         # load user data from plume's user table
+#         plume_info = {}
 
-#     qstack_cur.execute(f"""
-#         select user_id from users;
-#     """)
-#     existing_uids = [uid[0] for uid in qstack_cur.fetchall()]
+#         for id in ids:
+#             ec2_cur.execute(f"""
+#                 SELECT first_name, last_name, email from "user" WHERE id='{str(id)}';
+#             """)
+#             uinfo = ec2_cur.fetchone()
+#             plume_info[id]={
+#                 "name": " ".join([uinfo[0], uinfo[1]]) if uinfo else None, 
+#                 "email": uinfo[2] if uinfo else None
+#             }
+        
+#         return plume_info
 
-#     uids = [uid for uid in load_uids if uid not in existing_uids]
+#     # set up multithreading
+#     threads = 10
+#     pool = multiprocessing.Pool(processes=threads)
+#     inputs = []
+#     for i in range(0, threads):
+#         if i == threads-1:
+#             inputs.append(uids[i*len(uids)//threads:])
+#         else:
+#             inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
 
-#     id = get_last_user_id()+1
+#     info = {}
+#     for output in pool.map(get_info, inputs):
+#         info.update(output)
 
-#     # add user data to qstack's users table
-#     for i in range(len(uids)):
-#         uid = uids[i]
-#         ec2_cur.execute(f"""
-#             SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
-#         """)
-#         # uids = [uid[0] for uid in ec2_cur.fetchall()]
-#         uid_info = ec2_cur.fetchall()[0]
+#     return info
 
-#         name = " ".join([uid_info[0], uid_info[1]])
-#         email = uid_info[2]
-#         qstack_cur.execute(f"""
-#             INSERT INTO users (id, name, email, role) VALUES ('{int(id+i)}', '{str(name)}', '{str(email)}', 'hacker');
-#         """)
-#         qstack_conn.commit()
-    
-#     return len(uids)
+def get_info(uids: list[str]):
+    ec2_conn, ec2_cur = create_ec2_connection()
+    plume_info: dict[str, dict] = {}
+
+    if not uids:
+        return {}
+
+    placeholders = ",".join([f"\'{uid}\'" for uid in uids])
+    ec2_cur.execute(f'''
+        SELECT id, first_name, last_name, email
+            FROM "user"
+            WHERE id IN ({placeholders});
+    ''')
+    uinfo = ec2_cur.fetchall()
+
+    for id, first, last, email in uinfo:
+        plume_info[id] = {
+            "name": f"{first} {last}",
+            "email": email
+        }
+
+    return plume_info
+
+if __name__ == "__main__":
+    init_new_users_table()
+    load_all_users()
+    delete_users_old()
