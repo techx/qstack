@@ -11,6 +11,8 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableList
 
+from server.plume.utils import get_info
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -44,10 +46,13 @@ class User(db.Model):
         self.reviews = []
 
     def map(self):
+        dict = get_info([str(self.id)])
+        info = dict[str(self.id)] if dict else None
+
         return {
             "id": self.id,
-            # "name": self.name,
-            # "email": self.email,
+            "name": info["name"] if info else None,
+            "email": info["email"] if info else None,
             "role": self.role,
             "location": self.location,
             "zoomlink": self.zoomlink,

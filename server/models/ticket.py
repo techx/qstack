@@ -2,6 +2,8 @@ from server import db
 from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
 from sqlalchemy.orm import relationship
 
+from server.plume.utils import get_info
+
 
 class Ticket(db.Model):
     __tablename__ = "tickets"
@@ -10,12 +12,12 @@ class Ticket(db.Model):
     # creator_id = Column(Integer, ForeignKey("users.id"))
     creator_id = Column(String, ForeignKey("users.id"))
     creator = relationship("User", foreign_keys=[creator_id])
-    creator_name = None
+    # creator_name = None
 
     # claimant_id = Column(Integer, ForeignKey("users.id"))
     claimant_id = Column(String, ForeignKey("users.id"))
     claimant = relationship("User", foreign_keys=[claimant_id])
-    claimant_name = None
+    # claimant_name = None
 
     question = Column(Text, nullable=False)
     content = Column(Text, nullable=False)
@@ -29,9 +31,11 @@ class Ticket(db.Model):
     createdAt = Column(DateTime, nullable=False)
     claimedAt = Column(DateTime)
 
-    def __init__(self, user, name, data, active):
+    def __init__(self, user, data, active):
+        # print("name at __init__ in ticket.py:", name)
+        
         self.creator = user
-        self.creator_name = name
+        # self.creator_name = name
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]
@@ -41,8 +45,12 @@ class Ticket(db.Model):
         self.createdAt = db.func.now()
         self.status = "unclaimed"
         self.claimedAt = None
+        
+        # print("name at end of __init__ in ticket.py:", self.creator_name)
 
     def update(self, data):
+        # print("name at update in ticket.py:", self.creator_name)
+
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]
@@ -50,6 +58,8 @@ class Ticket(db.Model):
         self.tags = data["tags"]
 
     def map(self):
+        info = get_info([str(self.creator_id), str(self.claimant_id)])
+        
         return {
             "id": self.id,
             "question": self.question,
@@ -58,10 +68,10 @@ class Ticket(db.Model):
             "tags": self.tags,
             "location": self.location,
             "images": self.images,
-            "creator": self.creator_name,
+            "creator": info[str(self.creator_id)]["name"],
             "discord": self.creator.discord,
             "createdAt": self.createdAt,
             "status": self.status,
-            "mentor_name": self.claimant_name,
+            "mentor_name": info[str(self.claimant_id)]["name"] if self.claimant else None,
             "mentor_id": self.claimant_id
         }
