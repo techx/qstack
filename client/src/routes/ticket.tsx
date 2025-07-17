@@ -515,7 +515,7 @@ export default function TicketPage() {
           <Title className="text-center">Your ticket has been claimed!</Title>
 
           <Text className="mt-10 text-lg">
-            Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
+            Mentor Name: <Badge size="lg">{mentorData.name ? mentorData.name : "No Name Provided"}</Badge>
           </Text>
           <Text className="mt-5 text-md">
             Mentor Discord Contact:{" "}
@@ -567,7 +567,7 @@ export default function TicketPage() {
             }}
           >
             <Title className="text-center" style={{ color: "#FFF" }}>
-              Rate Your Mentor: {ticket.mentor_name}
+              Rate Your Mentor: {ticket.mentor_name ? ticket.mentor_name : "No Name Provided"}
             </Title>
             <Text style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}>
               Please rate the support provided by your mentor for the ticket: "
