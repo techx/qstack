@@ -37,9 +37,9 @@ def save():
         or len(data["location"]) == 0
     ):
         return abort(404, "Make sure to fill every field!")
-
+    
     if not user.ticket_id:
-        ticket = Ticket(user, session["user_name"], data, False)
+        ticket = Ticket(user, data, False)
         db.session.add(ticket)
         db.session.commit()
         user.ticket_id = ticket.id
@@ -61,8 +61,8 @@ def submit():
     if not user:
         return abort(401, "User not found or not logged in.")
 
-    if len(session["user_name"]) == 0:
-        return abort(404, "Update name in profile page before submitting!")
+    if not session["user_name"]:
+        return abort(404, "Update name in Plume and re-login before submitting!")
 
     if user.ticket_id:
         ticket = Ticket.query.get(user.ticket_id)
@@ -78,7 +78,7 @@ def submit():
     ):
         return abort(404, "Make sure to fill every field!")
 
-    ticket = Ticket(user, session["user__name"], data, True)
+    ticket = Ticket(user, data, True)
     db.session.add(ticket)
     db.session.commit()
 
@@ -162,7 +162,7 @@ def unclaim():
 
     ticket.active = True
     ticket.claimant = None
-    ticket.claimant_name = None
+    # ticket.claimant_name = None
     ticket.claimant_id = None
     db.session.commit()
 
