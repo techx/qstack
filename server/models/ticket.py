@@ -9,15 +9,11 @@ class Ticket(db.Model):
     __tablename__ = "tickets"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    # creator_id = Column(Integer, ForeignKey("users.id"))
     creator_id = Column(String, ForeignKey("users.id"))
     creator = relationship("User", foreign_keys=[creator_id])
-    # creator_name = None
 
-    # claimant_id = Column(Integer, ForeignKey("users.id"))
     claimant_id = Column(String, ForeignKey("users.id"))
     claimant = relationship("User", foreign_keys=[claimant_id])
-    # claimant_name = None
 
     question = Column(Text, nullable=False)
     content = Column(Text, nullable=False)
@@ -32,10 +28,7 @@ class Ticket(db.Model):
     claimedAt = Column(DateTime)
 
     def __init__(self, user, data, active):
-        # print("name at __init__ in ticket.py:", name)
-        
         self.creator = user
-        # self.creator_name = name
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]
@@ -45,12 +38,8 @@ class Ticket(db.Model):
         self.createdAt = db.func.now()
         self.status = "unclaimed"
         self.claimedAt = None
-        
-        # print("name at end of __init__ in ticket.py:", self.creator_name)
 
     def update(self, data):
-        # print("name at update in ticket.py:", self.creator_name)
-
         self.question = data["question"]
         self.content = data["content"]
         self.location = data["location"]

@@ -16,11 +16,7 @@ from server.plume.utils import get_info
 
 class User(db.Model):
     __tablename__ = "users"
-
-    # commented out table's columns
-    # id = Column(Integer, primary_key=True, nullable=False)
-    # name = Column(Text, nullable=False)
-    # email = Column(Text, nullable=False)
+    
     id = Column(String, primary_key=True, nullable=False)
     role = Column(Text, nullable=False)
     location = Column(Text, nullable=False)
@@ -35,8 +31,6 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        # if self.name is None:
-        #     self.name = ""
         self.role = "hacker"
         self.location = "in person"
         self.zoomlink = ""

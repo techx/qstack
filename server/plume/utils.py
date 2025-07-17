@@ -5,11 +5,7 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 from urllib.parse import urlparse
-#from info import USER_MAP
-# import uuid
-
 from sqlalchemy import null
-# import multiprocessing
 
 load_dotenv()
 load_dotenv(dotenv_path='server/.env')
@@ -163,74 +159,6 @@ def delete_users_old():
         DROP SEQUENCE IF EXISTS users_id_seq;
     """)
     qstack_conn.commit()
-
-
-# def get_single_info(uid: str):
-#     """
-#     Get user name and email from plume db
-#     """
-#     # set up connections
-#     ec2_conn, ec2_cur = create_ec2_connection()
-#     qstack_conn, qstack_cur = create_qstack_connection()
-
-#     """
-#     Get user name from plume db
-#     """
-#     # set up connections
-#     ec2_conn, ec2_cur = create_ec2_connection()
-#     qstack_conn, qstack_cur = create_qstack_connection()
-
-#     # load user data from plume's user table
-#     ec2_cur.execute(f"""
-#         SELECT first_name, last_name, email from "user" WHERE id='{str(uid)}';
-#     """)
-#     uinfo = ec2_cur.fetchone()
-#     info={
-#         "name": " ".join([uinfo[0], uinfo[1]]) if uinfo else None, 
-#         "email": uinfo[2] if uinfo else None
-#     }
-
-#     return info
-
-# def get_bulk_info(uids: list[str]):
-#     """
-#     Get user name and email from plume db
-#     """
-#     # set up connections
-#     ec2_conn, ec2_cur = create_ec2_connection()
-#     qstack_conn, qstack_cur = create_qstack_connection()
-
-#     def get_info(ids: list[str]):
-#         # load user data from plume's user table
-#         plume_info = {}
-
-#         for id in ids:
-#             ec2_cur.execute(f"""
-#                 SELECT first_name, last_name, email from "user" WHERE id='{str(id)}';
-#             """)
-#             uinfo = ec2_cur.fetchone()
-#             plume_info[id]={
-#                 "name": " ".join([uinfo[0], uinfo[1]]) if uinfo else None, 
-#                 "email": uinfo[2] if uinfo else None
-#             }
-        
-#         return plume_info
-
-#     # set up multithreading
-#     threads = 10
-#     pool = multiprocessing.Pool(processes=threads)
-#     inputs = []
-#     for i in range(0, threads):
-#         if i == threads-1:
-#             inputs.append(uids[i*len(uids)//threads:])
-#         else:
-#             inputs.append(uids[i*len(uids)//threads:(i+1)*len(uids)//threads])
-
-#     info = {}
-#     for output in pool.map(get_info, inputs):
-#         info.update(output)
-
-#     return info
 
 def get_info(uids: list[str]):
     ec2_conn, ec2_cur = create_ec2_connection()
