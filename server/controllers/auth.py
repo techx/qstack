@@ -80,14 +80,20 @@ def callback():
 
     user_id = request.args.get("user_id")
     if not user_id:
-        return abort(401, "No user ID provided")
+        # Redirect to front page with login error
+        return redirect(f"{FRONTEND_URL}/?error=login_failed&message=User does not exist")
     
-    session["user_id"] = user_id
 
-    info = get_info([user_id])[user_id]
-    session["user_name"] = info["name"]
-    session["user_email"] = info["email"]
+    plume_resp = get_info([user_id])
+    if not plume_resp:
+        # Redirect to front page with login error
+        return redirect(f"{FRONTEND_URL}/?error=login_failed&message=User not found")
     
+    info = plume_resp[user_id]
+    session["user_id"] = user_id
+    session["user_name"] = info["name"]
+    # session["user_email"] = info["email"]
+
     # Check if user exists in qstack database, create if not
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -96,7 +102,7 @@ def callback():
         )
 
         for admin in app.config["AUTH_ADMINS"]:
-            if admin["email"] == session["user_email"]:
+            if admin["email"] == info["email"]:
                 user.role = "admin"
         
         db.session.add(user)
@@ -138,12 +144,7 @@ def whoami():
     if "user_id" in session:
         user = User.query.filter_by(id=session["user_id"]).first()
         if user:
-            user_data = dict(user.map())
-            # Add name and email from Plume
-            user_data["name"] = session["user_name"]
-            user_data["email"] = session["user_email"]
-            user_data["loggedIn"] = True
-            return user_data
+            return dict(user.map(), loggedIn=True)
     return {"loggedIn": False}
 
 
@@ -170,9 +171,9 @@ def update():
     if data["role"] == "hacker":
         user.role = "hacker"
 
-    if len(data["name"]) == 0:
-        return abort(400, "Missing name!")
-    session["user_name"] = data["name"]
+    # if len(data["name"]) == 0:
+    #     return abort(400, "Missing name!")
+    # session["user_name"] = data["name"]
 
     if data["location"] == "virtual" and len(data["zoomlink"]) == 0:
         return abort(400, "Missing video call link!")
