@@ -20,10 +20,11 @@ queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 @auth_required_decorator(roles=["hacker", "mentor", "admin"])
 def get():
     tickets = []
-    for ticket in Ticket.query.all():
+    for ticket in Ticket.query.filter(Ticket.status.isnot("awaiting_feedback")).all():
         creator = User.query.get(ticket.creator_id)
-        if ticket.status != "awaiting_feedback":
-            tickets.append(dict(ticket.map(), creator=creator.name))
+        tickets.append(dict(ticket.map(), creator=creator.name))
+        # if ticket.status != "awaiting_feedback":
+        #     tickets.append(dict(ticket.map(), creator=creator.name))
     return jsonify(tickets)
 
 
@@ -99,11 +100,18 @@ def claimed():
     email = session["user"]["userinfo"]["email"]
     user = User.query.filter_by(email=email).first()
 
-    for ticket in Ticket.query.filter(Ticket.claimant_id is not None).all():
-        if ticket.claimant_id == user.id and ticket.status == "claimed":
-            return {"claimed": ticket.id}
+    # for ticket in Ticket.query.filter(Ticket.claimant_id.isnot(None)).all():
+    #     if ticket.claimant_id == user.id and ticket.status == "claimed":
+    #         return {"claimed": ticket.id}
 
-    return {"claimed": None}
+    # return {"claimed": None}
+    
+    ticket = Ticket.query.filter(
+        Ticket.claimant_id == user.id,
+        Ticket.status == "claimed"
+    ).first()
+    
+    return {"claimed": ticket.id if ticket else None}
 
 
 @queue.route("/ranking", methods=["GET"])

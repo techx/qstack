@@ -27,10 +27,19 @@ def getTicketData():
             sumAverageMentorRating += sum(mentor.ratings) / len(mentor.ratings)
             totalMentors += 1
     
-    for ticket in Ticket.query.all():
-        if ticket.claimedAt is not None:
-            avgTime += (ticket.claimedAt - ticket.createdAt).total_seconds()
-            totalTickets += 1
+    for mentor in mentors:
+        totalTickets += len(mentor.ratings)
+        if len(mentor.ratings) != 0:
+            sumAverageMentorRating += sum(mentor.ratings) / len(mentor.ratings)
+            totalMentors += 1
+    
+    # for ticket in Ticket.query.all():
+    #     if ticket.claimedAt is not None:
+    #         avgTime += (ticket.claimedAt - ticket.createdAt).total_seconds()
+    #         totalTickets += 1
+    for ticket in Ticket.query.filter(Ticket.claimedAt.isnot(None)).all():
+        avgTime += (ticket.claimedAt - ticket.createdAt).total_seconds()
+        totalTickets += 1
 
     if totalMentors != 0:
         averageRating = sumAverageMentorRating/totalMentors
