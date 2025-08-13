@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { computeNormalizedRating } from "../utils";
 import * as admin from "../api/admin";
+import React from "react";
 
 interface ticket {
   total: number;
@@ -154,8 +155,8 @@ export default function AdminPanel() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {users.map((user, _) => (
-                  <>
+                {users.map((user) => (
+                  <React.Fragment key={user.id}>
                     <Table.Tr>
                       <Table.Td>{user.name}</Table.Td>
                       <Table.Td>{user.email}</Table.Td>
@@ -192,7 +193,7 @@ export default function AdminPanel() {
                         )}
                       </>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </Table.Tbody>
             </Table>

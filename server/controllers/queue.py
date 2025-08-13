@@ -12,6 +12,7 @@ from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
+from server.plume.utils import get_info
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
@@ -21,17 +22,15 @@ queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 def get():
     tickets = []
     for ticket in Ticket.query.all():
-        creator = User.query.get(ticket.creator_id)
         if ticket.status != "awaiting_feedback":
-            tickets.append(dict(ticket.map(), creator=creator.name))
+            tickets.append(dict(ticket.map()))
     return jsonify(tickets)
 
 
 @queue.route("/claim", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def claim():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -53,8 +52,7 @@ def claim():
 @queue.route("/unclaim", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -77,8 +75,7 @@ def unclaim():
 @queue.route("/resolve", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def resolve():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -96,8 +93,7 @@ def resolve():
 @queue.route("/claimed")
 @auth_required_decorator(roles=["mentor", "admin"])
 def claimed():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     for ticket in Ticket.query.filter(Ticket.claimant_id is not None).all():
         if ticket.claimant_id == user.id and ticket.status == "claimed":
@@ -106,10 +102,14 @@ def claimed():
     return {"claimed": None}
 
 
+# Leaderboard
 @queue.route("/ranking", methods=["GET"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
     mentors = User.query.filter_by(role="mentor")
+    uids = [u.id for u in mentors]
+
+    info = get_info(uids)
     ranking = []
     for mentor in mentors:
         if len(mentor.ratings) > 0:
@@ -118,7 +118,7 @@ def ranking():
                 (
                     mentor.resolved_tickets,
                     len(mentor.ratings),
-                    mentor.name,
+                    info[mentor.id]["name"],
                     mentor_rating,
                 )
             )

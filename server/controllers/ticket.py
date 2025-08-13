@@ -1,4 +1,12 @@
-from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
+from flask import (
+    current_app as app,
+    url_for,
+    redirect,
+    session,
+    request,
+    send_file,
+    jsonify,
+)
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -26,8 +34,7 @@ def tagslist():
 @ticket.route("/save", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def save():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     if (
@@ -55,11 +62,12 @@ def save():
 @ticket.route("/submit", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def submit():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
+    if not user:
+        return abort(401, "User not found or not logged in.")
 
-    if len(user.name) == 0:
-        return abort(404, "Update name in profile page before submitting!")
+    if not session["user_name"]:
+        return abort(404, "Update name in Plume and re-login before submitting!")
 
     if user.ticket_id:
         ticket = Ticket.query.get(user.ticket_id)
@@ -89,11 +97,10 @@ def submit():
 @ticket.route("/get")
 @auth_required_decorator(roles=["hacker", "mentor", "admin"])
 def get():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
-        return {"active": False}
+        return jsonify({"active": False})
 
     ticket = Ticket.query.get(user.ticket_id)
     if not ticket.active:
@@ -106,8 +113,7 @@ def get():
 @ticket.route("/remove", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def remove():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return abort(404, "No active ticket!")
@@ -126,8 +132,7 @@ def remove():
 @ticket.route("/status")
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def status():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return {"status": "unclaimed", "message": "No ticket!"}
@@ -146,8 +151,7 @@ def status():
 @ticket.route("/unclaim")
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return abort(404, "No active ticket!")
@@ -156,6 +160,7 @@ def unclaim():
 
     ticket.active = True
     ticket.claimant = None
+    # ticket.claimant_name = None
     ticket.claimant_id = None
     db.session.commit()
 
@@ -165,8 +170,7 @@ def unclaim():
 @ticket.route("/awaiting_feedback", methods=["GET"])
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def awaiting_feedback():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     resolved_tickets = Ticket.query.filter_by(
         creator_id=user.id, status="awaiting_feedback"
@@ -181,10 +185,10 @@ def awaiting_feedback():
 @auth_required_decorator(roles=["hacker", "admin"])
 def rate():
     data = request.get_json()
-    mentor = User.query.get(int(data["mentor_id"]))
+    mentor = User.query.get(data["mentor_id"])
     mentor.ratings.append(data["rating"])
-    if len(data['review']) != 0:
-        mentor.reviews.append(data['review'])
+    if len(data["review"]) != 0:
+        mentor.reviews.append(data["review"])
     db.session.commit()
 
     ticket = Ticket.query.get(int(data["id"]))
@@ -200,8 +204,7 @@ def rate():
 @ticket.route("/resolve", methods=["POST"])
 @auth_required_decorator(roles=["hacker", "admin"])
 def resolve():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     if not user.ticket_id:
         return abort(404, "No active ticket!")
@@ -210,7 +213,7 @@ def resolve():
     ticket.status = "awaiting_feedback"
 
     data = request.get_json()
-    mentor = User.query.get(int(data["mentor_id"]))
+    mentor = User.query.get(data["mentor_id"])
     mentor.resolved_tickets = mentor.resolved_tickets + 1
     mentor.claimed = None
     db.session.commit()
