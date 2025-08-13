@@ -16,19 +16,22 @@ def auth_required_decorator(roles):
     """
     middleware for protected routes
     """
+
     def auth_required(func):
         def wrapper(*args, **kwargs):
             if "user_id" not in session:
                 return abort(401)
-            
+
             user = User.query.filter_by(id=session["user_id"]).first()
             if not user or not user.role:
                 return abort(401)
             elif user.role not in roles:
                 return abort(401)
             return func(*args, **kwargs)
+
         wrapper.__name__ = func.__name__
         return wrapper
+
     return auth_required
 
 
@@ -36,7 +39,9 @@ def auth_required_decorator(roles):
 def login():
     return_url = request.args.get("return_url", FRONTEND_URL + "/home")
     session["return_url"] = return_url
-    return redirect(f"https://plume.hackmit.org/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
+    return redirect(
+        f"https://plume.hackmit.org/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}"
+    )
 
     # use this return for local run
     # return redirect(f"http://localhost:2003/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
@@ -47,14 +52,15 @@ def callback():
     user_id = request.args.get("user_id")
     if not user_id:
         # Redirect to front page with login error
-        return redirect(f"{FRONTEND_URL}/?error=login_failed&message=User does not exist")
-    
+        return redirect(
+            f"{FRONTEND_URL}/?error=login_failed&message=User does not exist"
+        )
 
     plume_resp = get_info([user_id])
     if not plume_resp:
         # Redirect to front page with login error
         return redirect(f"{FRONTEND_URL}/?error=login_failed&message=User not found")
-    
+
     info = plume_resp[user_id]
     session["user_id"] = user_id
     session["user_name"] = info["name"]
@@ -63,14 +69,12 @@ def callback():
     # Check if user exists in qstack database, create if not
     user = User.query.filter_by(id=user_id).first()
     if not user:
-        user = User(
-            id=user_id
-        )
+        user = User(id=user_id)
 
         for admin in app.config["AUTH_ADMINS"]:
             if admin["email"] == info["email"]:
                 user.role = "admin"
-        
+
         db.session.add(user)
         db.session.commit()
 
@@ -101,7 +105,7 @@ def whoami():
 def update():
     if "user_id" not in session:
         return abort(401)
-    
+
     user = User.query.filter_by(id=session["user_id"]).first()
     if not user:
         return abort(401)
