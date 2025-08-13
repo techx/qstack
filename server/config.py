@@ -29,5 +29,5 @@ ENV = os.environ.get("ENVIRONMENT", "development")
 
 AUTH_ADMINS = [
     {"name": "HackMIT", "email": "admin@hackmit.org"},
-    {"name": "HackMIT", "email": "team@hackmit.org"}
+    {"name": "HackMIT", "email": "team@hackmit.org"},
 ]

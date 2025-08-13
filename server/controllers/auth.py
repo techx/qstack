@@ -1,15 +1,27 @@
-from flask import current_app as app, redirect, session, request
-from server import db
-from apiflask import APIBlueprint, abort
+import functools
 from urllib.parse import quote_plus, urlencode
-from server.models import User
+
+from apiflask import APIBlueprint, abort
+from flask import current_app as app
+from flask import redirect, request, session
+
+from server import db
 from server.config import (
     FRONTEND_URL,
     MENTOR_PASS,
 )
 from server.plume.utils import get_info
+from server.models import User
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
+
+
+def is_user_valid(user, valid_roles):
+    if not user or not user.role:
+        return False
+    elif user.role not in valid_roles:
+        return False
+    return True
 
 
 def auth_required_decorator(roles):
@@ -18,6 +30,7 @@ def auth_required_decorator(roles):
     """
 
     def auth_required(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if "user_id" not in session:
                 return abort(401)
@@ -29,7 +42,6 @@ def auth_required_decorator(roles):
                 return abort(401)
             return func(*args, **kwargs)
 
-        wrapper.__name__ = func.__name__
         return wrapper
 
     return auth_required

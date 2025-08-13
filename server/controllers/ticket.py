@@ -1,4 +1,12 @@
-from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
+from flask import (
+    current_app as app,
+    url_for,
+    redirect,
+    session,
+    request,
+    send_file,
+    jsonify,
+)
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
@@ -33,9 +41,10 @@ def save():
         len(data["question"]) == 0
         or len(data["content"]) == 0
         or len(data["location"]) == 0
+        or len(data["tags"]) == 0
     ):
         return abort(404, "Make sure to fill every field!")
-    
+
     if not user.ticket_id:
         ticket = Ticket(user, data, False)
         db.session.add(ticket)
@@ -71,6 +80,7 @@ def submit():
         len(data["question"]) == 0
         or len(data["content"]) == 0
         or len(data["location"]) == 0
+        or len(data["tags"]) == 0
     ):
         return abort(404, "Make sure to fill every field!")
 
@@ -177,8 +187,8 @@ def rate():
     data = request.get_json()
     mentor = User.query.get(data["mentor_id"])
     mentor.ratings.append(data["rating"])
-    if len(data['review']) != 0:
-        mentor.reviews.append(data['review'])
+    if len(data["review"]) != 0:
+        mentor.reviews.append(data["review"])
     db.session.commit()
 
     ticket = Ticket.query.get(int(data["id"]))
