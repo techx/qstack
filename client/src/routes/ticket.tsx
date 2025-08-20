@@ -1,41 +1,36 @@
-import { useEffect, useState, useCallback } from "react";
 import {
-  Container,
-  Paper,
-  Title,
-  Text,
-  TextInput,
-  TagsInput,
-  Button,
-  LoadingOverlay,
-  Group,
-  Flex,
   Badge,
+  Button,
+  Container,
+  Flex,
+  Group,
   HoverCard,
+  LoadingOverlay,
+  Paper,
   Rating,
   rem,
   Space,
-  Textarea
+  TagsInput,
+  Text,
+  Textarea,
+  TextInput,
+  Title,
 } from "@mantine/core";
-import { IconUpload, IconPhoto } from "@tabler/icons-react";
+import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
+import { notifications } from "@mantine/notifications";
 import { RichTextEditor } from "@mantine/tiptap";
+import { IconPhoto, IconUpload } from "@tabler/icons-react";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Link from "@tiptap/extension-link";
+import Underline from "@tiptap/extension-underline";
+import { Placeholder } from "@tiptap/extensions";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { all, createLowlight } from "lowlight";
+import { useCallback, useEffect, useState } from "react";
 import * as ticket from "../api/ticket";
-import { notifications } from "@mantine/notifications";
-import {
-  Dropzone,
-  IMAGE_MIME_TYPE,
-  FileWithPath,
-} from "@mantine/dropzone";
-import classes from "./root.module.css";
 import ChatRoomModal from "./chatRoomModal.tsx"; // Import the modal component
-
+import classes from "./root.module.css";
 
 interface mentor {
   name: string;
@@ -55,7 +50,6 @@ interface ticket {
   images: Array<string>;
 }
 
-
 export default function TicketPage() {
   const [question, setQuestion] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -70,8 +64,12 @@ export default function TicketPage() {
   const lowlight = createLowlight(all);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [soundPlayed, setSoundPlayed] = useState<boolean>(false);
-  const [ratings, setRatings] = useState<Map<number, number>>(new Map<number, number>());
-  const [reviews, setReviews] = useState<Map<number, string>>(new Map<number, string>);
+  const [ratings, setRatings] = useState<Map<number, number>>(
+    new Map<number, number>()
+  );
+  const [reviews, setReviews] = useState<Map<number, string>>(
+    new Map<number, string>()
+  );
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
@@ -93,7 +91,7 @@ export default function TicketPage() {
       editable: !active,
       onUpdate({ editor }) {
         const htmlContent = editor.getHTML();
-        const sanitizedHTML = htmlContent.replace(/ +/g, '&nbsp;');
+        const sanitizedHTML = htmlContent.replace(/ +/g, "&nbsp;");
         setContent(sanitizedHTML);
       },
     },
@@ -107,7 +105,7 @@ export default function TicketPage() {
         setClaimed(true);
         if (!soundPlayed) {
           const playSound = () => {
-            const audio = new Audio('/notif.mp3');
+            const audio = new Audio("/notif.mp3");
             audio.play();
           };
           playSound();
@@ -153,7 +151,15 @@ export default function TicketPage() {
       }
       if (!res.active) setActive(false);
     });
-  }, [setActive, setQuestion, setContent, setLocation, setTags, setImages, editor]);
+  }, [
+    setActive,
+    setQuestion,
+    setContent,
+    setLocation,
+    setTags,
+    setImages,
+    editor,
+  ]);
 
   useEffect(() => {
     ticket.getTags().then((res) => setTagsList(res.tags));
@@ -234,7 +240,6 @@ export default function TicketPage() {
     setIsSubmitting(false);
   };
 
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showNotif = (res: any) => {
     if (res.ok) {
@@ -304,7 +309,9 @@ export default function TicketPage() {
   };
 
   const handleDrop = async (newFiles: Array<FileWithPath>) => {
-    const newImages: Array<string> = await Promise.all(newFiles.map(file => fileToBase64(file))) as Array<string>;
+    const newImages: Array<string> = (await Promise.all(
+      newFiles.map((file) => fileToBase64(file))
+    )) as Array<string>;
     setImages((prevImages: Array<string>) => [...prevImages, ...newImages]);
   };
 
@@ -323,18 +330,18 @@ export default function TicketPage() {
     }
   };
 
-  const previews = (images: Array<string>, removeImage: (file: string) => void) => {
+  const previews = (
+    images: Array<string>,
+    removeImage: (file: string) => void
+  ) => {
     if (images.length === 0) {
       return <Group></Group>;
     }
     return images.map((image, index) => (
       <div key={index}>
-        <img
-          src={image}
-          alt={`image-${index}`}
-        />
+        <img src={image} alt={`image-${index}`} />
         <button
-          style={{ position: 'absolute', top: 0, right: 0 }}
+          style={{ position: "absolute", top: 0, right: 0 }}
           onClick={() => removeImage(image)}
         >
           X
@@ -445,17 +452,16 @@ export default function TicketPage() {
               h={200}
               w={520}
               disabled={active}
-              onReject={() => notifications.show({
-                title: "Error",
-                message: "Failed to upload image. Check that your image is less than 3MB.",
-                color: "red",
-              })}
+              onReject={() =>
+                notifications.show({
+                  title: "Error",
+                  message:
+                    "Failed to upload image. Check that your image is less than 3MB.",
+                  color: "red",
+                })
+              }
             >
-              <Group
-                grow
-                justify="center"
-                gap="l"
-              >
+              <Group grow justify="center" gap="l">
                 <Dropzone.Accept>
                   <IconUpload
                     style={{
@@ -500,7 +506,12 @@ export default function TicketPage() {
                 Submit
               </Button>
               {/* Render the modal only if isModalOpen is true */}
-              {isModalOpen && <ChatRoomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />}
+              {isModalOpen && (
+                <ChatRoomModal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                />
+              )}
             </Group>
           )}
           {active && (
@@ -541,10 +552,15 @@ export default function TicketPage() {
           {mentorData.location == "virtual" && (
             <Text className="mt-5 text-lg">
               Your mentor is virtual! <br /> Please join their video call link:{" "}
-              <a href={mentorData.zoomlink.startsWith('http') ? mentorData.zoomlink : `https://${mentorData.zoomlink}`}>
+              <a
+                href={
+                  mentorData.zoomlink.startsWith("http")
+                    ? mentorData.zoomlink
+                    : `https://${mentorData.zoomlink}`
+                }
+              >
                 {mentorData.zoomlink}
               </a>
-
             </Text>
           )}
 
@@ -579,7 +595,9 @@ export default function TicketPage() {
             <Title className="text-center" style={{ color: "#FFF" }}>
               Rate Your Mentor: {ticket.mentor_name}
             </Title>
-            <Text style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}>
+            <Text
+              style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}
+            >
               Please rate the support provided by your mentor for the ticket: "
               {ticket.question}"
             </Text>
@@ -592,8 +610,10 @@ export default function TicketPage() {
             />
             <Textarea
               placeholder="Leave a review..."
-              value={reviews.get(ticket.id) || ''}
-              onChange={(event) => handleReviewChange(ticket.id, event.target.value)}
+              value={reviews.get(ticket.id) || ""}
+              onChange={(event) =>
+                handleReviewChange(ticket.id, event.target.value)
+              }
               minRows={4}
               style={{ width: "100%", maxWidth: "80%" }}
             />
