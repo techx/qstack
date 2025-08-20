@@ -21,8 +21,6 @@ import { notifications } from "@mantine/notifications";
 import { RichTextEditor } from "@mantine/tiptap";
 import { IconPhoto, IconUpload } from "@tabler/icons-react";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import Link from "@tiptap/extension-link";
-import Underline from "@tiptap/extension-underline";
 import { Placeholder } from "@tiptap/extensions";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -80,8 +78,6 @@ export default function TicketPage() {
         StarterKit.configure({
           codeBlock: false,
         }),
-        Underline,
-        Link,
         CodeBlockLowlight.configure({
           lowlight,
         }),
