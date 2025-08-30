@@ -27,7 +27,6 @@ import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
 import { useCallback, useEffect, useState } from "react";
 import * as ticket from "../api/ticket";
-import ChatRoomModal from "./chatRoomModal.tsx"; // Import the modal component
 import classes from "./root.module.css";
 
 interface mentor {
@@ -70,7 +69,6 @@ export default function TicketPage() {
   );
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
   const editor = useEditor(
     {
@@ -285,7 +283,6 @@ export default function TicketPage() {
       sessionStorage.setItem("chatName", "default name"); // Ensure this line is present
 
       getTicket();
-      setIsModalOpen(true);
     }
     showNotif(res);
   };
@@ -501,13 +498,6 @@ export default function TicketPage() {
               <Button onClick={() => handleSubmit()} className="mt-5">
                 Submit
               </Button>
-              {/* Render the modal only if isModalOpen is true */}
-              {isModalOpen && (
-                <ChatRoomModal
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                />
-              )}
             </Group>
           )}
           {active && (

@@ -12,16 +12,16 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import NotFoundPage from "./routes/notFound";
-import IndexPage from "./routes/index";
-import ProfilePage from "./routes/profile";
-import TicketPage from "./routes/ticket";
-import QueuePage from "./routes/queue";
-import HomePage from "./routes/home";
-import Chat from "./routes/chat";
-import Leaderboard from "./routes/leaderboard";
-import AdminPanel from "./routes/admin";
 import HeaderNav from "./components/header";
+import AdminPanel from "./routes/admin";
+import ChatPage from "./routes/chat";
+import HomePage from "./routes/home";
+import IndexPage from "./routes/index";
+import Leaderboard from "./routes/leaderboard";
+import NotFoundPage from "./routes/notFound";
+import ProfilePage from "./routes/profile";
+import QueuePage from "./routes/queue";
+import TicketPage from "./routes/ticket";
 
 // TODO: FIX CHATROOM THING I DONT KNOW IF WE EVEN SUPPOSED TO HAVE ONE
 const router = createBrowserRouter(
@@ -36,7 +36,7 @@ const router = createBrowserRouter(
       <Route index path="/ticket" element={<TicketPage />} />
       <Route index path="/queue" element={<QueuePage />} />
       <Route index path="/leaderboard" element={<Leaderboard />} />
-      <Route index path="/chat" element={<Chat />} />
+      <Route index path="/chat" element={<ChatPage />} />
       <Route index path="/stats" element={<AdminPanel />} />
     </Route>
   )

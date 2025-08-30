@@ -106,7 +106,6 @@ def connect_handler(_auth=None):
     join_room(room)
     name, role = chat_partner_metadata(user, ticket)
     emit("partner_metadata", {"name": name, "role": role})
-    print(f"{name} joined {room}")
 
 
 @socketio.on("send_message")
