@@ -1,6 +1,8 @@
 import {
   Badge,
+  Box,
   Button,
+  Card,
   Container,
   Flex,
   Group,
@@ -27,6 +29,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { all, createLowlight } from "lowlight";
 import { useCallback, useEffect, useState } from "react";
 import * as ticket from "../api/ticket";
+import Chat from "../components/chat";
 import classes from "./root.module.css";
 
 interface mentor {
@@ -344,11 +347,11 @@ export default function TicketPage() {
   };
 
   return (
-    <Container size="sm" py="6rem" pb="10rem">
+    <Container size="sm" py="6rem" pb="10rem" className="h-full">
       <LoadingOverlay visible={active == undefined} />
 
       {!claimed && resolvedTickets.length === 0 && (
-        <Paper p="xl" shadow="xs" className="bg-neutral-800">
+        <Paper p="xl" shadow="xs" className="bg-neutral-800 h-full">
           <Title className="text-center">
             How can we help you?{" "}
             <HoverCard width={280} shadow="md" withArrow>
@@ -518,46 +521,57 @@ export default function TicketPage() {
       )}
 
       {claimed && mentorData && (
-        <Paper p="xl" shadow="xs" className="bg-neutral-800">
+        <Paper p="xl" shadow="xs" className="bg-neutral-800 h-full">
           <Title className="text-center">Your ticket has been claimed!</Title>
 
-          <Text className="mt-10 text-lg">
-            Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
-          </Text>
-          <Text className="mt-5 text-md">
-            Mentor Discord Contact:{" "}
-            <Badge size="lg" color="green" variant="light">
-              {mentorData.discord}
-            </Badge>
-          </Text>
-          {mentorData.location == "in person" && (
-            <Text className="mt-5 text-lg">
-              Your mentor should be with you shortly!
-            </Text>
-          )}
-          {mentorData.location == "virtual" && (
-            <Text className="mt-5 text-lg">
-              Your mentor is virtual! <br /> Please join their video call link:{" "}
-              <a
-                href={
-                  mentorData.zoomlink.startsWith("http")
-                    ? mentorData.zoomlink
-                    : `https://${mentorData.zoomlink}`
-                }
-              >
-                {mentorData.zoomlink}
-              </a>
-            </Text>
-          )}
+          <Container className="h-full" size="sm">
+            <Group h="100%" w="100%">
+              <Card className="h-full min-h-0" w="100%">
+                <Text className="text-lg">
+                  Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
+                </Text>
+                <Text className="pt-5 text-md">
+                  Mentor Discord Contact:{" "}
+                  <Badge size="lg" color="green" variant="light">
+                    {mentorData.discord}
+                  </Badge>
+                </Text>
+                {mentorData.location == "in person" && (
+                  <Text className="pt-5 text-lg">
+                    Your mentor should be with you shortly!
+                  </Text>
+                )}
+                {mentorData.location == "virtual" && (
+                  <Text className="pt-5 text-lg">
+                    Your mentor is virtual! <br /> Please join their video call
+                    link:{" "}
+                    <a
+                      href={
+                        mentorData.zoomlink.startsWith("http")
+                          ? mentorData.zoomlink
+                          : `https://${mentorData.zoomlink}`
+                      }
+                    >
+                      {mentorData.zoomlink}
+                    </a>
+                  </Text>
+                )}
 
-          <Group grow className="mt-5">
-            <Button onClick={() => handleResolve(mentorData.id)}>
-              Mark as Resolved
-            </Button>
-            <Button color="red" onClick={() => handleUnclaim()}>
-              Return to Queue
-            </Button>
-          </Group>
+                <Box className="h-full w-full flex flex-col min-h-0">
+                  <Chat popOutLink={true} />
+                </Box>
+
+                <Group grow className="py-5">
+                  <Button onClick={() => handleResolve(mentorData.id)}>
+                    Mark as Resolved
+                  </Button>
+                  <Button color="red" onClick={() => handleUnclaim()}>
+                    Return to Queue
+                  </Button>
+                </Group>
+              </Card>
+            </Group>
+          </Container>
         </Paper>
       )}
 
