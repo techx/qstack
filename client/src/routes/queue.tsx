@@ -202,6 +202,9 @@ export default function QueuePage() {
                         }
                       </Group>
                       <div className="mt-5">
+                        Hacker Name: <Badge>{ticket.creator ? ticket.creator : "No Name Provided"}</Badge>
+                      </div>
+                      <div className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
                       </div>
                       <div className="mt-5">
@@ -269,6 +272,9 @@ export default function QueuePage() {
                           </div>
                         }
                       </Group>
+                      <div className="mt-5">
+                        Hacker Name: <Badge>{ticket.creator ? ticket.creator : "No Name Provided"}</Badge>
+                      </div>
                       <div className="mt-5">
                         Location: <Badge>{ticket.location}</Badge>
                       </div>

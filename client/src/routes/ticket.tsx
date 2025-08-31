@@ -527,8 +527,11 @@ export default function TicketPage() {
           <Container className="h-full" size="sm">
             <Group h="100%" w="100%">
               <Card className="h-full min-h-0" w="100%">
-                <Text className="text-lg">
-                  Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
+                <Text className="pt-10 text-lg">
+                  Mentor Name:{" "}
+                  <Badge size="lg">
+                    {mentorData.name ? mentorData.name : "No Name Provided"}
+                  </Badge>
                 </Text>
                 <Text className="pt-5 text-md">
                   Mentor Discord Contact:{" "}
@@ -593,7 +596,8 @@ export default function TicketPage() {
             }}
           >
             <Title className="text-center" style={{ color: "#FFF" }}>
-              Rate Your Mentor: {ticket.mentor_name}
+              Rate Your Mentor:{" "}
+              {ticket.mentor_name ? ticket.mentor_name : "No Name Provided"}
             </Title>
             <Text
               style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}

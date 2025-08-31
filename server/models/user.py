@@ -6,17 +6,18 @@ from sqlalchemy import (
     ForeignKey,
     ARRAY,
     Numeric,
+    String,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableList
 
+from server.plume.utils import get_info
+
 
 class User(db.Model):
     __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, nullable=False)
-    name = Column(Text, nullable=False)
-    email = Column(Text, nullable=False)
+    
+    id = Column(String, primary_key=True, nullable=False)
     role = Column(Text, nullable=False)
     location = Column(Text, nullable=False)
     zoomlink = Column(Text, nullable=False)
@@ -30,8 +31,6 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.name is None:
-            self.name = ""
         self.role = "hacker"
         self.location = "in person"
         self.zoomlink = ""
@@ -41,10 +40,13 @@ class User(db.Model):
         self.reviews = []
 
     def map(self):
+        dict = get_info([str(self.id)])
+        info = dict[str(self.id)] if dict else None
+
         return {
             "id": self.id,
-            "name": self.name,
-            "email": self.email,
+            "name": info["name"] if info else None,
+            "email": info["email"] if info else None,
             "role": self.role,
             "location": self.location,
             "zoomlink": self.zoomlink,

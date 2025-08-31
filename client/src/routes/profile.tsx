@@ -69,10 +69,11 @@ export default function ProfilePage() {
       <Paper p="xl" shadow="xs" className="bg-neutral-800">
         <Group grow>
           <TextInput
+            disabled
             label="Name"
             size="md"
             value={user.name}
-            onChange={(e) => updateUser({ ...user, name: e.target.value })}
+            // onChange={(e) => updateUser({ ...user, name: e.target.value })}
           />
           <TextInput
             disabled
