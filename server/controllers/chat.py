@@ -66,8 +66,7 @@ def setup_ticket_chat():
         socketio.start_background_task(force_disconnect_later, client_sid)
 
     valid_roles = ["hacker", "mentor", "admin"]
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
     if not is_user_valid(user, valid_roles):
         emit("open_chat_error", {"message": "Unauthorized"})
         delayed_disconnect(request.sid)
