@@ -56,7 +56,7 @@ class User(db.Model):
             ),
             "ratings": (
                 sum(self.ratings) / len(self.ratings)
-                if self.role == "mentor" and len(self.ratings) != 0
+                if self.role == "mentor" and self.ratings and len(self.ratings) != 0
                 else None
             ),
             "reviews": self.reviews if self.reviews != None else [],

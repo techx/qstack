@@ -186,8 +186,14 @@ def awaiting_feedback():
 def rate():
     data = request.get_json()
     mentor = User.query.get(data["mentor_id"])
+    print("data", data["rating"])
+    
+    if not mentor.ratings:
+        mentor.ratings = []
     mentor.ratings.append(data["rating"])
     if len(data["review"]) != 0:
+        if not mentor.reviews:
+            mentor.reviews = []
         mentor.reviews.append(data["review"])
     db.session.commit()
 

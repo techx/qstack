@@ -81,6 +81,9 @@ def resolve():
     ticket_id = int(data["id"])
     ticket = Ticket.query.get(ticket_id)
     ticket.status = "awaiting_feedback"
+    
+    if not user.resolved_tickets:
+        user.resolved_tickets = 0
 
     user.resolved_tickets = user.resolved_tickets + 1
 
@@ -112,7 +115,7 @@ def ranking():
     info = get_info(uids)
     ranking = []
     for mentor in mentors:
-        if len(mentor.ratings) > 0:
+        if mentor.ratings and len(mentor.ratings) > 0:
             mentor_rating = sum(mentor.ratings) / len(mentor.ratings)
             ranking.append(
                 (
