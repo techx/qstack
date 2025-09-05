@@ -16,6 +16,7 @@ from server.config import FRONTEND_URL
 from server.controllers.auth import is_user_valid
 from server.models.ticket import Ticket
 from server.models.user import User
+from server.plume.utils import get_info
 
 chat = APIBlueprint("chat", __name__, url_prefix="/chat")
 
@@ -89,9 +90,12 @@ def chat_partner_metadata(user, ticket):
         return mentor_name, "Mentor"
 
     if user.role in ("mentor", "admin"):
-        creator = User.query.get(ticket.creator_id)
-        creator_name = creator.name if creator else "Unknown"
-        return creator_name, "Hacker"
+        # creator = User.query.get(ticket.creator_id)
+        # creator_name = creator.name if creator else "Unknown"
+        creator_id = ticket.creator.id if ticket.creator else "None"
+        creator_info = get_info([creator_id])
+        print("creator info", creator_info)
+        return creator_info[creator_id]["name"], "Hacker"
 
     raise AssertionError(f"unepxected role {user.role!r}")
 

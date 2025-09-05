@@ -23,7 +23,7 @@ db = SQLAlchemy()
 app.secret_key = APP_SECRET_KEY
 app.config.from_pyfile("config.py")
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*")
 
 
 with app.app_context():
