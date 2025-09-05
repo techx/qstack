@@ -86,13 +86,12 @@ def setup_ticket_chat():
 
 def chat_partner_metadata(user, ticket):
     if user.role == "hacker":
-        mentor_name = ticket.claimant.name if ticket.claimant else "Unknown"
-        return mentor_name, "Mentor"
-
+        creator_id = ticket.claimant.id if ticket.claimant else "Unknown"
+        creator_info = get_info([creator_id])
+        print("creator info", creator_info)
+        return creator_info[creator_id]["name"], "Mentor"
     if user.role in ("mentor", "admin"):
-        # creator = User.query.get(ticket.creator_id)
-        # creator_name = creator.name if creator else "Unknown"
-        creator_id = ticket.creator.id if ticket.creator else "None"
+        creator_id = ticket.creator.id if ticket.creator else "Unknown"
         creator_info = get_info([creator_id])
         print("creator info", creator_info)
         return creator_info[creator_id]["name"], "Hacker"
@@ -132,8 +131,11 @@ def message_handler(data):
 @socketio.on("disconnect")
 def disconnect_handler():
     valid_roles = ["hacker", "mentor", "admin"]
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    # email = session["user"]["userinfo"]["email"]
+    # email = session["user_email"]
+    # user = User.query.filter_by(email=email).first()
+    user_id = session["user_id"]
+    user = User.query.filter_by(id=user_id).first()
     if not is_user_valid(user, valid_roles):
         return
 
