@@ -55,19 +55,21 @@ def login():
         f"https://plume.hackmit.org/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}"
     )
 
-    # use this return for local run
-    # return redirect(f"http://localhost:2003/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}")
+    # use this when testing with local plume changes
+    # return redirect(
+    #     f"http://localhost:2003/login?return_url={quote_plus(FRONTEND_URL + '/api/auth/callback')}"
+    # )
 
 
 @auth.route("/callback", methods=["GET", "POST"])
 def callback():
     user_id = request.args.get("user_id")
+    # print(user_id)
     if not user_id:
         # Redirect to front page with login error
         return redirect(
             f"{FRONTEND_URL}/?error=login_failed&message=User does not exist"
         )
-
     plume_resp = get_info([user_id])
     if not plume_resp:
         # Redirect to front page with login error
@@ -81,6 +83,7 @@ def callback():
     # Check if user exists in qstack database, create if not
     user = User.query.filter_by(id=user_id).first()
     if not user:
+        # print("creating user")
         user = User(id=user_id)
 
         for admin in app.config["AUTH_ADMINS"]:

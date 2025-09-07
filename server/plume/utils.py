@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from sqlalchemy import null
 
 load_dotenv()
-load_dotenv(dotenv_path='server/.env')
+load_dotenv(dotenv_path="server/.env")
 EC2_DATABASE_HOST = os.getenv("EC2_DATABASE_HOST")
 EC2_DATABASE_USER = os.getenv("EC2_DATABASE_USER")
 EC2_DATABASE_PASSWORD = os.getenv("EC2_DATABASE_PASSWORD")
@@ -24,23 +24,24 @@ def create_ec2_connection():
         host=EC2_DATABASE_HOST,
         user=EC2_DATABASE_USER,
         password=EC2_DATABASE_PASSWORD,
-        dbname=EC2_DATABASE_NAME
+        dbname=EC2_DATABASE_NAME,
     )
     cur = conn.cursor()
     # cur.execute("ROLLBACK")
     # conn.commit()
     return conn, cur
 
+
 def create_qstack_connection():
     """
     Initiate a connection to qstack db
     """
     conn = psycopg2.connect(
-        host="database", # service name in docker-compose.yml
+        host="database",  # service name in docker-compose.yml
         port=5432,
         dbname="qstackdb",
         user="postgres",
-        password="password"
+        password="password",
     )
     cur = conn.cursor()
     # cur.execute("ROLLBACK")
@@ -61,6 +62,7 @@ def create_qstack_connection():
     # conn.commit()
     # return conn, cur
 
+
 def init_new_users_table():
     """
     Set up tables for migration
@@ -78,6 +80,9 @@ def init_new_users_table():
         DROP CONSTRAINT IF EXISTS tickets_claimant_id_fkey,
         DROP CONSTRAINT IF EXISTS tickets_creator_id_fkey;
     """)
+
+    # clear tickets table content and reset ids
+    qstack_cur.execute("TRUNCATE TABLE tickets RESTART IDENTITY CASCADE;")
 
     # create new users table
     qstack_cur.execute("""
@@ -115,9 +120,10 @@ def init_new_users_table():
                 FOREIGN KEY (claimant_id) REFERENCES users(id) ON DELETE CASCADE,
             ADD CONSTRAINT tickets_creator_id_fkey
                 FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE;
-    """)    
+    """)
 
     qstack_conn.commit()
+
 
 def load_all_users():
     """
@@ -132,7 +138,7 @@ def load_all_users():
         SELECT id from "user";
     """)
     uids = [uid[0] for uid in ec2_cur.fetchall()]
-    #uids = ec2_cur.fetchall()
+    # uids = ec2_cur.fetchall()
 
     # add ids to qstack's new users table
     for i in range(len(uids)):
@@ -143,8 +149,9 @@ def load_all_users():
             VALUES ('{str(uid)}', 'hacker', 'in person', '', '', ARRAY[]::text[])
             ON CONFLICT (id) DO NOTHING;
         """)
-    
+
     qstack_conn.commit()
+
 
 def delete_users_old():
     """
@@ -152,13 +159,14 @@ def delete_users_old():
     """
     # set up connections
     qstack_conn, qstack_cur = create_qstack_connection()
-    
+
     # load user data from plume's user table
     qstack_cur.execute("""
         DROP TABLE IF EXISTS users_old CASCADE;
         DROP SEQUENCE IF EXISTS users_id_seq;
     """)
     qstack_conn.commit()
+
 
 def get_info(uids: list[str]):
     ec2_conn, ec2_cur = create_ec2_connection()
@@ -167,23 +175,21 @@ def get_info(uids: list[str]):
     if not uids:
         return {}
 
-    placeholders = ",".join([f"\'{uid}\'" for uid in uids])
-    ec2_cur.execute(f'''
+    placeholders = ",".join([f"'{uid}'" for uid in uids])
+    ec2_cur.execute(f"""
         SELECT id, first_name, last_name, email
             FROM "user"
             WHERE id IN ({placeholders});
-    ''')
+    """)
     uinfo = ec2_cur.fetchall()
 
     for id, first, last, email in uinfo:
-        plume_info[id] = {
-            "name": f"{first} {last}",
-            "email": email
-        }
+        plume_info[id] = {"name": f"{first} {last}", "email": email}
 
     return plume_info
 
+
 if __name__ == "__main__":
     init_new_users_table()
-    load_all_users()
+    # load_all_users()
     delete_users_old()
