@@ -266,13 +266,13 @@ export default function TicketPage() {
     showNotif(res);
   };
 
-  const handleUnclaim = async () => {
-    const res = await ticket.unclaim();
-    showNotif(res);
-    if (res.ok) {
-      setClaimed(false);
-    }
-  };
+  // const handleUnclaim = async () => {
+    // const res = await ticket.unclaim();
+    // showNotif(res);
+    // if (res.ok) {
+      // setClaimed(false);
+    // }
+  // };
 
   const handleSubmit = async () => {
     const res = await ticket.submit({
@@ -347,11 +347,11 @@ export default function TicketPage() {
   };
 
   return (
-    <Container size="sm" py="6rem" pb="10rem" className="h-full">
+    <Container size="sm" py="6rem" pb="10rem">
       <LoadingOverlay visible={active == undefined} />
 
       {!claimed && resolvedTickets.length === 0 && (
-        <Paper p="xl" shadow="xs" className="bg-neutral-800 h-full">
+        <Paper p="xl" shadow="xs" className="bg-neutral-800">
           <Title className="text-center">
             How can we help you?{" "}
             <HoverCard width={280} shadow="md" withArrow>
@@ -521,12 +521,12 @@ export default function TicketPage() {
       )}
 
       {claimed && mentorData && (
-        <Paper p="xl" shadow="xs" className="bg-neutral-800 h-full">
+        <Paper p="xl" shadow="xs" className="bg-neutral-800">
           <Title className="text-center">Your ticket has been claimed!</Title>
 
-          <Container className="h-full" size="sm">
+          <Container className="e-null" size="sm">
             <Group h="100%" w="100%">
-              <Card className="h-full min-h-0" w="100%">
+              <Card className="min-h-0" w="100%">
                 <Text className="pt-10 text-lg">
                   Mentor Name:{" "}
                   <Badge size="lg">
@@ -560,18 +560,14 @@ export default function TicketPage() {
                   </Text>
                 )}
 
-                <Box className="h-full w-full flex flex-col min-h-0">
-                  <Chat popOutLink={true} />
-                </Box>
-
                 <Group grow className="py-5">
                   <Button onClick={() => handleResolve(mentorData.id)}>
                     Mark as Resolved
                   </Button>
-                  <Button color="red" onClick={() => handleUnclaim()}>
-                    Return to Queue
-                  </Button>
                 </Group>
+                <Box className="w-full flex flex-col min-h-0">
+                  <Chat popOutLink={true} />
+                </Box>
               </Card>
             </Group>
           </Container>

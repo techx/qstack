@@ -67,13 +67,16 @@ def setup_ticket_chat():
         socketio.start_background_task(force_disconnect_later, client_sid)
 
     valid_roles = ["hacker", "mentor", "admin"]
+    print("session id setup", session["user_id"])
     user = User.query.filter_by(id=session["user_id"]).first()
+    print("user", user)
     if not is_user_valid(user, valid_roles):
         emit("open_chat_error", {"message": "Unauthorized"})
         delayed_disconnect(request.sid)
         return
 
     ticket = get_user_ticket(user)
+    print("ticket in setup", ticket)
     if not ticket:
         emit("open_chat_error", {"message": "No active ticket"})
         delayed_disconnect(request.sid)
@@ -86,14 +89,20 @@ def setup_ticket_chat():
 
 def chat_partner_metadata(user, ticket):
     if user.role == "hacker":
+        print("ticket", ticket)
+        print("ticket.claimant", ticket.claimant)
         creator_id = ticket.claimant.id if ticket.claimant else "Unknown"
+        print("creator_id", creator_id)
         creator_info = get_info([creator_id])
-        print("creator info", creator_info)
+        print("creator info ticket claimant", creator_info)
         return creator_info[creator_id]["name"], "Mentor"
     if user.role in ("mentor", "admin"):
+        print("ticket", ticket)
+        print("ticket.creator", ticket.creator)
         creator_id = ticket.creator.id if ticket.creator else "Unknown"
+        print("creator id", creator_id)
         creator_info = get_info([creator_id])
-        print("creator info", creator_info)
+        print("creator info ticket creator", creator_info)
         return creator_info[creator_id]["name"], "Hacker"
 
     raise AssertionError(f"unepxected role {user.role!r}")
@@ -107,6 +116,7 @@ def connect_handler(_auth=None):
     user, ticket, room, name = ctx
     join_room(room)
     name, role = chat_partner_metadata(user, ticket)
+    print("connect", name, role)
     emit("partner_metadata", {"name": name, "role": role})
 
 

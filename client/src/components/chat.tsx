@@ -165,10 +165,10 @@ export default function Chat({ popOutLink }: ChatProps) {
       <Paper
         p="xl"
         shadow="xs"
-        className="bg-neutral-800 h-full flex flex-col min-h-0"
+        className="bg-neutral-800 h-[100svh] overflow-hidden flex flex-col min-h-0"
       >
         {isLoading || openError ? null : (
-          <Box className="flex w-100 justify-between">
+          <Box className="flex w-full justify-between">
             <Box>
               <Box className="text-lg">{partnerName}</Box>
               <Box className="opacity-75">{partnerRole}</Box>

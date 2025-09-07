@@ -151,10 +151,10 @@ export default function QueuePage() {
   };
 
   return (
-    <Container size="md" py="6rem" h="100%">
+    <Container size="md" py="6rem">
       <LoadingOverlay visible={loading} />
 
-      <Paper p="xl" shadow="xs" className="bg-neutral-800 h-full">
+      <Paper p="xl" shadow="xs" className="bg-neutral-800">
         {!claimed && (
           <Title className="text-center">
             Mentor Queue{" "}
@@ -240,12 +240,12 @@ export default function QueuePage() {
         )}
 
         {claimed !== undefined && (
-          <Container className="mt-5 h-full" size="sm">
+          <Container className="mt-5" size="sm">
             {tickets.map(
               (ticket) =>
                 ticket.id == claimed && (
                   <Group key={ticket.id} h="100%" w="100%">
-                    <Card className="my-3 h-full min-h-0" w="100%">
+                    <Card className="my-3 min-h-0" w="100%">
                       <Group>
                         <Title order={2}>{ticket.question}</Title>
                       </Group>
@@ -286,9 +286,6 @@ export default function QueuePage() {
                             : "No Discord Provided"}
                         </Badge>
                       </div>
-                      <Box className="h-full w-full flex flex-col min-h-0">
-                        <Chat popOutLink={true} />
-                      </Box>
                       <Group className="mt-5" grow>
                         <Button
                           onClick={() =>
@@ -304,6 +301,9 @@ export default function QueuePage() {
                           Unclaim
                         </Button>
                       </Group>
+		      <Box className="w-full mt-6">
+                      	<Chat popOutLink={true} />
+                      </Box>
                     </Card>
                   </Group>
                 )
