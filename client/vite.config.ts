@@ -17,6 +17,10 @@ export default defineConfig(({ mode }) => {
           target: env.BACKEND_URL,
           changeOrigin: true,
         },
+        "/socket.io": {
+          target: env.BACKEND_URL,
+          changeOrigin: true,
+        },
       },
     },
   };

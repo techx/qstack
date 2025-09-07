@@ -1,22 +1,24 @@
-import { useEffect, useState, useCallback } from "react";
 import {
+  Badge,
+  Box,
+  Button,
+  Card,
   Container,
+  Group,
+  LoadingOverlay,
   Paper,
   Title,
-  Card,
-  Group,
-  Badge,
-  Button,
-  LoadingOverlay,
 } from "@mantine/core";
-import * as queue from "../api/queue";
-import { RichTextEditor } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
-import { all, createLowlight } from "lowlight";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import StarterKit from "@tiptap/starter-kit";
 import { notifications } from "@mantine/notifications";
+import { RichTextEditor } from "@mantine/tiptap";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { all, createLowlight } from "lowlight";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import * as queue from "../api/queue";
+import Chat from "../components/chat";
 import classes from "./root.module.css";
 
 interface ticket {
@@ -186,11 +188,18 @@ export default function QueuePage() {
                         ))}
                       </Group>
                       <Group>
-                        {<div className={classes.previewContainer}>
-                          {ticket.images.map((image, index) => (
-                            <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-                          ))}
-                        </div>}
+                        {
+                          <div className={classes.previewContainer}>
+                            {ticket.images.map((image, index) => (
+                              <img
+                                key={index}
+                                src={image}
+                                alt={`Ticket Image ${index + 1}`}
+                                style={{ maxWidth: "100%", margin: "10px 0" }}
+                              />
+                            ))}
+                          </div>
+                        }
                       </Group>
                       <div className="mt-5">
                         Hacker Name: <Badge>{ticket.creator ? ticket.creator : "No Name Provided"}</Badge>
@@ -199,7 +208,12 @@ export default function QueuePage() {
                         Location: <Badge>{ticket.location}</Badge>
                       </div>
                       <div className="mt-5">
-                        Discord: <Badge>{ticket.discord ? ticket.discord : "No Discord Provided"}</Badge>
+                        Discord:{" "}
+                        <Badge>
+                          {ticket.discord
+                            ? ticket.discord
+                            : "No Discord Provided"}
+                        </Badge>
                       </div>
 
                       <div className="mt-5 text-md">
@@ -230,8 +244,8 @@ export default function QueuePage() {
             {tickets.map(
               (ticket) =>
                 ticket.id == claimed && (
-                  <Group key={ticket.id} w="100%">
-                    <Card className="my-3" w="100%">
+                  <Group key={ticket.id} h="100%" w="100%">
+                    <Card className="my-3 min-h-0" w="100%">
                       <Group>
                         <Title order={2}>{ticket.question}</Title>
                       </Group>
@@ -245,11 +259,18 @@ export default function QueuePage() {
                         ))}
                       </Group>
                       <Group>
-                        {<div className={classes.previewContainer}>
-                          {ticket.images.map((image, index) => (
-                            <img key={index} src={image} alt={`Ticket Image ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-                          ))}
-                        </div>}
+                        {
+                          <div className={classes.previewContainer}>
+                            {ticket.images.map((image, index) => (
+                              <img
+                                key={index}
+                                src={image}
+                                alt={`Ticket Image ${index + 1}`}
+                                style={{ maxWidth: "100%", margin: "10px 0" }}
+                              />
+                            ))}
+                          </div>
+                        }
                       </Group>
                       <div className="mt-5">
                         Hacker Name: <Badge>{ticket.creator ? ticket.creator : "No Name Provided"}</Badge>
@@ -258,7 +279,12 @@ export default function QueuePage() {
                         Location: <Badge>{ticket.location}</Badge>
                       </div>
                       <div className="mt-5">
-                        Discord: <Badge>{ticket.discord ? ticket.discord : "No Discord Provided"}</Badge>
+                        Discord:{" "}
+                        <Badge>
+                          {ticket.discord
+                            ? ticket.discord
+                            : "No Discord Provided"}
+                        </Badge>
                       </div>
                       <Group className="mt-5" grow>
                         <Button
@@ -275,6 +301,9 @@ export default function QueuePage() {
                           Unclaim
                         </Button>
                       </Group>
+		      <Box className="w-full mt-6">
+                      	<Chat popOutLink={true} />
+                      </Box>
                     </Card>
                   </Group>
                 )

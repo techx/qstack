@@ -36,12 +36,22 @@ export default function Leaderboard() {
           parseFloat(computeNormalizedRating(a.average_rating, a.num_ratings))
         );
       });
+
+      const filterMentors = (rankings: mentor[]): mentor[] => {
+        return rankings.filter((mentor) => mentor.num_resolved_tickets > 0);
+      };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newRankings = rankings.map((mentor: mentor, idx: any) => ({
         ...mentor,
         rank: idx + 1,
       }));
-      setRankings(newRankings);
+      // TODO: THIS IS NOT WORKING
+      console.log("made it in here")
+      console.log("newrankings", newRankings)
+      const filteredRankings = filterMentors(newRankings);
+      setRankings(filteredRankings);
+      console.log("filtered rankings", filteredRankings)
+      // setRankings(newRankings);
       setLoading(false);
     } else {
       navigate("/error");
@@ -65,7 +75,9 @@ export default function Leaderboard() {
         style={{ padding: "2rem", backgroundColor: "#20232a", color: "white" }}
         shadow="xs"
       >
-        {rankings.map((mentor) => (
+        
+        {
+        rankings.map((mentor) => (
           <Group
             key={mentor.name}
             style={{

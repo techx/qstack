@@ -5,6 +5,7 @@ from authlib.integrations.flask_client import OAuth
 from apiflask import APIFlask
 from flask import redirect, render_template, session, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 from server.config import APP_SECRET_KEY
 
 STATIC_FOLDER = "../client/dist"
@@ -21,6 +22,9 @@ db = SQLAlchemy()
 
 app.secret_key = APP_SECRET_KEY
 app.config.from_pyfile("config.py")
+
+socketio = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*")
+
 
 with app.app_context():
     from server.controllers import api

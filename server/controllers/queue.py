@@ -10,6 +10,7 @@ from flask import (
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
+from server.controllers.chat import close_ticket_room
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
 from server.plume.utils import get_info
@@ -69,6 +70,9 @@ def unclaim():
     ticket.claimedAt = None
 
     db.session.commit()
+
+    close_ticket_room(ticket.id, "ticket unclaimed. end of chat")
+
     return {"message": "Ticket unclaimed!"}
 
 
@@ -81,6 +85,9 @@ def resolve():
     ticket_id = int(data["id"])
     ticket = Ticket.query.get(ticket_id)
     ticket.status = "awaiting_feedback"
+    
+    if not user.resolved_tickets:
+        user.resolved_tickets = 0
 
     user.resolved_tickets = user.resolved_tickets + 1
 
@@ -112,7 +119,7 @@ def ranking():
     info = get_info(uids)
     ranking = []
     for mentor in mentors:
-        if len(mentor.ratings) > 0:
+        if mentor.ratings and len(mentor.ratings) > 0:
             mentor_rating = sum(mentor.ratings) / len(mentor.ratings)
             ranking.append(
                 (

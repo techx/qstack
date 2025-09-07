@@ -36,31 +36,32 @@ def create_qstack_connection():
     """
     Initiate a connection to qstack db
     """
-    conn = psycopg2.connect(
-        host="database",  # service name in docker-compose.yml
-        port=5432,
-        dbname="qstackdb",
-        user="postgres",
-        password="password",
-    )
-    cur = conn.cursor()
-    # cur.execute("ROLLBACK")
-    # conn.commit()
-    return conn, cur
-
-    # uncommented part use for local run, not for docker
-    # url = urlparse(DATABASE_URL)
+    # uncomment code for local run
     # conn = psycopg2.connect(
-    #     host=url.hostname,
-    #     port=url.port,
-    #     database=url.path[1:],
-    #     user=url.username,
-    #     password=url.password
+    #     host="database", # service name in docker-compose.yml
+    #     port=5432,
+    #     dbname="qstackdb",
+    #     user="postgres",
+    #     password="password"
     # )
     # cur = conn.cursor()
     # cur.execute("ROLLBACK")
     # conn.commit()
     # return conn, cur
+
+    # uncomment code below for deployment
+    url = urlparse(DATABASE_URL)
+    conn = psycopg2.connect(
+        host=url.hostname,
+        port=url.port,
+        database=url.path[1:],
+        user=url.username,
+        password=url.password,
+    )
+    cur = conn.cursor()
+    cur.execute("ROLLBACK")
+    conn.commit()
+    return conn, cur
 
 
 def init_new_users_table():

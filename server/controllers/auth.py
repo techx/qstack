@@ -78,7 +78,7 @@ def callback():
     info = plume_resp[user_id]
     session["user_id"] = user_id
     session["user_name"] = info["name"]
-    # session["user_email"] = info["email"]
+    session["user_email"] = info["email"]
 
     # Check if user exists in qstack database, create if not
     user = User.query.filter_by(id=user_id).first()
