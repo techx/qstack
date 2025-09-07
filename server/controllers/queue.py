@@ -1,9 +1,19 @@
-from flask import current_app as app, url_for, redirect, session, request, send_file, jsonify
+from flask import (
+    current_app as app,
+    url_for,
+    redirect,
+    session,
+    request,
+    send_file,
+    jsonify,
+)
 from server import db
 from authlib.integrations.flask_client import OAuth
 from apiflask import APIBlueprint, abort
+from server.controllers.chat import close_ticket_room
 from server.models import User, Ticket
 from server.controllers.auth import auth_required_decorator
+from server.plume.utils import get_info
 
 queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 
@@ -13,17 +23,15 @@ queue = APIBlueprint("queue", __name__, url_prefix="/queue")
 def get():
     tickets = []
     for ticket in Ticket.query.all():
-        creator = User.query.get(ticket.creator_id)
         if ticket.status != "awaiting_feedback":
-            tickets.append(dict(ticket.map(), creator=creator.name))
+            tickets.append(dict(ticket.map()))
     return jsonify(tickets)
 
 
 @queue.route("/claim", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def claim():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -45,8 +53,7 @@ def claim():
 @queue.route("/unclaim", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def unclaim():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
@@ -63,19 +70,24 @@ def unclaim():
     ticket.claimedAt = None
 
     db.session.commit()
+
+    close_ticket_room(ticket.id, "ticket unclaimed. end of chat")
+
     return {"message": "Ticket unclaimed!"}
 
 
 @queue.route("/resolve", methods=["POST"])
 @auth_required_decorator(roles=["mentor", "hacker", "admin"])
 def resolve():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     data = request.get_json()
     ticket_id = int(data["id"])
     ticket = Ticket.query.get(ticket_id)
     ticket.status = "awaiting_feedback"
+    
+    if not user.resolved_tickets:
+        user.resolved_tickets = 0
 
     user.resolved_tickets = user.resolved_tickets + 1
 
@@ -88,8 +100,7 @@ def resolve():
 @queue.route("/claimed")
 @auth_required_decorator(roles=["mentor", "admin"])
 def claimed():
-    email = session["user"]["userinfo"]["email"]
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(id=session["user_id"]).first()
 
     for ticket in Ticket.query.filter(Ticket.claimant_id is not None).all():
         if ticket.claimant_id == user.id and ticket.status == "claimed":
@@ -98,19 +109,26 @@ def claimed():
     return {"claimed": None}
 
 
+# Leaderboard
 @queue.route("/ranking", methods=["GET"])
 @auth_required_decorator(roles=["mentor", "admin"])
 def ranking():
     mentors = User.query.filter_by(role="mentor")
+    uids = [u.id for u in mentors]
+
+    info = get_info(uids)
     ranking = []
     for mentor in mentors:
-        if len(mentor.ratings) > 0:
-            mentor_rating = sum(mentor.ratings)/len(mentor.ratings)
-            ranking.append((mentor.resolved_tickets, len(
-                mentor.ratings), mentor.name, mentor_rating))
-        else:
-            ranking.append((mentor.resolved_tickets, len(
-                mentor.ratings), mentor.name, 0))
+        if mentor.ratings and len(mentor.ratings) > 0:
+            mentor_rating = sum(mentor.ratings) / len(mentor.ratings)
+            ranking.append(
+                (
+                    mentor.resolved_tickets,
+                    len(mentor.ratings),
+                    info[mentor.id]["name"],
+                    mentor_rating,
+                )
+            )
 
     ranking = sorted(ranking, key=lambda x: (x[0], x[2]), reverse=True)
 
@@ -122,7 +140,7 @@ def ranking():
             "num_resolved_tickets": rank[0],
             "num_ratings": rank[1],
             "name": rank[2],
-            "average_rating": rank[3]
+            "average_rating": rank[3],
         }
         val += 1
         rankings.append(status)

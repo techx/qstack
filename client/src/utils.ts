@@ -2,5 +2,6 @@ export const computeNormalizedRating = (
   averageRating: number,
   totalTickets: number
 ) => {
-  return ((averageRating * totalTickets + 6) / (totalTickets + 2)).toFixed(3);
+  if (totalTickets == 0) return "0";
+  return ((averageRating * totalTickets) / (totalTickets)).toFixed(3);
 };

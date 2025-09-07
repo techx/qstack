@@ -2,15 +2,17 @@ from server import db
 from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, ARRAY, DateTime
 from sqlalchemy.orm import relationship
 
+from server.plume.utils import get_info
+
 
 class Ticket(db.Model):
     __tablename__ = "tickets"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    creator_id = Column(Integer, ForeignKey("users.id"))
+    creator_id = Column(String, ForeignKey("users.id"))
     creator = relationship("User", foreign_keys=[creator_id])
 
-    claimant_id = Column(Integer, ForeignKey("users.id"))
+    claimant_id = Column(String, ForeignKey("users.id"))
     claimant = relationship("User", foreign_keys=[claimant_id])
 
     question = Column(Text, nullable=False)
@@ -45,6 +47,8 @@ class Ticket(db.Model):
         self.tags = data["tags"]
 
     def map(self):
+        info = get_info([str(self.creator_id), str(self.claimant_id)])
+        
         return {
             "id": self.id,
             "question": self.question,
@@ -53,10 +57,10 @@ class Ticket(db.Model):
             "tags": self.tags,
             "location": self.location,
             "images": self.images,
-            "creator": self.creator_id,
+            "creator": info[str(self.creator_id)]["name"],
             "discord": self.creator.discord,
             "createdAt": self.createdAt,
             "status": self.status,
-            "mentor_name": self.claimant.name if self.claimant else None,
+            "mentor_name": info[str(self.claimant_id)]["name"] if self.claimant else None,
             "mentor_id": self.claimant_id
         }

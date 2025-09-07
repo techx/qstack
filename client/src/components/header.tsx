@@ -47,6 +47,8 @@ export default function HeaderNav() {
   return (
     <AppShell
       navbar={{ width: 250, breakpoint: "sm", collapsed: { mobile: !opened } }}
+      w="100%"
+      h="100%"
     >
       <AppShell.Header>
         <Burger
@@ -107,7 +109,7 @@ export default function HeaderNav() {
         />
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main w="100%" h="100%">
         <Outlet />
       </AppShell.Main>
     </AppShell>

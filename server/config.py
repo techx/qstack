@@ -17,11 +17,11 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
     "SQLALCHEMY_DATABASE_URI", "postgresql://postgres:password@database/qstackdb"
 )
 
-AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
-AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
-AUTH_USERNAME = os.environ.get("AUTH_USERNAME")
-AUTH_PASSWORD = os.environ.get("AUTH_PASSWORD")
-AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
+# AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
+# AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
+# AUTH_USERNAME = os.environ.get("AUTH_USERNAME")
+# AUTH_PASSWORD = os.environ.get("AUTH_PASSWORD")
+# AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
 APP_SECRET_KEY = os.environ.get("APP_SECRET_KEY")
 MENTOR_PASS = os.environ.get("MENTOR_PASS")
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
@@ -31,5 +31,5 @@ ENV = os.environ.get("ENVIRONMENT", "development")
 
 AUTH_ADMINS = [
     {"name": "HackMIT", "email": "admin@hackmit.org"},
-    {"name": "HackMIT", "email": "team@hackmit.org"}
+    {"name": "HackMIT", "email": "team@hackmit.org"},
 ]

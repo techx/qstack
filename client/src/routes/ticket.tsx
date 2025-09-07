@@ -1,38 +1,35 @@
-import { useEffect, useState, useCallback } from "react";
 import {
-  Container,
-  Paper,
-  Title,
-  Text,
-  TextInput,
-  TagsInput,
-  Button,
-  LoadingOverlay,
-  Group,
-  Flex,
   Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  Flex,
+  Group,
   HoverCard,
+  LoadingOverlay,
+  Paper,
   Rating,
   rem,
   Space,
-  Textarea
+  TagsInput,
+  Text,
+  Textarea,
+  TextInput,
+  Title,
 } from "@mantine/core";
-import { IconUpload, IconPhoto } from "@tabler/icons-react";
+import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
+import { notifications } from "@mantine/notifications";
 import { RichTextEditor } from "@mantine/tiptap";
+import { IconPhoto, IconUpload } from "@tabler/icons-react";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { Placeholder } from "@tiptap/extensions";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { all, createLowlight } from "lowlight";
+import { useCallback, useEffect, useState } from "react";
 import * as ticket from "../api/ticket";
-import { notifications } from "@mantine/notifications";
-import {
-  Dropzone,
-  IMAGE_MIME_TYPE,
-  FileWithPath,
-} from "@mantine/dropzone";
+import Chat from "../components/chat";
 import classes from "./root.module.css";
 
 interface mentor {
@@ -53,7 +50,6 @@ interface ticket {
   images: Array<string>;
 }
 
-
 export default function TicketPage() {
   const [question, setQuestion] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -68,8 +64,12 @@ export default function TicketPage() {
   const lowlight = createLowlight(all);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [soundPlayed, setSoundPlayed] = useState<boolean>(false);
-  const [ratings, setRatings] = useState<Map<number, number>>(new Map<number, number>());
-  const [reviews, setReviews] = useState<Map<number, string>>(new Map<number, string>);
+  const [ratings, setRatings] = useState<Map<number, number>>(
+    new Map<number, number>()
+  );
+  const [reviews, setReviews] = useState<Map<number, string>>(
+    new Map<number, string>()
+  );
 
   const [resolvedTickets, setResolvedTickets] = useState<Array<ticket>>([]);
 
@@ -79,8 +79,6 @@ export default function TicketPage() {
         StarterKit.configure({
           codeBlock: false,
         }),
-        Underline,
-        Link,
         CodeBlockLowlight.configure({
           lowlight,
         }),
@@ -90,7 +88,7 @@ export default function TicketPage() {
       editable: !active,
       onUpdate({ editor }) {
         const htmlContent = editor.getHTML();
-        const sanitizedHTML = htmlContent.replace(/ +/g, '&nbsp;');
+        const sanitizedHTML = htmlContent.replace(/ +/g, "&nbsp;");
         setContent(sanitizedHTML);
       },
     },
@@ -104,7 +102,7 @@ export default function TicketPage() {
         setClaimed(true);
         if (!soundPlayed) {
           const playSound = () => {
-            const audio = new Audio('/notif.mp3');
+            const audio = new Audio("/notif.mp3");
             audio.play();
           };
           playSound();
@@ -150,7 +148,15 @@ export default function TicketPage() {
       }
       if (!res.active) setActive(false);
     });
-  }, [setActive, setQuestion, setContent, setLocation, setTags, setImages, editor]);
+  }, [
+    setActive,
+    setQuestion,
+    setContent,
+    setLocation,
+    setTags,
+    setImages,
+    editor,
+  ]);
 
   useEffect(() => {
     ticket.getTags().then((res) => setTagsList(res.tags));
@@ -204,7 +210,7 @@ export default function TicketPage() {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const rating = ratings.get(ratedTicket.id) as number || 3;
+    const rating = ratings.get(ratedTicket.id) as number;
     const review = reviews.get(ratedTicket.id) || "";
     const res = await ticket.rate(
       ratedTicket.id,
@@ -230,7 +236,6 @@ export default function TicketPage() {
     }
     setIsSubmitting(false);
   };
-
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showNotif = (res: any) => {
@@ -261,13 +266,13 @@ export default function TicketPage() {
     showNotif(res);
   };
 
-  const handleUnclaim = async () => {
-    const res = await ticket.unclaim();
-    showNotif(res);
-    if (res.ok) {
-      setClaimed(false);
-    }
-  };
+  // const handleUnclaim = async () => {
+    // const res = await ticket.unclaim();
+    // showNotif(res);
+    // if (res.ok) {
+      // setClaimed(false);
+    // }
+  // };
 
   const handleSubmit = async () => {
     const res = await ticket.submit({
@@ -277,7 +282,11 @@ export default function TicketPage() {
       tags: tags,
       images: images,
     });
-    if (res.ok) getTicket();
+    if (res.ok) {
+      sessionStorage.setItem("chatName", "default name"); // Ensure this line is present
+
+      getTicket();
+    }
     showNotif(res);
   };
 
@@ -296,7 +305,9 @@ export default function TicketPage() {
   };
 
   const handleDrop = async (newFiles: Array<FileWithPath>) => {
-    const newImages: Array<string> = await Promise.all(newFiles.map(file => fileToBase64(file))) as Array<string>;
+    const newImages: Array<string> = (await Promise.all(
+      newFiles.map((file) => fileToBase64(file))
+    )) as Array<string>;
     setImages((prevImages: Array<string>) => [...prevImages, ...newImages]);
   };
 
@@ -315,18 +326,18 @@ export default function TicketPage() {
     }
   };
 
-  const previews = (images: Array<string>, removeImage: (file: string) => void) => {
+  const previews = (
+    images: Array<string>,
+    removeImage: (file: string) => void
+  ) => {
     if (images.length === 0) {
       return <Group></Group>;
     }
     return images.map((image, index) => (
       <div key={index}>
-        <img
-          src={image}
-          alt={`image-${index}`}
-        />
+        <img src={image} alt={`image-${index}`} />
         <button
-          style={{ position: 'absolute', top: 0, right: 0 }}
+          style={{ position: "absolute", top: 0, right: 0 }}
           onClick={() => removeImage(image)}
         >
           X
@@ -437,17 +448,16 @@ export default function TicketPage() {
               h={200}
               w={520}
               disabled={active}
-              onReject={() => notifications.show({
-                title: "Error",
-                message: "Failed to upload image. Check that your image is less than 3MB.",
-                color: "red",
-              })}
+              onReject={() =>
+                notifications.show({
+                  title: "Error",
+                  message:
+                    "Failed to upload image. Check that your image is less than 3MB.",
+                  color: "red",
+                })
+              }
             >
-              <Group
-                grow
-                justify="center"
-                gap="l"
-              >
+              <Group grow justify="center" gap="l">
                 <Dropzone.Accept>
                   <IconUpload
                     style={{
@@ -514,38 +524,53 @@ export default function TicketPage() {
         <Paper p="xl" shadow="xs" className="bg-neutral-800">
           <Title className="text-center">Your ticket has been claimed!</Title>
 
-          <Text className="mt-10 text-lg">
-            Mentor Name: <Badge size="lg">{mentorData.name}</Badge>
-          </Text>
-          <Text className="mt-5 text-md">
-            Mentor Discord Contact:{" "}
-            <Badge size="lg" color="green" variant="light">
-              {mentorData.discord}
-            </Badge>
-          </Text>
-          {mentorData.location == "in person" && (
-            <Text className="mt-5 text-lg">
-              Your mentor should be with you shortly!
-            </Text>
-          )}
-          {mentorData.location == "virtual" && (
-            <Text className="mt-5 text-lg">
-              Your mentor is virtual! <br /> Please join their video call link:{" "}
-              <a href={mentorData.zoomlink.startsWith('http') ? mentorData.zoomlink : `https://${mentorData.zoomlink}`}>
-                {mentorData.zoomlink}
-              </a>
+          <Container className="e-null" size="sm">
+            <Group h="100%" w="100%">
+              <Card className="min-h-0" w="100%">
+                <Text className="pt-10 text-lg">
+                  Mentor Name:{" "}
+                  <Badge size="lg">
+                    {mentorData.name ? mentorData.name : "No Name Provided"}
+                  </Badge>
+                </Text>
+                <Text className="pt-5 text-md">
+                  Mentor Discord Contact:{" "}
+                  <Badge size="lg" color="green" variant="light">
+                    {mentorData.discord}
+                  </Badge>
+                </Text>
+                {mentorData.location == "in person" && (
+                  <Text className="pt-5 text-lg">
+                    Your mentor should be with you shortly!
+                  </Text>
+                )}
+                {mentorData.location == "virtual" && (
+                  <Text className="pt-5 text-lg">
+                    Your mentor is virtual! <br /> Please join their video call
+                    link:{" "}
+                    <a
+                      href={
+                        mentorData.zoomlink.startsWith("http")
+                          ? mentorData.zoomlink
+                          : `https://${mentorData.zoomlink}`
+                      }
+                    >
+                      {mentorData.zoomlink}
+                    </a>
+                  </Text>
+                )}
 
-            </Text>
-          )}
-
-          <Group grow className="mt-5">
-            <Button onClick={() => handleResolve(mentorData.id)}>
-              Mark as Resolved
-            </Button>
-            <Button color="red" onClick={() => handleUnclaim()}>
-              Return to Queue
-            </Button>
-          </Group>
+                <Group grow className="py-5">
+                  <Button onClick={() => handleResolve(mentorData.id)}>
+                    Mark as Resolved
+                  </Button>
+                </Group>
+                <Box className="w-full flex flex-col min-h-0">
+                  <Chat popOutLink={true} />
+                </Box>
+              </Card>
+            </Group>
+          </Container>
         </Paper>
       )}
 
@@ -567,9 +592,12 @@ export default function TicketPage() {
             }}
           >
             <Title className="text-center" style={{ color: "#FFF" }}>
-              Rate Your Mentor: {ticket.mentor_name}
+              Rate Your Mentor:{" "}
+              {ticket.mentor_name ? ticket.mentor_name : "No Name Provided"}
             </Title>
-            <Text style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}>
+            <Text
+              style={{ color: "#DDD", textAlign: "center", maxWidth: "80%" }}
+            >
               Please rate the support provided by your mentor for the ticket: "
               {ticket.question}"
             </Text>
@@ -582,8 +610,10 @@ export default function TicketPage() {
             />
             <Textarea
               placeholder="Leave a review..."
-              value={reviews.get(ticket.id) || ''}
-              onChange={(event) => handleReviewChange(ticket.id, event.target.value)}
+              value={reviews.get(ticket.id) || ""}
+              onChange={(event) =>
+                handleReviewChange(ticket.id, event.target.value)
+              }
               minRows={4}
               style={{ width: "100%", maxWidth: "80%" }}
             />

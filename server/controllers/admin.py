@@ -1,3 +1,4 @@
+# from concurrent.futures import thread
 from flask import current_app as app, url_for, redirect, session, request
 from server import db
 from authlib.integrations.flask_client import OAuth
@@ -7,6 +8,7 @@ from urllib.parse import quote_plus, urlencode
 import csv
 from server.controllers.auth import auth_required_decorator
 from server.models import User, Ticket
+from server.plume.utils import get_info
 
 admin = APIBlueprint("admin", __name__, url_prefix="/admin")
 
@@ -44,14 +46,21 @@ def getTicketData():
 
     return {"total": totalTickets, "averageRating": averageRating, "averageTime": avgTimeToClaim}
 
-
+# Admin Stats
 @admin.route("/userdata")
 @auth_required_decorator(roles=["admin"])
 def getUserData():
     users = User.query.all()
+    uids = [u.id for u in users]
+    
+    info = get_info(uids)
+    
     userData = []
-
     for user in users:
-        userData.append(user.map())
+        userMap = user.map()
+
+        userMap["name"] = info[user.id]["name"] if user.id in info else None
+        userMap["email"] = info[user.id]["email"] if user.id in info else None
+        userData.append(userMap)
 
     return userData
