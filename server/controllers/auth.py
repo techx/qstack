@@ -4,6 +4,8 @@ from urllib.parse import quote_plus, urlencode
 from apiflask import APIBlueprint, abort
 from flask import current_app as app
 from flask import redirect, request, session
+from authlib.integrations.flask_client import OAuth
+
 
 from server import db
 from server.config import (
@@ -122,7 +124,8 @@ def logout():
 
 @auth.route("/discord/login")
 def discord_login():
-    if "user" not in session:
+    if "user_id" not in session:
+        print("in here")
         return redirect(FRONTEND_URL + "/api/auth/login")
 
     return oauth.discord.authorize_redirect(
@@ -133,13 +136,14 @@ def discord_login():
 def discord_exchange_token():
     data = request.get_json()
     code = data.get("code")
+    print("code", code)
 
     if not code:
         return abort(400, "Missing authorization code")
 
     # Check if user is logged in via Auth0 first
-    if "user" not in session:
-        return {"success": False, "error": "Must be logged in via Auth0 first"}
+    if "user_id" not in session:
+        return {"success": False, "error": "Must be logged first"}
 
     try:
         # Exchange code for token using the Discord OAuth client
@@ -147,25 +151,30 @@ def discord_exchange_token():
             code=code,
             redirect_uri=FRONTEND_URL + "/auth/discord/callback"
         )
-
+        print("got token", token)
         # Get Discord user profile
         resp = oauth.discord.get("users/@me", token=token)
+        print("resp", resp)
         profile = resp.json()
 
         # Extract Discord info
         discord_tag = f"{profile['username']}#{profile['discriminator']}"
         discord_id = profile['id']
+        print("discord_tag", discord_tag)
 
         # Update user in database
-        email = session["user"]["userinfo"]["email"]
+        email = session["user_email"]
+        print("email session", email)
         user = User.query.filter_by(email=email).first()
+        print("user", user)
+        print("email", email)
 
         if not user:
             return {"success": False, "error": "User not found"}
 
         user.discord = discord_tag
         db.session.commit()
-
+        print("user.discord", user.discord)
         return {"success": True, "discord_tag": discord_tag}
 
     except Exception as e:
