@@ -4,17 +4,27 @@ from urllib.parse import quote_plus, urlencode
 from apiflask import APIBlueprint, abort
 from flask import current_app as app
 from flask import redirect, request, session
+from authlib.integrations.flask_client import OAuth
+
 
 from server import db
 from server.config import (
     FRONTEND_URL,
+    BACKEND_URL,
     MENTOR_PASS,
+    # AUTH0_CLIENT_ID,
+    # AUTH0_CLIENT_SECRET,
+    # AUTH0_DOMAIN,
+    # AUTH_USERNAME,
+    # AUTH_PASSWORD,
+    DISCORD_CLIENT_ID,
+    DISCORD_CLIENT_SECRET
 )
 from server.plume.utils import get_info
 from server.models import User
 
 auth = APIBlueprint("auth", __name__, url_prefix="/auth")
-
+oauth = OAuth(app)
 
 def is_user_valid(user, valid_roles):
     if not user or not user.role:
@@ -23,6 +33,15 @@ def is_user_valid(user, valid_roles):
         return False
     return True
 
+oauth.register(
+    "discord",
+    client_id=DISCORD_CLIENT_ID,
+    client_secret=DISCORD_CLIENT_SECRET,
+    access_token_url="https://discord.com/api/oauth2/token",
+    authorize_url="https://discord.com/api/oauth2/authorize",
+    api_base_url="https://discord.com/api/",
+    client_kwargs={"scope": "identify email"},
+)
 
 def auth_required_decorator(roles):
     """
@@ -105,6 +124,61 @@ def logout():
 
     # uncomment for local
     # return redirect("http://localhost:2003/logout")
+
+@auth.route("/discord/login")
+def discord_login():
+    if "user_id" not in session:
+        print("in here")
+        return redirect(FRONTEND_URL + "/api/auth/login")
+
+    return oauth.discord.authorize_redirect(
+        redirect_uri=FRONTEND_URL + "/auth/discord/callback"
+    )
+
+@auth.route("/discord/exchange-token", methods=["POST"])
+def discord_exchange_token():
+    data = request.get_json()
+    code = data.get("code")
+    print("code", code)
+
+    if not code:
+        return abort(400, "Missing authorization code")
+
+    # Check if user is logged in via Auth0 first
+    if "user_id" not in session:
+        return {"success": False, "error": "Must be logged first"}
+
+    try:
+        # Exchange code for token using the Discord OAuth client
+        token = oauth.discord.fetch_access_token(
+            code=code,
+            redirect_uri=FRONTEND_URL + "/auth/discord/callback"
+        )
+        print("got token", token)
+        # Get Discord user profile
+        resp = oauth.discord.get("users/@me", token=token)
+        print("resp", resp)
+        profile = resp.json()
+
+        # Extract Discord info
+        discord_tag = f"{profile['username']}#{profile['discriminator']}"
+        # discord_id = profile['id']
+
+        user = User.query.filter_by(id=session["user_id"]).first()
+
+        print("user", user)
+
+        if not user:
+            return {"success": False, "error": "User not found"}
+
+        user.discord = discord_tag
+        db.session.commit()
+        print("user.discord", user.discord)
+        return {"success": True, "discord_tag": discord_tag}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 
 
 @auth.route("/whoami")

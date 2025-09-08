@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 
 import HeaderNav from "./components/header";
+import DiscordCallback from "./routes/discordCallback";
 import AdminPanel from "./routes/admin";
 import ChatPage from "./routes/chat";
 import HomePage from "./routes/home";
@@ -38,6 +39,7 @@ const router = createBrowserRouter(
       <Route index path="/leaderboard" element={<Leaderboard />} />
       <Route index path="/chat" element={<ChatPage />} />
       <Route index path="/stats" element={<AdminPanel />} />
+      <Route path="/auth/discord/callback" element={<DiscordCallback />} />
     </Route>
   )
 );
