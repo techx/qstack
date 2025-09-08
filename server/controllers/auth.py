@@ -162,15 +162,11 @@ def discord_exchange_token():
 
         # Extract Discord info
         discord_tag = f"{profile['username']}#{profile['discriminator']}"
-        discord_id = profile['id']
-        print("discord_tag", discord_tag)
+        # discord_id = profile['id']
 
-        # Update user in database
-        email = session["user_email"]
-        print("email session", email)
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(id=session["user_id"]).first()
+
         print("user", user)
-        print("email", email)
 
         if not user:
             return {"success": False, "error": "User not found"}
