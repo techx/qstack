@@ -1,8 +1,14 @@
-import { Paper, Text, Title, Container, Anchor, Button, Group, Badge } from "@mantine/core";
+import { Paper, Text, Title, Container, Anchor, Group, Badge } from "@mantine/core";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [user, setUser] = useState(null);
+  type User = {
+    loggedIn: boolean;
+    discord?: boolean;
+  };
+
+  const [user, setUser] = useState<User | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,8 +64,8 @@ export default function HomePage() {
             <Paper p="md" className="bg-neutral-700" mb="md">
               <Group>
                 <div style={{ flex: 1 }}>
-                  <Group spacing="xs">
-                    <Text weight={500}>{user.discord}</Text>
+                  <Group gap="xs">
+                    <Text fw={500}>{user.discord}</Text>
                     <Badge color="green" size="sm">Connected</Badge>
                   </Group>
                   <Text size="sm" color="dimmed">
