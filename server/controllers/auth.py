@@ -120,8 +120,8 @@ def callback():
 @auth.route("/logout")
 def logout():
     session.clear()
-    return redirect("https://plume.hackmit.org/logout")
-
+    # return redirect("https://plume.hackmit.org/logout")
+    return redirect("https://help.hackmit.org")
     # uncomment for local
     # return redirect("http://localhost:2003/logout")
 
