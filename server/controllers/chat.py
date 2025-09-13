@@ -115,9 +115,18 @@ def connect_handler(_auth=None):
         return
     user, ticket, room, name = ctx
     join_room(room)
-    name, role = chat_partner_metadata(user, ticket)
-    print("connect", name, role)
-    emit("partner_metadata", {"name": name, "role": role})
+    partner_name, role = chat_partner_metadata(user, ticket)
+    print("connect", partner_name, role)
+    emit("partner_metadata", {"name": partner_name, "role": role})
+    
+    from server.plume.utils import get_info
+    user_info = get_info([user.id])
+    actual_name = user_info[user.id]["name"] if user.id in user_info else user.role
+    
+    ts = floor(time())
+    join_message = f"{actual_name} joined"
+    join_data = {"ts": ts, "message": join_message}
+    emit("system_message", join_data, to=room, include_self=False)
 
 
 @socketio.on("send_message")
