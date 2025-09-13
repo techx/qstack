@@ -36,6 +36,11 @@ const startOfChatMsg: SystemMessageData = {
   message: "start of live chat",
 };
 
+const historyWarningMsg: SystemMessageData = {
+  type: "system",
+  message: "History doesn't save, do not exit this page",
+};
+
 export type ChatProps = {
   popOutLink: boolean;
 };
@@ -47,7 +52,10 @@ export default function Chat({ popOutLink }: ChatProps) {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [partnerName, setPartnerName] = useState<string>("Unknown");
   const [partnerRole, setPartnerRole] = useState<string>("");
-  const [messages, setMessages] = useState<ChatMessageData[]>([startOfChatMsg]);
+  const [messages, setMessages] = useState<ChatMessageData[]>([
+    startOfChatMsg,
+    historyWarningMsg,
+  ]);
   const [isAtBottom, setIsAtBottom] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
@@ -77,6 +85,16 @@ export default function Chat({ popOutLink }: ChatProps) {
     setIsLoading(socket.active);
     // if socket.active is false, disable message box
     setIsActive(socket.active);
+  };
+
+  const playNotificationSound = () => {
+    if (document.hidden) {
+      const audio = new Audio("/notif.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(() => {
+        console.log("Can't play notifciation sound");
+      });
+    }
   };
 
   const sendMessage = (message: string) => {
@@ -136,6 +154,7 @@ export default function Chat({ popOutLink }: ChatProps) {
         message: msg.message.toString(),
       };
       setMessages((currMsgs) => currMsgs.concat(newMsg));
+      playNotificationSound();
     });
 
     socket.on("system_message", (msg) => {
@@ -145,6 +164,9 @@ export default function Chat({ popOutLink }: ChatProps) {
         message: msg.message,
       };
       setMessages((currMsgs) => currMsgs.concat(newMsg));
+      if (msg.message.includes("joined")) {
+        playNotificationSound();
+      }
     });
 
     socket.on("partner_metadata", (msg) => {
